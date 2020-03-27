@@ -509,7 +509,7 @@ publish {
   bintrayKey = key
   userOrg = 'hippy'
   repoName = 'Hippy'
-  groupId = 'com.tencent.hippy'N
+  groupId = 'com.tencent.hippy'
   artifactId = 'hippy-release'
   publishVersion = '2.0.2'
   dryRun = false
