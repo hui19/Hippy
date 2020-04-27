@@ -21,6 +21,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Build;
@@ -38,7 +39,6 @@ import android.widget.FrameLayout;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
-import com.tencent.mtt.hippy.R;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
@@ -79,6 +79,10 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 	{
 		void onRequestClose(DialogInterface dialog);
 	}
+
+	private final int STYLE_THEME_FULL_SCREEN_DIALOG     = 0;
+  private final int STYLE_THEME_ANIMATED_FADE_DIALOG   = 1;
+  private final int STYLE_THEME_ANIMATED_SLIDE_DIALOG  = 2;
 
 	private DialogRootViewGroup				mHostView;
 	private Dialog							mDialog;
@@ -313,18 +317,18 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 		}
 
 		mPropertyRequiresNewDialog = false;
-		mAniType = R.style.Theme_FullScreenDialog;
+		mAniType = STYLE_THEME_FULL_SCREEN_DIALOG;
 		if (!TextUtils.isEmpty(mAnimationType) && mAnimationType.equals("fade"))
 		{
-			mAniType = R.style.Theme_FullScreenDialogAnimatedFade;
+			mAniType = STYLE_THEME_ANIMATED_FADE_DIALOG;
 		}
 		else if (!TextUtils.isEmpty(mAnimationType) && mAnimationType.equals("slide"))
 		{
-			mAniType = R.style.Theme_FullScreenDialogAnimatedSlide;
+			mAniType = STYLE_THEME_ANIMATED_SLIDE_DIALOG;
 		}
 		Context currentContext = getContext();
 
-		mDialog = createDialog(currentContext, mAniType);
+		mDialog = createDialog(currentContext);
 
 		mContentView = createContentView(mHostView);
 		mDialog.setContentView(mContentView);
@@ -338,13 +342,13 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 			@Override
 			public void onShow(DialogInterface dialogInterface) {
 				mOnShowListener.onShow(dialogInterface);
-				if(mAniType == R.style.Theme_FullScreenDialogAnimatedFade)
+				if(mAniType == STYLE_THEME_ANIMATED_FADE_DIALOG)
 				{
 					ObjectAnimator mAlphaAnimation = ObjectAnimator.ofFloat(mContentView, "alpha", 0.0f, 1.0f);
 					mAlphaAnimation.setDuration(200);
 					mAlphaAnimation.start();
 				}
-				else if(mAniType == R.style.Theme_FullScreenDialogAnimatedSlide)
+				else if(mAniType == STYLE_THEME_ANIMATED_SLIDE_DIALOG)
 				{
 					ObjectAnimator mAlphaAnimation = ObjectAnimator.ofFloat(mContentView, "translationY", 0);
 					mAlphaAnimation.setDuration(200);
@@ -388,11 +392,11 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 
 		mDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		mDialog.show();
-		if(mAniType == R.style.Theme_FullScreenDialogAnimatedFade)
+		if(mAniType == STYLE_THEME_ANIMATED_FADE_DIALOG)
 		{
 			mContentView.setAlpha(0);
 		}
-		else if(mAniType == R.style.Theme_FullScreenDialogAnimatedSlide)
+		else if(mAniType == STYLE_THEME_ANIMATED_SLIDE_DIALOG)
 		{
 			int nScreenHeight = getScreenHeight();
 			if (nScreenHeight != -1)
@@ -418,9 +422,26 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 		return -1;
 	}
 
-	protected Dialog createDialog(Context context, int theme)
+	protected Dialog createDialog(Context context)
 	{
-		return new Dialog(context, theme);
+    int theme = 0;
+	  if (context != null) {
+        Resources res = context.getResources();
+        theme = res.getIdentifier("HippyFullScreenDialog", "style", context.getPackageName());
+    }
+
+    Dialog dialog = new Dialog(context, theme);
+	  if (theme == 0) {
+	    Window window = dialog.getWindow();
+      if (window != null) {
+        window.requestFeature(Window.FEATURE_NO_TITLE);
+        window.setBackgroundDrawableResource(android.R.color.transparent);
+        window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams
+          .MATCH_PARENT);
+      }
+    }
+
+	  return dialog;
 	}
 
 	protected String getAnimationType()
