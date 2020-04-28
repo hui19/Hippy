@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.novoda.bintray-release'
+apply from: 'maven.gradle'
 
 ext {
     def flag = System.getenv('CI')
@@ -337,9 +337,10 @@ def dealAfterBuild(variant) {
 }
 
 def unZipAar(file) {
+  println("=======projectDir=" + projectDir.absolutePath)
     copy {
         from zipTree(file.absolutePath)
-        into ISCI.toBoolean() ? project.rootProject.projectDir.absolutePath + "/bin" : file.parentFile.absolutePath
+        into projectDir.absolutePath + "/libs"
         include 'classes.jar'
         rename 'classes.jar', 'hippy.jar'
     }
@@ -490,25 +491,5 @@ def copyAarToBin(variant) {
             }
         }
     }
-}
-
-Properties properties = new Properties()
-InputStream inputStream = project.rootProject.file('local.properties').newDataInputStream()
-properties.load( inputStream )
-
-def user = properties.getProperty('bintrayUser')
-def key = properties.getProperty('bintrayKey')
-println("bintrayUpload: bintrayUser=" + user + ", bintrayKey=" + key)
-publish {
-  bintrayUser = user
-  bintrayKey = key
-  userOrg = 'hippy'
-  repoName = 'Hippy'
-  groupId = 'com.tencent.hippy'
-  artifactId = 'hippy-release'
-  publishVersion = '2.0.2'
-  dryRun = false
-  desc = 'Hippy library for Android'
-  website = 'https://github.com/Tencent/Hippy'
 }
 
