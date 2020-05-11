@@ -167,7 +167,7 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 		}
 	}
 
-	protected void setOnRequestCloseListener(OnRequestCloseListener listener)
+	public void setOnRequestCloseListener(OnRequestCloseListener listener)
 	{
 		mOnRequestCloseListener = listener;
 	}
@@ -180,7 +180,7 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 		}
 	}
 
-	protected void setOnShowListener(DialogInterface.OnShowListener listener)
+	public void setOnShowListener(DialogInterface.OnShowListener listener)
 	{
 		mOnShowListener = listener;
 	}

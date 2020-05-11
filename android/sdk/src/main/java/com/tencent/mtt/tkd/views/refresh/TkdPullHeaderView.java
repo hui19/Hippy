@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.mtt.hippy.views.modal;
+package com.tencent.mtt.tkd.views.refresh;
 
-import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
+import android.content.Context;
+import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderView;
 
-/**
- */
-public class ShowEvent extends HippyViewEvent {
-
-  public static final String EVENT_NAME = "onShow";
-
-  public ShowEvent() {
-    super(EVENT_NAME);
-  }
-
+public class TkdPullHeaderView extends HippyPullHeaderView
+{
+	public TkdPullHeaderView(Context context)
+	{
+		super(context);
+	}
 }

@@ -13,18 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.mtt.hippy.views.modal;
+package com.tencent.mtt.tkd.views.viewpager;
 
-import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
+import com.tencent.mtt.hippy.annotation.HippyController;
+import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerItemController;
+import android.content.Context;
+import android.view.View;
 
-/**
- */
-public class ShowEvent extends HippyViewEvent {
+@HippyController(name = TkdViewPagerItemController.CLASS_NAME)
+public class TkdViewPagerItemController extends HippyViewPagerItemController
+{
+	public static final String CLASS_NAME	= "tkdViewPagerItem";
 
-  public static final String EVENT_NAME = "onShow";
-
-  public ShowEvent() {
-    super(EVENT_NAME);
-  }
-
+	@Override
+	protected View createViewImpl(Context context)
+	{
+		return new TkdViewPagerItem(context);
+	}
 }

@@ -1,3 +1,5 @@
+package com.tencent.mtt.tkd.views.audio;
+
 /* Tencent is pleased to support the open source community by making Hippy available.
  * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
  *
@@ -13,18 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.mtt.hippy.views.modal;
 
-import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
+import com.tencent.mtt.hippy.annotation.HippyController;
+import com.tencent.mtt.hippy.views.audioview.AudioViewController;
+import android.content.Context;
+import android.view.View;
 
-/**
- */
-public class ShowEvent extends HippyViewEvent {
+@HippyController(name = TkdAudioViewController.CLASS_NAME)
+public class TkdAudioViewController extends AudioViewController
+{
+    public static final String CLASS_NAME = "tkdAudioView";
 
-  public static final String EVENT_NAME = "onShow";
-
-  public ShowEvent() {
-    super(EVENT_NAME);
-  }
-
+    @Override
+    protected View createViewImpl(Context context)
+    {
+        return new TkdAudioView(context);
+    }
 }

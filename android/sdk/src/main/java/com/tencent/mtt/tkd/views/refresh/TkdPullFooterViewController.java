@@ -13,18 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.mtt.hippy.views.modal;
+package com.tencent.mtt.tkd.views.refresh;
 
-import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
+import android.content.Context;
+import android.view.View;
+import com.tencent.mtt.hippy.annotation.HippyController;
+import com.tencent.mtt.hippy.views.refresh.HippyPullFooterViewController;
 
-/**
- */
-public class ShowEvent extends HippyViewEvent {
+@HippyController(name = TkdPullFooterViewController.CLASS_NAME, isLazyLoad = true)
+public class TkdPullFooterViewController extends HippyPullFooterViewController
+{
+	public static final String CLASS_NAME = "tkdPullFooterView";
 
-  public static final String EVENT_NAME = "onShow";
-
-  public ShowEvent() {
-    super(EVENT_NAME);
-  }
-
+	@Override
+	protected View createViewImpl(Context context)
+	{
+		return new TkdPullFooterView(context);
+	}
 }

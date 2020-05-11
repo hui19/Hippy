@@ -13,18 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.mtt.hippy.views.modal;
+package com.tencent.mtt.tkd.views.text;
 
-import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
+import android.content.Context;
+import android.view.View;
+import com.tencent.mtt.hippy.annotation.HippyController;
+import com.tencent.mtt.hippy.views.text.HippyTextViewController;
 
-/**
- */
-public class ShowEvent extends HippyViewEvent {
 
-  public static final String EVENT_NAME = "onShow";
+@HippyController(name = TkdTextViewController.CLASS_NAME)
+public class TkdTextViewController extends HippyTextViewController
+{
+	public static final String CLASS_NAME = "tkdText";
 
-  public ShowEvent() {
-    super(EVENT_NAME);
-  }
-
+	@Override
+	protected View createViewImpl(Context context)
+	{
+		return new TkdTextView(context);
+	}
 }

@@ -55,9 +55,19 @@ import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerController;
 import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerItemController;
 import com.tencent.mtt.hippy.views.webview.HippyWebViewController;
+import com.tencent.mtt.tkd.views.audio.TkdAudioViewController;
+import com.tencent.mtt.tkd.views.image.TkdImageViewController;
+import com.tencent.mtt.tkd.views.modal.TkdModalHostManager;
+import com.tencent.mtt.tkd.views.refresh.TkdPullFooterViewController;
+import com.tencent.mtt.tkd.views.refresh.TkdPullHeaderViewController;
 import com.tencent.mtt.tkd.views.scroll.TkdScrollViewController;
 import com.tencent.mtt.tkd.views.list.TkdListItemViewController;
 import com.tencent.mtt.tkd.views.list.TkdListViewController;
+import com.tencent.mtt.tkd.views.text.TkdTextViewController;
+import com.tencent.mtt.tkd.views.textinput.TkdTextInputController;
+import com.tencent.mtt.tkd.views.view.TkdViewGroupController;
+import com.tencent.mtt.tkd.views.viewpager.TkdViewPagerController;
+import com.tencent.mtt.tkd.views.viewpager.TkdViewPagerItemController;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -229,9 +239,21 @@ public class HippyCoreAPI implements HippyAPIProvider
 		components.add(NavigatorController.class);
 		components.add(HippyWebViewController.class);
 		components.add(AudioViewController.class);
+
+    //TKD for QQ QB KB
     components.add(TkdScrollViewController.class);
     components.add(TkdListItemViewController.class);
     components.add(TkdListViewController.class);
+    components.add(TkdAudioViewController.class);
+    components.add(TkdImageViewController.class);
+    components.add(TkdModalHostManager.class);
+    components.add(TkdPullFooterViewController.class);
+    components.add(TkdPullHeaderViewController.class);
+    components.add(TkdTextViewController.class);
+    components.add(TkdTextInputController.class);
+    components.add(TkdViewGroupController.class);
+    components.add(TkdViewPagerController.class);
+    components.add(TkdViewPagerItemController.class);
 		return components;
 	}
 }
