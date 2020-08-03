@@ -46,6 +46,8 @@ import com.tencent.mtt.supportui.adapters.image.IDrawableTarget;
 import com.tencent.mtt.supportui.views.asyncimage.AsyncImageView;
 import com.tencent.mtt.supportui.views.asyncimage.BackgroundDrawable;
 import com.tencent.mtt.supportui.views.asyncimage.ContentDrawable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by leonardgong on 2017/12/4 0004.
@@ -234,8 +236,18 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 	{
 		if (mImageAdapter != null)
 		{
-			if (param != null) {
-				mIniProps.pushObject("extraData", param);
+			if (param == null)
+			{
+				param = new HashMap<String, Object>();
+			}
+
+			if (param instanceof Map)
+			{
+				try {
+					((Map) param).put("props", mIniProps);
+				} catch (Exception e) {
+
+				}
 			}
 
 			// 这里不判断下是取背景图片还是取当前图片怎么行？
@@ -279,7 +291,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 						}
 					}
 				}
-			}, mIniProps);
+			}, param);
 		}
 	}
 	//用户设置了,Js属性设置背景色
