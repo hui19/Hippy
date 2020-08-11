@@ -170,34 +170,32 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 						return true;
 					}
 					final String bundleUniKey = loader.getBundleUniKey();
+					final HippyRootView localRootView = rootView;
 					if (loader != null && mLoadedBundleInfo != null && !TextUtils.isEmpty(bundleUniKey) && mLoadedBundleInfo.contains(bundleUniKey))
 					{
-						notifyModuleLoaded(HippyEngine.STATUS_VARIABLE_UNINIT, "load module error. loader.getBundleUniKey=null",null);
+						notifyModuleLoaded(HippyEngine.STATUS_REPEAT_LOAD, "repeat load module. loader.getBundleUniKey=" + bundleUniKey, localRootView);
 						return true;
 					}
 
-					final HippyRootView localRootView = rootView;
 					if (!TextUtils.isEmpty(bundleUniKey)) {
+						if (mLoadedBundleInfo == null) {
+							mLoadedBundleInfo = new ArrayList<>();
+						}
+						mLoadedBundleInfo.add(bundleUniKey);
+
 						loader.load(mHippyBridge, new NativeCallback(mHandler) {
 							@Override
 							public void Call(long value, Message msg, String action) {
 								boolean success = value == 1 ? true : false;
 								if (success) {
-									if (mLoadedBundleInfo == null) {
-										mLoadedBundleInfo = new ArrayList<>();
-									}
-									mLoadedBundleInfo.add(bundleUniKey);
-									if(localRootView != null)
-										notifyModuleLoaded(HippyEngine.STATUS_OK, null, localRootView);
-									else
-										notifyModuleLoaded(HippyEngine.STATUS_WRONG_STATE, "load module error. loader.load failed. check the file.", null);
+									notifyModuleLoaded(HippyEngine.STATUS_OK, null, localRootView);
 								} else {
-									notifyModuleLoaded(HippyEngine.STATUS_WRONG_STATE, "load module error. loader.load failed. check the file.", null);
+									notifyModuleLoaded(HippyEngine.STATUS_ERR_RUN_BUNDLE, "load module error. loader.load failed. check the file.", null);
 								}
 							}
 						});
 					} else {
-						notifyModuleLoaded(HippyEngine.STATUS_VARIABLE_UNINIT, "load module error. loader.getBundleUniKey=null",null);
+						notifyModuleLoaded(HippyEngine.STATUS_VARIABLE_UNINIT, "can not load module. loader.getBundleUniKey=null",null);
 					}
 
 					return true;
