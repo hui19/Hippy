@@ -56,8 +56,9 @@ import java.util.Map;
 
 public class HippyImageView extends AsyncImageView implements CommonBorder, HippyViewBase, HippyRecycler
 {
-    public static final String IMAGE_TYPE_APNG  = "apng";
-    public static final String IMAGE_TYPE_GIF   = "gif";
+	public static final String IMAGE_TYPE_APNG  = "apng";
+	public static final String IMAGE_TYPE_GIF   = "gif";
+	public static final String IMAGE_PROPS      = "props";
 
 	private HippyMap mIniProps = new HippyMap();
 	private boolean mHasSetTempBackgroundColor = false;
@@ -244,7 +245,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 			if (param instanceof Map)
 			{
 				try {
-					((Map) param).put("props", mIniProps);
+					((Map) param).put(IMAGE_PROPS, mIniProps);
 				} catch (Exception e) {
 
 				}
