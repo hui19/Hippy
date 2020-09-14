@@ -404,7 +404,7 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 	{
 		mIsAttached = true;
 		super.onAttachedToWindow();
-		if (mDefaultSourceDrawable != null)
+		if (mDefaultSourceDrawable != null && shouldFetchImage())
 		{
 			mDefaultSourceDrawable.onDrawableAttached();
 			setContent(SOURCE_TYPE_DEFAULT_SRC);
