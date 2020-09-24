@@ -558,7 +558,15 @@ public class TextNode extends StyleNode
 				DomNode domNode = textNode.getChildAt(i);
 				if (domNode instanceof TextNode)
 				{
-					createSpanOperations(ops, sb, (TextNode) domNode, ((TextNode) domNode).mText, useChild);
+					TextNode tempNode = (TextNode)domNode;
+					CharSequence tempText = tempNode.mText;
+					if (mFontScaleAdapter != null && !TextUtils.isEmpty(tempText)) {
+						CharSequence s = mFontScaleAdapter.getEmoticonText(tempText, tempNode.mFontSize);
+						if (s != null) {
+							tempText = s;
+						}
+					}
+					createSpanOperations(ops, sb, tempNode, tempText, useChild);
 				}
 				//TODO://  image in text is not support now
 				else
