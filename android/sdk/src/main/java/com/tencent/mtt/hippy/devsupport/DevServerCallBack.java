@@ -16,6 +16,7 @@
 package com.tencent.mtt.hippy.devsupport;
 
 import java.io.File;
+import java.io.InputStream;
 
 /**
  * @author: edsheng
@@ -27,6 +28,8 @@ public interface DevServerCallBack
 {
     //The bundle is loaded successfully callback
     void onDevBundleLoadReady(File bundle);
+
+    void onDevBundleLoadReady(InputStream inputStream);
 
     void onInitDevError(Throwable e);
 }

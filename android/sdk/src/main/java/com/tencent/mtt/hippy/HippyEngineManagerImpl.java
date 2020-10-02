@@ -45,6 +45,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import java.io.File;
+import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -679,11 +680,16 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		}
 	}
 
+	@Override
+	public void onDevBundleLoadReady(InputStream inputStream) {
+
+	}
 
 	@Override
 	public void onDevBundleLoadReady(File bundle)
 	{
 		mCoreBundleLoader = new HippyFileBundleLoader(bundle.getAbsolutePath());
+		((HippyFileBundleLoader)mCoreBundleLoader).setIsDebugMode(true);
 		restartEngineInBackground();
 	}
 

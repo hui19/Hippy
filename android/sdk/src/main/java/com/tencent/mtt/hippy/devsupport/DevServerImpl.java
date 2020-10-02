@@ -31,6 +31,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Stack;
 
@@ -132,11 +133,47 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface, 
 	}
 
 	@Override
+	public void loadSubResource(String resPath, final DevServerCallBack serverCallBack) {
+		mFetchHelper.fetchBundleFromURL(new BundleFetchCallBack()
+		{
+			@Override
+			public void onSuccess(InputStream inputStream) {
+				if (serverCallBack != null) {
+					serverCallBack.onDevBundleLoadReady(inputStream);
+				}
+			}
+
+			@Override
+			public void onSuccess(File file)
+			{
+			}
+
+			@Override
+			public void onFail(Exception exception)
+			{
+				if(mDebugButtonStack.isEmpty())
+				{
+					mServerCallBack.onInitDevError(exception);
+				}
+				else
+				{
+					handleException(exception);
+				}
+			}
+		}, mServerConfig.enableRemoteDebug(), mServerConfig.getServerHost(), resPath, null);
+	}
+
+	@Override
 	public void reload(DevRemoteDebugProxy remoteDebugManager)
 	{
 		showProgressDialog();
 		mFetchHelper.fetchBundleFromURL(new BundleFetchCallBack()
 		{
+			@Override
+			public void onSuccess(InputStream inputStream) {
+
+			}
+
 			@Override
 			public void onSuccess(File file)
 			{

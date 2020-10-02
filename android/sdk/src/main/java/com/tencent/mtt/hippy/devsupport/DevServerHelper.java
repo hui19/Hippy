@@ -124,6 +124,11 @@ public class DevServerHelper
 				}
 				if (response.getStatusCode() == 200 && response.getInputStream() != null)
 				{
+					if (outputFile == null) {
+						bundleFetchCallBack.onSuccess(response.getInputStream());
+						return;
+					}
+
 					FileOutputStream fileOutputStream = null;
 					try
 					{
