@@ -29,6 +29,8 @@ public interface DevServerInterface
 {
 	void reload(DevRemoteDebugProxy remoteDebugManager);
 
+	void loadSubResource(String resPath, DevServerCallBack serverCallBack);
+
 	void setDevServerCallback(DevServerCallBack devServerCallback);
 
 	void attachToHost(HippyRootView view);

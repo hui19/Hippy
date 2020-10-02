@@ -33,6 +33,11 @@ public class DevServerImplDisable implements DevServerInterface
 
 	}
 
+	@Override
+	public void loadSubResource(String resPath, DevServerCallBack serverCallBack) {
+
+	}
+
     @Override
 	public void setDevServerCallback(DevServerCallBack devServerCallback)
 	{

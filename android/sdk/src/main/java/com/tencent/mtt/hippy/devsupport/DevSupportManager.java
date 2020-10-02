@@ -67,4 +67,8 @@ public class DevSupportManager
 	{
 		mDevImp.handleException(throwable);
 	}
+
+	public void loadSubResource(String resPath, DevServerCallBack serverCallBack) {
+		mDevImp.loadSubResource(resPath, serverCallBack);
+	}
 }
