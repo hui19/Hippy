@@ -20,20 +20,27 @@
  *
  */
 
-#ifndef CORE_MODULES_CONTEXTIFY_MODULE_H_
-#define CORE_MODULES_CONTEXTIFY_MODULE_H_
+#ifndef CORE_BASE_URI_LOADER_H_
+#define CORE_BASE_URI_LOADER_H_
 
-#include "core/modules/module-base.h"
-#include "core/napi/callback-info.h"
-#include "core/napi/js-native-api-types.h"
+#include <string>
+#include <vector>
+#include <memory>
 
-class Scope;
+namespace hippy {
+namespace base {
 
-class ContextifyModule : public ModuleBase {
+class UriLoader {
  public:
-  explicit ContextifyModule(){};
-  void RunInThisContext(const hippy::napi::CallbackInfo& info);
-  void LoadUriContent(const hippy::napi::CallbackInfo& info);
-};
+  UriLoader() {};
+  virtual ~UriLoader(){};
 
-#endif  // CORE_MODULES_CONTEXTIFY_MODULE_H_
+  virtual std::string Normalize(const std::string& uri) = 0;
+  virtual std::string Load(const std::string& uri) = 0;
+  virtual std::unique_ptr<std::vector<char>> LoadBytes(const std::string& uri) = 0;
+};
+}  // namespace base
+} // namespace hippy
+
+
+#endif  // CORE_BASE_URI_LOADER_H_

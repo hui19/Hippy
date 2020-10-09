@@ -31,6 +31,8 @@
 #include "core/engine.h"
 #include "core/napi/js-native-api-types.h"
 #include "core/napi/js-native-api.h"
+#include "core/task/worker-task-runner.h"
+#include "core/base/uri-loader.h"
 
 class JavaScriptTaskRunner;
 class ModuleBase;
@@ -49,6 +51,9 @@ class Scope {
   using RegisterMap = hippy::base::RegisterMap;
   using CtxValue = hippy::napi::CtxValue;
   using Ctx = hippy::napi::Ctx;
+  using UriLoader = hippy::base::UriLoader;
+  using FunctionData = hippy::napi::FunctionData;
+  using BindingData = hippy::napi::BindingData;
 
   Scope(Engine* engine,
         const std::string& name,
@@ -84,11 +89,23 @@ class Scope {
     return engine_->GetJSRunner();
   }
 
+  inline std::shared_ptr<WorkerTaskRunner> GetWorkerTaskRunner() {
+    return engine_->GetWorkerTaskRunner();
+  }
+
   inline void AddTask(std::unique_ptr<hippy::base::Task> task) {
     std::shared_ptr<JavaScriptTaskRunner> runner = engine_->GetJSRunner();
     if (runner) {
       runner->PostTask(std::move(task));
     }
+  }
+
+  inline void SetUriLoader(std::shared_ptr<UriLoader> loader) {
+    loader_ = loader;
+  }
+
+  inline std::shared_ptr<UriLoader> GetUriLoader() {
+    return loader_;
   }
 
  private:
@@ -103,9 +120,10 @@ class Scope {
   std::unordered_map<std::string, std::shared_ptr<CtxValue>> module_value_map_;
   std::unordered_map<std::string, std::unique_ptr<ModuleBase>>
       module_class_map_;
-  std::vector<std::unique_ptr<hippy::napi::FunctionData>> function_data_;
-  std::unique_ptr<hippy::napi::BindingData> binding_data_;
+  std::vector<std::unique_ptr<FunctionData>> function_data_;
+  std::unique_ptr<BindingData> binding_data_;
   std::unique_ptr<ScopeWrapper> wrapper_;
+  std::shared_ptr<UriLoader> loader_;
 };
 
 #endif  // CORE_SCOPE_H_

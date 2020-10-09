@@ -36,9 +36,6 @@
 #include "core/base/thread.h"
 #include "core/task/common-task.h"
 
-namespace hippy {
-namespace base {
-
 class WorkerTaskRunner {
  public:
   WorkerTaskRunner(uint32_t pool_size);
@@ -50,7 +47,7 @@ class WorkerTaskRunner {
   void Terminate();
 
  private:
-  class WorkerThread : public Thread {
+  class WorkerThread : public hippy::base::Thread {
    public:
     explicit WorkerThread(WorkerTaskRunner*);
     ~WorkerThread();
@@ -78,7 +75,5 @@ class WorkerTaskRunner {
   bool terminated_ = false;
   std::vector<std::unique_ptr<WorkerThread>> thread_pool_;
 };
-}  // namespace base
-}  // namespace hippy
 
 #endif  // CORE_TASK_WORKER_TASK_RUNNER_H_

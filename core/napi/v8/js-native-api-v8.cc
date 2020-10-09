@@ -255,8 +255,8 @@ bool V8Ctx::RegisterGlobalInJs() {
   return global->Set(v8::String::NewFromUtf8(isolate_, "global"), global);
 }
 
-bool V8Ctx::SetGlobalVar(const std::string& name, const char* json) {
-  HIPPY_DLOG(hippy::Debug, "SetGlobalVar name = %s, json = %s", name.c_str(),
+bool V8Ctx::SetGlobalJsonVar(const std::string& name, const char* json) {
+  HIPPY_DLOG(hippy::Debug, "SetGlobalJsonVar name = %s, json = %s", name.c_str(),
              json);
   v8::HandleScope handle_scope(isolate_);
   v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
@@ -270,8 +270,27 @@ bool V8Ctx::SetGlobalVar(const std::string& name, const char* json) {
   return false;
 }
 
-std::shared_ptr<CtxValue> V8Ctx::GetGlobalVar(const std::string& name) {
-  return nullptr;
+bool V8Ctx::SetGlobalStrVar(const std::string& name, const char* str) {
+  HIPPY_DLOG(hippy::Debug, "SetGlobalJsonVar name = %s, str = %s", name.c_str(),
+             str);
+  v8::HandleScope handle_scope(isolate_);
+  v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  v8::Local<v8::Object> global = context->Global();
+  v8::Handle<v8::String> v8_str =
+      v8::String::NewFromUtf8(isolate_, str, v8::NewStringType::kNormal)
+          .ToLocalChecked();
+  return global->Set(v8::String::NewFromUtf8(isolate_, name.c_str()), v8_str);
+}
+
+std::shared_ptr<CtxValue> V8Ctx::GetGlobalStrVar(const std::string& name) {
+  HIPPY_DLOG(hippy::Debug, "GetGlobalStrVar name = %s");
+  v8::HandleScope handle_scope(isolate_);
+  v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  v8::Local<v8::Object> global = context->Global();
+  v8::Handle<v8::Value> value = global->Get(v8::String::NewFromUtf8(isolate_, name.c_str()));
+  return std::make_shared<V8CtxValue>(isolate_, value);
 }
 
 std::shared_ptr<CtxValue> V8Ctx::GetProperty(
@@ -404,8 +423,8 @@ std::shared_ptr<CtxValue> GetInternalBindingFn(std::shared_ptr<Scope> scope) {
   v8::Local<v8::Context> v8_context = ctx->context_persistent_.Get(isolate);
   v8::Context::Scope context_scope(v8_context);
 
-  // GetInternalBindingFn ÊÇÏò V8 ×¢²á JS Function
-  // GetInternalBinding ÊÇ JS µ÷ÓÃ Function µÄÊµ¼ÊÖ´ĞĞº¯Êı
+  // GetInternalBindingFn æ˜¯å‘ V8 æ³¨å†Œ JS Function
+  // GetInternalBinding æ˜¯ JS è°ƒç”¨ Function çš„å®é™…æ‰§è¡Œå‡½æ•°
   v8::Handle<v8::Function> v8_function =
       v8::Function::New(
           v8_context, GetInternalBinding,

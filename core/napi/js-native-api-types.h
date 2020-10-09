@@ -75,8 +75,9 @@ class Ctx {
   virtual ~Ctx() { HIPPY_DLOG(hippy::Debug, "~Ctx"); };
 
   virtual bool RegisterGlobalInJs() = 0;
-  virtual bool SetGlobalVar(const std::string& name, const char* json) = 0;
-  virtual std::shared_ptr<CtxValue> GetGlobalVar(const std::string& name) = 0;
+  virtual bool SetGlobalJsonVar(const std::string& name, const char* json) = 0;
+  virtual bool SetGlobalStrVar(const std::string& name, const char* str) = 0;
+  virtual std::shared_ptr<CtxValue> GetGlobalStrVar(const std::string& name) = 0;
   virtual std::shared_ptr<CtxValue> GetProperty(
       const std::shared_ptr<CtxValue>& object,
       const std::string& name) = 0;

@@ -36,7 +36,7 @@ namespace base {
 bool HippyFile::SaveFile(const char* file_path,
                          std::shared_ptr<std::vector<char>> content,
                          std::ios::openmode mode) {
-  HIPPY_DLOG(hippy::Debug, "SaveFile file_path = %s", file_path);
+  HIPPY_LOG(hippy::Debug, "SaveFile file_path = %s", file_path);
   std::ofstream file(file_path, mode);
   if (file.is_open()) {
     file.write(content->data(), content->size());
@@ -56,8 +56,7 @@ std::unique_ptr<std::vector<char>> HippyFile::ReadFile(const char* file_path,
   if (!file.fail()) {
     file.seekg(0, std::ios::end);
     int size = file.tellg();
-    if (is_auto_fill) {  // Hippy场景
-                         // JSC需要末尾补结束符，此处多分配一个字节，避免之后的操作拷贝
+    if (is_auto_fill) { 
       size += 1;
     }
     file_data.resize(size);
@@ -126,38 +125,6 @@ int HippyFile::CheckDir(const char* path, int mode) {
   HIPPY_DLOG(hippy::Debug, "CheckDir path = %s", path);
   return access(path, mode);
 };
-
-#ifdef OS_ANDROID
-
-std::unique_ptr<std::vector<char>> HippyFile::ReadAssetFile(
-    AAssetManager* asset_manager,
-    const char* file_path,
-    bool is_auto_fill) {
-  HIPPY_LOG(hippy::Debug, "ReadAssetFile file_path = %s", file_path);
-  auto asset =
-      AAssetManager_open(asset_manager, file_path, AASSET_MODE_STREAMING);
-  std::vector<char> file_data;
-  if (asset) {
-    int size = AAsset_getLength(asset);
-    if (is_auto_fill) {
-      size += 1;
-    }
-    file_data.resize(size);
-    int offset = 0;
-    int readbytes;
-    while ((readbytes = AAsset_read(asset, file_data.data() + offset,
-                                    file_data.size() - offset)) > 0) {
-      offset += readbytes;
-    }
-    if (is_auto_fill) {
-      file_data.back();
-    }
-    AAsset_close(asset);
-  }
-  return std::make_unique<std::vector<char>>(std::move(file_data));
-}
-
-#endif  // OS_ANDROID
 
 uint64_t HippyFile::GetFileModifytime(const std::string& file_path) {
   HIPPY_LOG(hippy::Debug, "GetFileModifytime file_path = %s",

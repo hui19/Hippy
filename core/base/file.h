@@ -31,10 +31,6 @@
 #include <string>
 #include <vector>
 
-#ifdef OS_ANDROID
-#include <android/asset_manager.h>
-#endif  // OS_ANDROID
-
 namespace hippy {
 namespace base {
 
@@ -47,13 +43,6 @@ class HippyFile {
                                                  std::ios::trunc);
   static std::unique_ptr<std::vector<char>> ReadFile(const char* file_path,
                                                      bool is_auto_fill = false);
-#ifdef OS_ANDROID
-  static std::unique_ptr<std::vector<char>> ReadAssetFile(
-      AAssetManager* asset_manager,
-      const char* file_path,
-      bool is_auto_fill = false);
-#endif
-
   static int RmFullPath(std::string dir_full_path);
   static int CreateDir(const char* path, mode_t mode);
   static int CheckDir(const char* path, int mode);

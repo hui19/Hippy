@@ -132,8 +132,9 @@ struct V8Ctx : public Ctx {
   }
 
   virtual bool RegisterGlobalInJs();
-  virtual bool SetGlobalVar(const std::string &name, const char *json);
-  virtual std::shared_ptr<CtxValue> GetGlobalVar(const std::string &name);
+  virtual bool SetGlobalJsonVar(const std::string &name, const char *json);
+  virtual bool SetGlobalStrVar(const std::string &name, const char* str);
+  virtual std::shared_ptr<CtxValue> GetGlobalStrVar(const std::string &name);
   virtual std::shared_ptr<CtxValue> GetProperty(
       const std::shared_ptr<CtxValue> &object,
       const std::string &name);

@@ -24,9 +24,6 @@
 
 #include "core/base/logging.h"
 
-namespace hippy {
-namespace base {
-
 const uint32_t WorkerTaskRunner::kDefaultTaskPriority = 10000;
 const uint32_t WorkerTaskRunner::kHighPriorityTaskPriority = 5000;
 const uint32_t WorkerTaskRunner::kLowPriorityTaskPriority = 15000;
@@ -98,5 +95,3 @@ void WorkerTaskRunner::WorkerThread::Run() {
   }
   HIPPY_DLOG(hippy::Debug, "WorkerThread Run Terminate");
 }
-}  // namespace base
-}  // namespace hippy

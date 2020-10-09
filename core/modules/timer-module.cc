@@ -38,6 +38,8 @@ REGISTER_MODULE(TimerModule, ClearInterval)
 
 namespace napi = ::hippy::napi;
 
+using Ctx = hippy::napi::Ctx;
+using CtxValue = hippy::napi::CtxValue;
 using RegisterFunction = hippy::base::RegisterFunction;
 using RegisterMap = hippy::base::RegisterMap;
 TimerModule::TimerModule() {}
@@ -58,7 +60,7 @@ void TimerModule::SetInterval(const napi::CallbackInfo& info) {
 
 void TimerModule::ClearInterval(const napi::CallbackInfo& info) {
   std::shared_ptr<Scope> scope = info.GetScope();
-  std::shared_ptr<hippy::napi::Ctx> context = scope->GetContext();
+  std::shared_ptr<Ctx> context = scope->GetContext();
   HIPPY_CHECK(context);
 
   int32_t argument1 = 0;
@@ -76,10 +78,10 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
     const napi::CallbackInfo& info,
     bool repeat) {
   std::shared_ptr<Scope> scope = info.GetScope();
-  std::shared_ptr<hippy::napi::Ctx> context = scope->GetContext();
+  std::shared_ptr<Ctx> context = scope->GetContext();
   HIPPY_CHECK(context);
 
-  std::shared_ptr<hippy::napi::CtxValue> function = info[0];
+  std::shared_ptr<CtxValue> function = info[0];
   if (!context->IsFunction(function)) {
     info.GetExceptionValue()->Set(context,
                                   "The first argument must be function.");

@@ -87,7 +87,7 @@ task compileCmake(dependsOn: copyCore, type: Exec) {
     cMakeWorkDir.mkdirs()
     setWorkingDir(cMakeWorkDir)
 
-    def arches = ["armeabi-v7a", "x86", "x86_64"]
+    def arches = ["armeabi-v7a"]
     // FIXME: arm64-v8a so can't compile with other arches, it only supports building standalone.
     //        Comment on the orignal arches definitions, then uncomment the following lines and
     //        line starts 179 to compile arm64-v8a
@@ -187,18 +187,18 @@ task stripSO(dependsOn: compileNinja, type: Exec) {
 //            "-o",
 //            "$projectDir.absolutePath/libs/arm64-v8a/libhippybridge.so"
 
-    commandLine getToolPathX86("i686-linux-android-strip"),
-            "--strip-all",
-            "-x",
-            "$project.buildDir.absolutePath/outputs/x86/libhippybridge.so",
-            "-o",
-            "$projectDir.absolutePath/libs/x86/libhippybridge.so"
-    commandLine getToolPathX86_64("x86_64-linux-android-strip"),
-            "--strip-all",
-            "-x",
-            "$project.buildDir.absolutePath/outputs/x86_64/libhippybridge.so",
-            "-o",
-            "$projectDir.absolutePath/libs/x86_64/libhippybridge.so"
+//    commandLine getToolPathX86("i686-linux-android-strip"),
+//            "--strip-all",
+//            "-x",
+//            "$project.buildDir.absolutePath/outputs/x86/libhippybridge.so",
+//            "-o",
+//            "$projectDir.absolutePath/libs/x86/libhippybridge.so"
+//    commandLine getToolPathX86_64("x86_64-linux-android-strip"),
+//            "--strip-all",
+//            "-x",
+//            "$project.buildDir.absolutePath/outputs/x86_64/libhippybridge.so",
+//            "-o",
+//            "$projectDir.absolutePath/libs/x86_64/libhippybridge.so"
 }
 
 task stripSOv7a(dependsOn: stripSO, type: Exec) {
@@ -218,12 +218,12 @@ task dealNdkLibSymbols(type: JavaExec) {
             '-readelf', findNdkFullPath() + '/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-readelf'
 }
 task address2Line(type: Exec) {
-    def address = " 0x00004f8b"
+    def address = " 0x00023705"
     commandLine getToolPath("arm-linux-androideabi-addr2line"),
             "-C",
             "-f",
             "-e",
-            project.buildDir.absolutePath + "/outputs/libhippybridge.so",
+            project.buildDir.absolutePath + "/outputs/armeabi-v7a/libhippybridge.so",
             address
 }
 

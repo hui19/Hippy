@@ -37,7 +37,6 @@ class Scope;
 class Engine {
  public:
   using RegisterMap = hippy::base::RegisterMap;
-  using WorkerTaskRunner = hippy::base::WorkerTaskRunner;
   using VM = hippy::napi::VM;
   using RegisterFunction = hippy::base::RegisterFunction;
 
@@ -56,7 +55,7 @@ class Engine {
   inline std::shared_ptr<JavaScriptTaskRunner> GetJSRunner() {
     return js_runner_;
   }
-  inline std::shared_ptr<hippy::base::WorkerTaskRunner> GetWorkerTaskRunner() {
+  inline std::shared_ptr<WorkerTaskRunner> GetWorkerTaskRunner() {
     return worker_task_runner_;
   }
 

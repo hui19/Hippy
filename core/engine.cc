@@ -93,7 +93,7 @@ void Engine::SetupThreads() {
 
   if (kDefaultWorkerPoolSize > 0) {
     worker_task_runner_ =
-        std::make_shared<hippy::base::WorkerTaskRunner>(kDefaultWorkerPoolSize);
+        std::make_shared<WorkerTaskRunner>(kDefaultWorkerPoolSize);
   } else {
     worker_task_runner_ = nullptr;
   }
