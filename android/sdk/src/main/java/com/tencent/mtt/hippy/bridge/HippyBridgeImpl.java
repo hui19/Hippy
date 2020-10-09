@@ -19,6 +19,7 @@ import android.util.Log;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.devsupport.DevServerCallBack;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
+import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -333,9 +334,21 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		}
 	}
 
-	public byte[] requireSubResource(final String resPath) {
-		if (mContext == null) {
+	public byte[] fetchResourceWithUri(String uri) {
+		if (mContext == null || TextUtils.isEmpty(uri)) {
 			return null;
+		}
+
+		if (uri.startsWith(URI_SCHEME_DEBUG)) {
+			uri = uri.substring(URI_SCHEME_DEBUG.length());
+		}
+
+		final String resPath = uri;
+		File localFile = ContextHolder.getAppContext().getFilesDir();
+		String localPath = (localFile != null) ? localFile.getAbsolutePath() : "/data/user";
+		if (resPath.startsWith(localPath)) {
+			byte[] data = FileUtils.readFileToByteArray(resPath);
+			return data;
 		}
 
 		final ByteArrayOutputStream output = new ByteArrayOutputStream();
