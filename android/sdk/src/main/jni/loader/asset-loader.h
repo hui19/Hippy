@@ -20,33 +20,30 @@
  *
  */
 
-#ifndef JNI_UTILS_H_
-#define JNI_UTILS_H_
+#ifndef CORE_ASSET_LOADER_H_
+#define CORE_ASSET_LOADER_H_
 
-#include <jni.h>
+#include <android/asset_manager.h>
 
-#include "third_party/v8/v8.h"
+#include "adr-loader.h"
 
-struct HippyBuffer;
-
-class JniUtils {
+class AssetLoader : public ADRLoader {
  public:
-  JniUtils() = default;
-  ~JniUtils() = default;
+  AssetLoader(AAssetManager* asset_manager, const std::string& base_path);
+  virtual ~AssetLoader(){};
 
- public:
-  static std::unique_ptr<std::vector<char>> AppendJavaByteArrayToByteVector(
-      JNIEnv* env,
-      jbyteArray byte_array);
-  static std::string CovertJavaStringToString(JNIEnv* env, jstring str);
-  static HippyBuffer* WriteToBuffer(v8::Isolate* isolate,
-                                    v8::Local<v8::Object> value);
+  static std::unique_ptr<std::vector<char>> ReadAssetFile(
+      AAssetManager* asset_manager,
+      const char* file_path,
+      bool is_auto_fill = false);
 
-  static inline const char* ToCString(const v8::String::Utf8Value& value) {
-    return *value ? *value : "<string conversion failed>";
-  }
+  virtual std::string Load(const std::string& uri);
+  virtual std::unique_ptr<std::vector<char>> LoadBytes(const std::string& uri);
 
-  static void printCurrentThreadID();
+ private:
+  bool CheckValid(const std::string& path);
+  std::string base_path_;
+  AAssetManager* asset_manager_;
 };
 
-#endif  // JNI_UTILS_H_
+#endif  // CORE_ASSET_LOADER_H_

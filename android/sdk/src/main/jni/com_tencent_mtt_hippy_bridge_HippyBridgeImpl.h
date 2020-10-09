@@ -44,6 +44,17 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_initJSFramework(JNIEnv *,
                                                                   jobject,
                                                                   jlong);
 
+JNIEXPORT jboolean JNICALL
+Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromUri(JNIEnv *,
+                                                                  jobject,
+                                                                  jstring,
+                                                                  jobject,
+                                                                  jboolean,
+                                                                  jstring,
+                                                                  jlong,
+                                                                  jobject);
+
+
 /*
  * Class:     com_tencent_mtt_hippy_bridge_HippyBridge
  * Method:    runScriptFromFile

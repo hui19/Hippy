@@ -36,24 +36,22 @@ size_t SafeGetArrayLength(JNIEnv* env, const jbyteArray& jarray) {
   return static_cast<size_t>(std::max(0, length));
 }
 
-void JniUtils::AppendJavaByteArrayToByteVector(
+std::unique_ptr<std::vector<char>> JniUtils::AppendJavaByteArrayToByteVector(
     JNIEnv* env,
-    jbyteArray byte_array,
-    std::shared_ptr<std::vector<uint8_t>> out) {
-  HIPPY_DCHECK(out);
+    jbyteArray byte_array) {
   if (!byte_array)
-    return;
+    return nullptr;
   size_t len = SafeGetArrayLength(env, byte_array);
   if (!len)
-    return;
-  size_t back = out->size();
-  out->resize(back + len);
+    return nullptr;
+  std::vector<char> ret(len);
   env->GetByteArrayRegion(byte_array, 0, len,
-                          reinterpret_cast<int8_t*>(out->data() + back));
+                          reinterpret_cast<int8_t*>(ret.data()));
+  return std::make_unique<std::vector<char>>(std::move(ret));
 }
 
 // todo
-// ÔİÊ±Ö»ÓĞ¼òµ¥×Ö·û£¬Ã»ÓĞÖĞÎÄµÈµÄ³¡¾°£¬ÎªĞ§ÂÊºÍ°ü´óĞ¡¿¼ÂÇ£¬²»½øĞĞutf16µ½utf8µÄ×ª»»
+// æš‚æ—¶åªæœ‰ç®€å•å­—ç¬¦ï¼Œæ²¡æœ‰ä¸­æ–‡ç­‰çš„åœºæ™¯ï¼Œä¸ºæ•ˆç‡å’ŒåŒ…å¤§å°è€ƒè™‘ï¼Œä¸è¿›è¡Œutf16åˆ°utf8çš„è½¬æ¢
 std::string JniUtils::CovertJavaStringToString(JNIEnv* env, jstring str) {
   HIPPY_DCHECK(str);
 

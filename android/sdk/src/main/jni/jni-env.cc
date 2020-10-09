@@ -33,25 +33,22 @@ JNIEnvironment* instance = nullptr;
 void JNIEnvironment::init(JavaVM* vm, JNIEnv* env) {
   JNIEnvironment::GetInstance()->jvm_ = vm;
 
-  jclass hippyBridgeCls =
-      env->FindClass("com/tencent/mtt/hippy/bridge/HippyBridgeImpl");
-  JNIEnvironment::GetInstance()->wrapper_.call_natives_method_id =
-      env->GetMethodID(
-          hippyBridgeCls, "callNatives",
-          "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[B)V");
-  JNIEnvironment::GetInstance()->wrapper_.report_exception_method_id =
-      env->GetMethodID(hippyBridgeCls, "reportException",
-                       "(Ljava/lang/String;Ljava/lang/String;)V");
-  JNIEnvironment::GetInstance()->wrapper_.post_code_cache_runnable_method_id =
-      env->GetMethodID(hippyBridgeCls, "postCodeCacheRunnable",
-                       "(Ljava/lang/String;J)V");
-  JNIEnvironment::GetInstance()->wrapper_.delete_code_cache_method_id =
-      env->GetStaticMethodID(hippyBridgeCls, "deleteCodeCache",
-                             "(Ljava/lang/String;)V");
-  JNIEnvironment::GetInstance()->wrapper_.inspector_channel_method_id =
-      env->GetMethodID(hippyBridgeCls, "InspectorChannel", "([B)V");
+  JNIEnvironment* instance = JNIEnvironment::GetInstance();
 
-  env->DeleteLocalRef(hippyBridgeCls);
+  jclass hippy_bridge_cls =
+      env->FindClass("com/tencent/mtt/hippy/bridge/HippyBridgeImpl");
+  instance->wrapper_.call_natives_method_id = env->GetMethodID(
+      hippy_bridge_cls, "callNatives",
+      "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[B)V");
+  instance->wrapper_.report_exception_method_id =
+      env->GetMethodID(hippy_bridge_cls, "reportException",
+                       "(Ljava/lang/String;Ljava/lang/String;)V");
+  instance->wrapper_.inspector_channel_method_id =
+      env->GetMethodID(hippy_bridge_cls, "InspectorChannel", "([B)V");
+
+  instance->wrapper_.get_uri_content_method_id = env->GetMethodID(
+      hippy_bridge_cls, "requireSubResource", "(Ljava/lang/String;)[B");
+  env->DeleteLocalRef(hippy_bridge_cls);
 }
 
 JNIEnvironment* JNIEnvironment::GetInstance() {
@@ -100,7 +97,6 @@ JNIEnv* JNIEnvironment::AttachCurrentThread() {
       HIPPY_LOG(hippy::Error, "prctl(PR_GET_NAME) Error = %i", err);
       args.name = nullptr;
     } else {
-      // HIPPY_LOG(hippy::Debug, "prctl(PR_GET_NAME) = %s", thread_name);
       args.name = thread_name;
     }
 

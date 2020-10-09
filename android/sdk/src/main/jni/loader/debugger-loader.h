@@ -20,33 +20,23 @@
  *
  */
 
-#ifndef JNI_UTILS_H_
-#define JNI_UTILS_H_
+#ifndef CORE_DEBUGGER_LOADER_H_
+#define CORE_DEBUGGER_LOADER_H_
 
-#include <jni.h>
+#include "adr-loader.h"
+#include "scoped-java-ref.h"
 
-#include "third_party/v8/v8.h"
-
-struct HippyBuffer;
-
-class JniUtils {
+class DebuggerLoader: public ADRLoader {
  public:
-  JniUtils() = default;
-  ~JniUtils() = default;
+  DebuggerLoader(){};
+  virtual ~DebuggerLoader(){};
 
- public:
-  static std::unique_ptr<std::vector<char>> AppendJavaByteArrayToByteVector(
-      JNIEnv* env,
-      jbyteArray byte_array);
-  static std::string CovertJavaStringToString(JNIEnv* env, jstring str);
-  static HippyBuffer* WriteToBuffer(v8::Isolate* isolate,
-                                    v8::Local<v8::Object> value);
+  inline void SetBridge(std::shared_ptr<JavaRef> bridge) { bridge_ = bridge; };
+  virtual std::string Load(const std::string& uri);
+  virtual std::unique_ptr<std::vector<char>> LoadBytes(const std::string& uri);
 
-  static inline const char* ToCString(const v8::String::Utf8Value& value) {
-    return *value ? *value : "<string conversion failed>";
-  }
-
-  static void printCurrentThreadID();
+ private:
+  std::shared_ptr<JavaRef> bridge_;
 };
 
-#endif  // JNI_UTILS_H_
+#endif  // CORE_DEBUGGER_LOADER_H_

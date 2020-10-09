@@ -20,33 +20,19 @@
  *
  */
 
-#ifndef JNI_UTILS_H_
-#define JNI_UTILS_H_
+#ifndef CORE_ADR_LOADER_H_
+#define CORE_ADR_LOADER_H_
 
-#include <jni.h>
+#include "core/base/uri-loader.h"
 
-#include "third_party/v8/v8.h"
-
-struct HippyBuffer;
-
-class JniUtils {
+class ADRLoader : public hippy::base::UriLoader {
  public:
-  JniUtils() = default;
-  ~JniUtils() = default;
+  ADRLoader(){};
+  virtual ~ADRLoader(){};
 
- public:
-  static std::unique_ptr<std::vector<char>> AppendJavaByteArrayToByteVector(
-      JNIEnv* env,
-      jbyteArray byte_array);
-  static std::string CovertJavaStringToString(JNIEnv* env, jstring str);
-  static HippyBuffer* WriteToBuffer(v8::Isolate* isolate,
-                                    v8::Local<v8::Object> value);
-
-  static inline const char* ToCString(const v8::String::Utf8Value& value) {
-    return *value ? *value : "<string conversion failed>";
-  }
-
-  static void printCurrentThreadID();
+  virtual std::string Normalize(const std::string& uri);
 };
 
-#endif  // JNI_UTILS_H_
+#endif  // CORE_ADR_LOADER_H_
+
+

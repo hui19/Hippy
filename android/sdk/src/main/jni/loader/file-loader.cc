@@ -20,33 +20,36 @@
  *
  */
 
-#ifndef JNI_UTILS_H_
-#define JNI_UTILS_H_
+#include "file-loader.h"
 
-#include <jni.h>
+#include "core/base/file.h"
 
-#include "third_party/v8/v8.h"
-
-struct HippyBuffer;
-
-class JniUtils {
- public:
-  JniUtils() = default;
-  ~JniUtils() = default;
-
- public:
-  static std::unique_ptr<std::vector<char>> AppendJavaByteArrayToByteVector(
-      JNIEnv* env,
-      jbyteArray byte_array);
-  static std::string CovertJavaStringToString(JNIEnv* env, jstring str);
-  static HippyBuffer* WriteToBuffer(v8::Isolate* isolate,
-                                    v8::Local<v8::Object> value);
-
-  static inline const char* ToCString(const v8::String::Utf8Value& value) {
-    return *value ? *value : "<string conversion failed>";
+bool FileLoader::CheckValid(const std::string& path){
+  auto pos = path.find_first_of(base_path_, 0);
+  if (pos == 0) {
+    return true;
   }
 
-  static void printCurrentThreadID();
-};
+  return false;
+}
 
-#endif  // JNI_UTILS_H_
+FileLoader::FileLoader(const std::string& base_path) : base_path_(base_path) {
+
+}
+
+std::string FileLoader::Load(const std::string& uri) {
+  std::string rst;
+  auto ret = LoadBytes(uri);
+  if (ret) {
+    rst = ret->data();
+  }
+  return rst;
+}
+
+std::unique_ptr<std::vector<char>> FileLoader::LoadBytes(const std::string& uri) {
+  std::string rst;
+  if (CheckValid(uri)) {
+    return hippy::base::HippyFile::ReadFile(uri.c_str(), false);
+  }
+  return nullptr;
+}

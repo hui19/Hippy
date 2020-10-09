@@ -29,21 +29,19 @@
 
 class JNIEnvironment {
  public:
-  typedef struct jmethodID_wrapper_ {
-    explicit jmethodID_wrapper_() {
+  struct JemthodID_Wrapper {
+    explicit JemthodID_Wrapper() {
       call_natives_method_id = nullptr;
       report_exception_method_id = nullptr;
-      post_code_cache_runnable_method_id = nullptr;
-      delete_code_cache_method_id = nullptr;
       inspector_channel_method_id = nullptr;
+      get_uri_content_method_id = nullptr;
     }
 
     jmethodID call_natives_method_id;
     jmethodID report_exception_method_id;
-    jmethodID post_code_cache_runnable_method_id;
-    jmethodID delete_code_cache_method_id;
     jmethodID inspector_channel_method_id;
-  } JemthodID_Wrapper;
+    jmethodID get_uri_content_method_id;
+  };
 
  public:
   JNIEnvironment() = default;
