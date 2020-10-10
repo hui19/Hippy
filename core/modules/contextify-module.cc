@@ -103,7 +103,9 @@ void ContextifyModule::LoadUriContent(const CallbackInfo& info) {
       auto cur_dir_obj = ctx->GetGlobalStrVar("__HIPPYBASEDIR__");
       ctx->GetValueString(cur_dir_obj, &last_dir_str);
     }
-    const std::string uri = loader->Normalize(last_dir_str + key);
+    const std::string orig_uri = last_dir_str + key;
+    HIPPY_DLOG(hippy::Debug, "orig_uri = %s", orig_uri.c_str());
+    const std::string uri = loader->Normalize(orig_uri);
     std::string cur_dir_str = uri.substr(0, uri.find_last_of('/'));
     ctx->SetGlobalStrVar("__HIPPYCURDIR__", cur_dir_str.c_str());
     const std::string code = loader->Load(uri);

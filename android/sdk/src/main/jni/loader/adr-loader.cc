@@ -25,19 +25,30 @@
 #include "jni-env.h"
 #include "jni-utils.h"
 
+#include "core/base/logging.h"
+
 std::string ADRLoader::Normalize(const std::string& uri) {
+  HIPPY_DLOG(hippy::Debug, "ADRLoader::Normalize orig uri = %s", uri.c_str());
   JNIEnv* env = JNIEnvironment::AttachCurrentThread();
   jstring j_str_uri = env->NewStringUTF(uri.c_str());
-  jclass j_clazz = env->FindClass("android/net/Uri");
-  jmethodID j_parse_method_id = env->GetStaticMethodID(
-      j_clazz, "parse", "(Ljava/lang/String;)Landroid/net/Uri;");
+  jclass j_clazz = env->FindClass("java/net/URI");
+  jmethodID j_create_method_id = env->GetStaticMethodID(
+      j_clazz, "create", "(Ljava/lang/String;)Ljava/net/URI;");
   jobject j_obj_uri =
-      env->CallStaticObjectMethod(j_clazz, j_parse_method_id, j_str_uri);
-  jmethodID j_to_tring_method_id =
+      env->CallStaticObjectMethod(j_clazz, j_create_method_id, j_str_uri);
+
+  jmethodID j_normalize_method_id =
+      env->GetMethodID(j_clazz, "normalize", "()Ljava/net/URI;");
+  jobject j_normalize_uri =
+      (jstring)env->CallObjectMethod(j_obj_uri, j_normalize_method_id);
+
+  jmethodID j_to_string_method_id =
       env->GetMethodID(j_clazz, "toString", "()Ljava/lang/String;");
   jstring j_parsed_uri =
-      (jstring)env->CallObjectMethod(j_obj_uri, j_to_tring_method_id);
+      (jstring)env->CallObjectMethod(j_normalize_uri, j_to_string_method_id);
   env->DeleteLocalRef(j_str_uri);
   env->DeleteLocalRef(j_clazz);
+  HIPPY_DLOG(hippy::Debug, "ADRLoader::Normalize ret uri = %s",
+             JniUtils::CovertJavaStringToString(env, j_parsed_uri).c_str());
   return JniUtils::CovertJavaStringToString(env, j_parsed_uri);
 }

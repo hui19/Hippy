@@ -284,7 +284,7 @@ bool V8Ctx::SetGlobalStrVar(const std::string& name, const char* str) {
 }
 
 std::shared_ptr<CtxValue> V8Ctx::GetGlobalStrVar(const std::string& name) {
-  HIPPY_DLOG(hippy::Debug, "GetGlobalStrVar name = %s");
+  HIPPY_DLOG(hippy::Debug, "GetGlobalStrVar name = %s", name.c_str());
   v8::HandleScope handle_scope(isolate_);
   v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
