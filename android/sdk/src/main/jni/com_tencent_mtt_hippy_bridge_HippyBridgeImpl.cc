@@ -70,7 +70,7 @@ static std::mutex engine_mutex;
 static const int64_t kDefaultEngineId = -1;
 static const int64_t kDebuggerEngineId = -9999;
 static int64_t global_runtime_key = 0;
-static const std::string kFileProtocol = "://";
+static const std::string kFileProtocol = ":";
 
 std::shared_ptr<V8InspectorClientImpl> global_inspector = nullptr;
 
@@ -614,14 +614,14 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromUri(
   const std::string uri = JniUtils::CovertJavaStringToString(env, j_uri);
   const std::string code_cache_dir =
       JniUtils::CovertJavaStringToString(env, j_code_cache_dir);
-  auto protocol_pos = uri.find_first_of("://");
+  auto protocol_pos = uri.find_first_of(kFileProtocol);
   std::string uri_path;
   std::string protocol;
   if (protocol_pos == -1) {
     uri_path = uri;
   } else {
-    uri_path = uri.substr(protocol_pos + 3);
-    protocol = uri.substr(0, protocol_pos + 3);
+    uri_path = uri.substr(protocol_pos + kFileProtocol.length());
+    protocol = uri.substr(0, protocol_pos + kFileProtocol.length());
   }
   auto pos = uri_path.find_last_of('/');
   if (pos == -1) {
@@ -649,7 +649,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromUri(
     std::shared_ptr<DebuggerLoader> loader = std::make_shared<DebuggerLoader>();
     loader->SetBridge(runtime->bridge_);
     runtime->scope_->SetUriLoader(loader);
-  } else if (protocol == "assets:") {
+  } else if (protocol == "asset:") {
     HIPPY_LOG(hippy::Debug, "AssetLoader");
     AAssetManager* aasset_manager =
         AAssetManager_fromJava(env, j_asset_manager);
