@@ -81,7 +81,11 @@ public abstract class HippyEngine
 			throw new RuntimeException("Hippy: initParams must no be null");
 		params.check();
 		LogUtils.enableDebugLog(params.enableLog);
-		ContextHolder.initAppContext(params.context);
+		if (params.appContext != null) {
+			ContextHolder.initAppContext(params.appContext);
+		} else if (params.context != null) {
+			ContextHolder.initAppContext(params.context.getApplicationContext());
+		}
 
 		HippyEngine hippyEngine = null;
 		switch (params.engineMode)
@@ -255,6 +259,7 @@ public abstract class HippyEngine
 	{
 		// 必须 宿主（Hippy的使用者）的Context
 		public Context context;
+		public Context appContext;
 		// 必须 图片加载器：需要实现异步的图片加载接口fetchImage()，和同步的图片加载接口getImage()。
 		public HippyImageLoader imageLoader;
 

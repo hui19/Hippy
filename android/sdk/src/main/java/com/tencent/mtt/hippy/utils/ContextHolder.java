@@ -31,9 +31,8 @@ public class ContextHolder
 
 	public static void initAppContext(Context context)
 	{
-		if (context != null)
-		{
-			sAppContext = context.getApplicationContext();
+		if (context != null) {
+			sAppContext = context;
 		}
 	}
 
