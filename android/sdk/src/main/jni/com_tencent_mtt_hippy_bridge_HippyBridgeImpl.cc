@@ -639,17 +639,17 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromUri(
 
   std::shared_ptr<Ctx> ctx = runtime->scope_->GetContext();
   ctx->SetGlobalStrVar("__HIPPYBASEDIR__", base_path.c_str());
-  if (protocol == "file://") {
+  if (protocol == "file:") {
     HIPPY_LOG(hippy::Debug, "FileLoader");
     std::shared_ptr<FileLoader> loader =
         std::make_shared<FileLoader>(base_path);
     runtime->scope_->SetUriLoader(loader);
-  } else if (protocol == "debug://") {
+  } else if (protocol == "debug:") {
     HIPPY_LOG(hippy::Debug, "DebuggerLoader");
     std::shared_ptr<DebuggerLoader> loader = std::make_shared<DebuggerLoader>();
     loader->SetBridge(runtime->bridge_);
     runtime->scope_->SetUriLoader(loader);
-  } else if (protocol == "assets://") {
+  } else if (protocol == "assets:") {
     HIPPY_LOG(hippy::Debug, "AssetLoader");
     AAssetManager* aasset_manager =
         AAssetManager_fromJava(env, j_asset_manager);
