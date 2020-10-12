@@ -36,7 +36,7 @@ public class MyActivityDeprecated extends Activity implements HippyEngine.Engine
 		getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 		mHost = new MyHippyEngineHost(MyActivityDeprecated.this.getApplication());
 		//mEngineManager = mHost.createHippyEngineManager();
-		mEngineManager = mHost.createDebugHippyEngineManager("index.bundle");
+		mEngineManager = mHost.createDebugHippyEngineManager("index.bundle.js");
 		mEngineManager.addEngineEventListener(this);
 		mEngineManager.initEngineInBackground();
 

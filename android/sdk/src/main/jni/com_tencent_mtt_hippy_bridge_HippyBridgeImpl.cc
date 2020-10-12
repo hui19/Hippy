@@ -624,9 +624,6 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromUri(
     protocol = uri.substr(0, protocol_pos + kFileProtocol.length());
   }
   auto pos = uri_path.find_last_of('/');
-  if (pos == -1) {
-    pos = 0;
-  }
   const std::string script_name = uri_path.substr(pos + 1);
   const std::string base_path = protocol + uri_path.substr(0, pos + 1);
 
