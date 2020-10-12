@@ -27,9 +27,9 @@ import com.tencent.mtt.hippy.common.HippyArray;
  */
 public interface HippyBridge
 {
-	static final String URI_SCHEME_ASSETS = "assets://";
-	static final String URI_SCHEME_FILE   = "file://";
-	static final String URI_SCHEME_DEBUG  = "debug://";
+	static final String URI_SCHEME_ASSETS = "asset:";
+	static final String URI_SCHEME_FILE   = "file:";
+	static final String URI_SCHEME_DEBUG  = "debug:";
 
 	public void initJSBridge(String gobalConfig, NativeCallback callback, int groupId);
 

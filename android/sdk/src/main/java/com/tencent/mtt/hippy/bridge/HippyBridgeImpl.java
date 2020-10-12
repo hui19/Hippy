@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.bridge;
 import android.util.Log;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.devsupport.DevServerCallBack;
+import com.tencent.mtt.hippy.devsupport.DevServerConfig;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
@@ -343,14 +344,18 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 			uri = uri.substring(URI_SCHEME_DEBUG.length());
 		}
 
-		final String resPath = uri;
-		File localFile = ContextHolder.getAppContext().getFilesDir();
-		String localPath = (localFile != null) ? localFile.getAbsolutePath() : "/data/user";
-		if (resPath.startsWith(localPath)) {
-			byte[] data = FileUtils.readFileToByteArray(resPath);
+		File mainBundleFile = new File(ContextHolder.getAppContext().getFilesDir(), DevServerConfig.JS_BUNDLE_FILE_NAME);
+		if (uri.equals(mainBundleFile.getAbsolutePath())) {
+			byte[] data = FileUtils.readFileToByteArray(uri);
 			return data;
 		}
 
+		String subResDir = ContextHolder.getAppContext().getFilesDir().getAbsolutePath() + "/";
+		if (uri.contains(subResDir)) {
+			uri = uri.substring(subResDir.length());
+		}
+
+		final String resPath = uri;
 		final ByteArrayOutputStream output = new ByteArrayOutputStream();
 		final CountDownLatch countDownLatch = new CountDownLatch(1);
 		UIThreadUtils.runOnUiThread(new Runnable() {
@@ -392,7 +397,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		});
 
 		try {
-			countDownLatch.await(TIMEOUT, TimeUnit.MILLISECONDS);
+			//countDownLatch.await(TIMEOUT, TimeUnit.MILLISECONDS);
+			countDownLatch.await();
 		} catch (InterruptedException e) {
 			LogUtils.e("hippy", "requireSubResource: " + e.getMessage());
 		}
