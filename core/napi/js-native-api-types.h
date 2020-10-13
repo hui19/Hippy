@@ -77,6 +77,8 @@ class Ctx {
   virtual bool RegisterGlobalInJs() = 0;
   virtual bool SetGlobalJsonVar(const std::string& name, const char* json) = 0;
   virtual bool SetGlobalStrVar(const std::string& name, const char* str) = 0;
+  virtual bool SetGlobalObjVar(const std::string& name,
+                               std::shared_ptr<CtxValue> obj) = 0;
   virtual std::shared_ptr<CtxValue> GetGlobalStrVar(const std::string& name) = 0;
   virtual std::shared_ptr<CtxValue> GetProperty(
       const std::shared_ptr<CtxValue>& object,

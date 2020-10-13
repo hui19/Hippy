@@ -22,21 +22,20 @@
 
 #include "debugger-loader.h"
 
-#include "stdint.h"
-
+#include "core/base/logging.h"
 #include "jni-env.h"
 #include "jni-utils.h"
-
-#include "core/base/logging.h"
+#include "stdint.h"
 
 std::string DebuggerLoader::Load(const std::string& uri) {
   std::string ret;
-  auto rst = LoadBytes(uri);
+  std::unique_ptr<std::vector<char>> rst = LoadBytes(uri);
   if (rst) {
-    ret = rst->data();
+    ret = std::string(rst->data(), rst->size());
   }
 
-  HIPPY_DLOG(hippy::Debug, "DebuggerLoader::Load ret = %s,", ret.c_str());
+  HIPPY_DLOG(hippy::Debug, "DebuggerLoader::Load uri = %s, ret = %s,",
+             uri.c_str(), ret.c_str());
 
   return ret;
 }
@@ -52,4 +51,3 @@ std::unique_ptr<std::vector<char>> DebuggerLoader::LoadBytes(
   env->DeleteLocalRef(j_relative_path);
   return JniUtils::AppendJavaByteArrayToByteVector(env, j_rst);
 }
-

@@ -44,6 +44,7 @@ export default class App extends Component {
   }
 
   render() {
+    global.dynamicLoad('test/bbb.js');
     const { pageIndex } = this.state;
     const { isSimulator, __instanceId__: instanceId } = this.props;
 

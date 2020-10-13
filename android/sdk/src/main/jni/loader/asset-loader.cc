@@ -25,7 +25,7 @@
 #include "core/base/file.h"
 #include "core/base/logging.h"
 
-const static std::string kAssetProtocol = "assets://";
+const static std::string kAssetProtocol = "asset:";
 const static auto kAssetProtocalLen = kAssetProtocol.length();
 
 std::unique_ptr<std::vector<char>> AssetLoader::ReadAssetFile(
@@ -35,7 +35,6 @@ std::unique_ptr<std::vector<char>> AssetLoader::ReadAssetFile(
   HIPPY_LOG(hippy::Debug, "ReadAssetFile file_path = %s", file_path);
 
   std::string str_file_path(file_path);
-  HIPPY_LOG(hippy::Debug, "ReadAssetFile file_path = %s", str_file_path.c_str());
   const auto pos = str_file_path.find_first_of(kAssetProtocol);
   if (pos != 0) {
     return nullptr;
@@ -82,8 +81,12 @@ AssetLoader::AssetLoader(AAssetManager* asset_manager,
     : base_path_(base_path), asset_manager_(asset_manager) {}
 
 std::string AssetLoader::Load(const std::string& uri) {
-  std::unique_ptr<std::vector<char>> ret = LoadBytes(uri);
-  return ret->data();
+  std::unique_ptr<std::vector<char>> rst = LoadBytes(uri);
+  std::string ret;
+  if (rst) {
+    ret = std::string(rst->data(), rst->size());
+  }
+  return ret;
 }
 
 std::unique_ptr<std::vector<char>> AssetLoader::LoadBytes(

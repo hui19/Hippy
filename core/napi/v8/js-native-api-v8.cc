@@ -271,7 +271,7 @@ bool V8Ctx::SetGlobalJsonVar(const std::string& name, const char* json) {
 }
 
 bool V8Ctx::SetGlobalStrVar(const std::string& name, const char* str) {
-  HIPPY_DLOG(hippy::Debug, "SetGlobalJsonVar name = %s, str = %s", name.c_str(),
+  HIPPY_DLOG(hippy::Debug, "SetGlobalStrVar name = %s, str = %s", name.c_str(),
              str);
   v8::HandleScope handle_scope(isolate_);
   v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
@@ -282,6 +282,24 @@ bool V8Ctx::SetGlobalStrVar(const std::string& name, const char* str) {
           .ToLocalChecked();
   return global->Set(v8::String::NewFromUtf8(isolate_, name.c_str()), v8_str);
 }
+
+bool V8Ctx::SetGlobalObjVar(const std::string& name, std::shared_ptr<CtxValue> obj) {
+  HIPPY_DLOG(hippy::Debug, "SetGlobalObjVar name = %s", name.c_str());
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(obj);
+
+  v8::HandleScope handle_scope(isolate_);
+  v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  v8::Local<v8::Object> global = context->Global();
+  const v8::Persistent<v8::Value>& persistent_value =
+      ctx_value->persisent_value_;
+  v8::Handle<v8::Value> handle_value =
+      v8::Handle<v8::Value>::New(isolate_, persistent_value);
+  return global->Set(v8::String::NewFromUtf8(isolate_, name.c_str()),
+                     handle_value);
+}
+
 
 std::shared_ptr<CtxValue> V8Ctx::GetGlobalStrVar(const std::string& name) {
   HIPPY_DLOG(hippy::Debug, "GetGlobalStrVar name = %s", name.c_str());
