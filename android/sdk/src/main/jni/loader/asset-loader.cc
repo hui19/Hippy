@@ -39,12 +39,16 @@ std::unique_ptr<std::vector<char>> AssetLoader::ReadAssetFile(
   if (pos != 0) {
     return nullptr;
   }
-  HIPPY_LOG(hippy::Debug, "pos = %d, kAssetProtocalLen = %d, str_file_path.substr(kAssetProtocalLen) = %s", pos, kAssetProtocalLen, str_file_path.substr(kAssetProtocalLen).c_str());
-  const char* asset_file_path =
-      str_file_path.substr(kAssetProtocalLen).c_str();
-  HIPPY_LOG(hippy::Debug, "ReadAssetFile asset_file_path = %s", asset_file_path); // todo
-  auto asset = AAssetManager_open(
-      asset_manager, str_file_path.substr(kAssetProtocalLen).c_str(),
+
+  std::string asset_path = str_file_path.substr(kAssetProtocalLen);
+  if (asset_path[0] == '/') {
+    asset_path = asset_path.substr(1);
+  }
+  HIPPY_LOG(hippy::Debug,
+            "pos = %d, "
+            "asset_path = %s",
+            pos, asset_path.c_str());
+  auto asset = AAssetManager_open(asset_manager, asset_path.c_str(),
       AASSET_MODE_STREAMING);
   std::vector<char> file_data;
   if (asset) {
