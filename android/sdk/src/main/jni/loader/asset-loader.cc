@@ -81,8 +81,12 @@ AssetLoader::AssetLoader(AAssetManager* asset_manager,
     : base_path_(base_path), asset_manager_(asset_manager) {}
 
 std::string AssetLoader::Load(const std::string& uri) {
-  std::unique_ptr<std::vector<char>> ret = LoadBytes(uri);
-  return ret->data();
+  std::unique_ptr<std::vector<char>> rst = LoadBytes(uri);
+  std::string ret;
+  if (rst) {
+    ret = std::string(rst->data(), rst->size());
+  }
+  return ret;
 }
 
 std::unique_ptr<std::vector<char>> AssetLoader::LoadBytes(

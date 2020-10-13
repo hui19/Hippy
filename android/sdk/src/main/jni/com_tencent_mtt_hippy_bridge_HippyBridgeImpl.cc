@@ -634,8 +634,14 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromUri(
             base_path.c_str(),
             code_cache_dir.c_str());
 
+  auto runner = runtime->engine_->GetJSRunner();
   std::shared_ptr<Ctx> ctx = runtime->scope_->GetContext();
-  ctx->SetGlobalStrVar("__HIPPYBASEDIR__", base_path.c_str());
+  std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
+  task->callback = [ctx, base_path] {
+    ctx->SetGlobalStrVar("__HIPPYCURDIR__", base_path.c_str());
+  };
+  runner->PostTask(task);
+
   if (protocol == "file:") {
     HIPPY_LOG(hippy::Debug, "FileLoader");
     std::shared_ptr<FileLoader> loader =
@@ -659,7 +665,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromUri(
   }
 
   std::shared_ptr<JavaRef> save_object = std::make_shared<JavaRef>(env, j_cb);
-  std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
+  task = std::make_shared<JavaScriptTask>();
   task->callback = [runtime, save_object_ = std::move(save_object), script_name,
                     j_can_use_code_cache, code_cache_dir, uri, time1] {
     HIPPY_DLOG(hippy::Debug, "runScriptFromFile enter tast");
@@ -679,7 +685,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromUri(
     return flag;
   };
 
-  runtime->engine_->GetJSRunner()->PostTask(task);
+  runner->PostTask(task);
 
   return true;
 }
