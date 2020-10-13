@@ -73,10 +73,15 @@ public class HippyAssetBundleLoader implements HippyBundleLoader
 	@Override
 	public String getPath()
 	{
-		if (mAssetPath != null && !mAssetPath.startsWith(URI_SCHEME_ASSETS))
-			return URI_SCHEME_ASSETS + mAssetPath;
-		else
+		if (mAssetPath != null && !mAssetPath.startsWith(URI_SCHEME_ASSETS)) {
+			if (mAssetPath.startsWith("/")) {
+				return URI_SCHEME_ASSETS + mAssetPath;
+			} else {
+				return URI_SCHEME_ASSETS + "/" + mAssetPath;
+			}
+		} else {
 			return mAssetPath;
+		}
 	}
 
 	@Override
