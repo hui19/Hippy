@@ -7,10 +7,16 @@ import android.view.ViewGroup;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.devsupport.BundleFetchCallBack;
+import com.tencent.mtt.hippy.devsupport.DevServerConfig;
+import com.tencent.mtt.hippy.devsupport.DevServerHelper;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
+
+import java.io.File;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.json.JSONArray;
 
@@ -237,6 +243,31 @@ public class HippyWormholeManager implements HippyWormholeProxy {
         mClientEngineList.get(i).sendEvent(EVENT_DATARECEIVED, data);
       }
     }
+  }
+
+
+  private DevServerHelper mFetchHelper;
+  private DevServerConfig mServerConfig;
+  public void reloadWormholePage(final BundleFetchCallBack callBack){
+    LogUtils.e("test","test reloadWormholePage aaaaaaaaaa!!!!1!");
+    mFetchHelper = new DevServerHelper(mWormholeEngine.getEngineContext().getGlobalConfigs(), "localhost:38989");
+    mServerConfig = new DevServerConfig("localhost:38989", "index.bundle");
+    mFetchHelper.fetchBundleFromURL(new BundleFetchCallBack()
+    {
+      @Override
+      public void onSuccess(File file)
+      {
+        callBack.onSuccess(file);
+
+      }
+
+      @Override
+      public void onFail(Exception exception)
+      {
+        callBack.onFail(exception);
+
+      }
+    }, mServerConfig.enableRemoteDebug(), mServerConfig.getServerHost(), mServerConfig.getBundleName(), mServerConfig.getJSBundleTempFile());
   }
 
 }

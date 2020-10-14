@@ -29,6 +29,7 @@ import com.tencent.mtt.hippy.HippyGlobalConfigs;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
+import com.tencent.mtt.hippy.views.wormhole.HippyWormholeManager;
 
 import java.io.File;
 import java.util.HashMap;
@@ -86,7 +87,18 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface, 
 
 	public void reload()
 	{
-		reload(null);
+    showProgressDialog();
+    HippyWormholeManager.getInstance().reloadWormholePage(new BundleFetchCallBack() {
+      @Override
+      public void onSuccess(File file) {
+        reload(null);
+      }
+
+      @Override
+      public void onFail(Exception exception) {
+        reload(null);
+      }
+    });
 	}
 
 	@Override
