@@ -10,6 +10,7 @@ import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
@@ -25,6 +26,8 @@ public class HippyWormholeManager {
   public static final String WORMHOLE_PARAMS                    = "params";
   public static final String WORMHOLE_WORMHOLE_ID               = "wormholeId";
   public static final String WORMHOLE_CLIENT_DATA_RECEIVED      = "Wormhole.dataReceived";
+  public static final String WORMHOLE_CLIENT_DIDAPPEAR          = "Wormhole.didAppear";
+  public static final String WORMHOLE_CLIENT_DIDDISAPPEAR       = "Wormhole.didDisappear";
   public static final String WORMHOLE_SERVER_BATCH_COMPLETE     = "onServerBatchComplete";
   public static final String EVENT_DATARECEIVED                 = "onClientMessageReceived";
   public static final String FUNCTION_SENDEVENT_TO_WORMHOLEVIEW = "sendEventToWormholeView";
@@ -38,6 +41,12 @@ public class HippyWormholeManager {
   private ConcurrentHashMap<String, Integer> mTkdWormholeNodeMap = new ConcurrentHashMap<String, Integer>();
   private ConcurrentHashMap<String, Integer> mWormholeNodeMap = new ConcurrentHashMap<String, Integer>();
   private ConcurrentHashMap<String, TKDWormholeView> mTkdWormholeViewMap = new ConcurrentHashMap<String, TKDWormholeView>();
+  private ConcurrentHashMap<String, VisiableState> mWormholeVisiableStateMap = new ConcurrentHashMap<String, VisiableState>();
+
+  public enum VisiableState {
+    DIDDISAPPEAR,
+    DIDAPPEAR,
+  }
 
   //存储业务方引擎
   private ArrayList<HippyEngine> mClientEngineList = new ArrayList<>();
@@ -74,10 +83,10 @@ public class HippyWormholeManager {
     mWormholeContainer = container;
   }
 
-  private void sendDataReceivedMessageToServer(HippyMap bundle) {
+  private void sendDataReceivedMessageToServer(String eventName,HippyMap bundle) {
     JSONArray jsonArray = new JSONArray();
     jsonArray.put(bundle);
-    mWormholeEngine.sendEvent(WORMHOLE_CLIENT_DATA_RECEIVED, jsonArray);
+    mWormholeEngine.sendEvent(eventName, jsonArray);
   }
 
   private void sendBatchCompleteMessageToClient(String wormholeId, View view) {
@@ -187,6 +196,7 @@ public class HippyWormholeManager {
     if (!TextUtils.isEmpty(wormholeId)) {
       mTkdWormholeViewMap.remove(wormholeId);
     }
+    onTkdWormholeDidDisAppear(tkdWormholeView.getWormholeDataProps());
   }
 
   public boolean onCreateTKDWormholeView(TKDWormholeView tkdWormholeView, String wormholeId) {
@@ -220,9 +230,45 @@ public class HippyWormholeManager {
         }
 
         mTkdWormholeNodeMap.put(wormholeId, id);
-        sendDataReceivedMessageToServer(paramsMap);
+        sendDataReceivedMessageToServer(WORMHOLE_CLIENT_DATA_RECEIVED,paramsMap);
       }
     });
+  }
+
+  public void onTkdWormholeDidAppear(HippyMap data) {
+    String wormholeId = getWormholeIdFromProps(data);
+    if (!mWormholeVisiableStateMap.containsKey(wormholeId) || mWormholeVisiableStateMap.get(wormholeId) == VisiableState.DIDDISAPPEAR) {
+      LogUtils.d(WORMHOLE_TAG, "call wormhole event didAppear wormholeid:" + getWormholeIdFromProps(data));
+      sendDataReceivedMessageToServer(WORMHOLE_CLIENT_DIDAPPEAR, data.getMap(WORMHOLE_PARAMS));
+      mWormholeVisiableStateMap.put(wormholeId, VisiableState.DIDAPPEAR);
+    }
+  }
+
+  public void onTkdWormholeDidDisAppear(HippyMap data) {
+    String wormholeId = getWormholeIdFromProps(data);
+    if (!mWormholeVisiableStateMap.containsKey(wormholeId) || mWormholeVisiableStateMap.get(wormholeId) == VisiableState.DIDAPPEAR) {
+      LogUtils.d(WORMHOLE_TAG, "call wormhole event didDisAppear wormholeid:" + getWormholeIdFromProps(data));
+      sendDataReceivedMessageToServer(WORMHOLE_CLIENT_DIDDISAPPEAR, data.getMap(WORMHOLE_PARAMS));
+      mWormholeVisiableStateMap.put(wormholeId, VisiableState.DIDDISAPPEAR);
+    }
+  }
+
+  public void onTkdWormholeDidAppearFromList(ViewGroup targetView) {
+    while (!(targetView instanceof TKDWormholeView) && targetView.getChildCount() > 0 && targetView.getChildAt(0) instanceof ViewGroup) {
+      targetView = (ViewGroup) targetView.getChildAt(0);
+    }
+    if (targetView instanceof TKDWormholeView) {
+      onTkdWormholeDidAppear(((TKDWormholeView) targetView).getWormholeDataProps());
+    }
+  }
+
+  public void onTkdWormholeDidDisAppearFromList(ViewGroup targetView) {
+    while (!(targetView instanceof TKDWormholeView) && targetView.getChildCount() > 0 && targetView.getChildAt(0) instanceof ViewGroup) {
+      targetView = (ViewGroup) targetView.getChildAt(0);
+    }
+    if (targetView instanceof TKDWormholeView) {
+      onTkdWormholeDidDisAppear(((TKDWormholeView) targetView).getWormholeDataProps());
+    }
   }
 
   public void registerClientEngine(HippyEngine hippyEngine) {

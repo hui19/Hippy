@@ -29,7 +29,7 @@ public class TKDWormholeController extends HippyViewController<TKDWormholeView> 
     final TKDWormholeView tkdWormholeView = new TKDWormholeView(context);
     String wormholeId = HippyWormholeManager.getInstance().getWormholeIdFromProps(initProps);
     if(!TextUtils.isEmpty(wormholeId)) {
-      tkdWormholeView.setWormholeId(wormholeId);
+      tkdWormholeView.setWormholeDataProps(initProps);
       boolean hasView = HippyWormholeManager.getInstance().onCreateTKDWormholeView(tkdWormholeView, wormholeId);
       if (!hasView) {
         addNVView(wormholeId, tkdWormholeView);

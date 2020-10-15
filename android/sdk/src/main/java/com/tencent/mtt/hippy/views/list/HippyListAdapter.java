@@ -30,6 +30,8 @@ import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.refresh.HippyPullFooterView;
 import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderView;
+import com.tencent.mtt.hippy.views.wormhole.HippyWormholeManager;
+import com.tencent.mtt.hippy.views.wormhole.TKDWormholeView;
 import com.tencent.mtt.supportui.views.recyclerview.*;
 
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase.ViewHolder;
@@ -55,7 +57,7 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 		mHippyContext = HippyContext;
 	}
 
-  @Override
+	@Override
   public String getViewHolderReUseKey(int position) {
 	  if (position < 0 || position > getItemCount()) {
 	    return null;
@@ -648,6 +650,21 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 	{
 		return mPreloadItemNum;
 	}
+
+  @Override
+  public void onViewAttachedToWindow(RecyclerView.ViewHolderWrapper viewHolderWrapper) {
+    if (viewHolderWrapper.getItemViewType() == ViewHolder.TYPE_WORMHOLE && viewHolderWrapper.itemView instanceof ViewGroup) {
+      HippyWormholeManager.getInstance().onTkdWormholeDidAppearFromList((ViewGroup) viewHolderWrapper.itemView);
+    }
+
+  }
+
+  @Override
+  public void onViewDetachedFromWindow(RecyclerView.ViewHolderWrapper viewHolderWrapper) {
+    if (viewHolderWrapper.getItemViewType() == ViewHolder.TYPE_WORMHOLE && viewHolderWrapper.itemView instanceof ViewGroup) {
+      HippyWormholeManager.getInstance().onTkdWormholeDidDisAppearFromList((ViewGroup) viewHolderWrapper.itemView);
+    }
+  }
 
 	protected void setPreloadItemNumber(int preloadItemNum)
 	{
