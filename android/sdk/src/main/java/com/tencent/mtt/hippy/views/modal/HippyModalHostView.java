@@ -302,6 +302,10 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 	}
 	protected void showOrUpdate()
 	{
+		HippyInstanceContext hippyInstanceContext = (HippyInstanceContext)getContext();
+		if (hippyInstanceContext == null || !(hippyInstanceContext.getBaseContext() instanceof Activity)){
+			return;
+		}
 
 		if (mDialog != null)
 		{
@@ -424,24 +428,24 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 
 	protected Dialog createDialog(Context context)
 	{
-    int theme = 0;
-	  if (context != null) {
-        Resources res = context.getResources();
-        theme = res.getIdentifier("HippyFullScreenDialog", "style", context.getPackageName());
-    }
+		int theme = 0;
+		if (context != null) {
+			Resources res = context.getResources();
+			theme = res.getIdentifier("HippyFullScreenDialog", "style", context.getPackageName());
+		}
 
-    Dialog dialog = new Dialog(context, theme);
-	  if (theme == 0) {
-	    Window window = dialog.getWindow();
-      if (window != null) {
-        window.requestFeature(Window.FEATURE_NO_TITLE);
-        window.setBackgroundDrawableResource(android.R.color.transparent);
-        window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams
-          .MATCH_PARENT);
-      }
-    }
+		Dialog dialog = new Dialog(context, theme);
+		if (theme == 0) {
+			Window window = dialog.getWindow();
+			if (window != null) {
+				window.requestFeature(Window.FEATURE_NO_TITLE);
+				window.setBackgroundDrawableResource(android.R.color.transparent);
+				window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams
+						.MATCH_PARENT);
+			}
+		}
 
-	  return dialog;
+		return dialog;
 	}
 
 	protected String getAnimationType()
@@ -481,13 +485,13 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 
 	private void updateProperties()
 	{
-    HippyInstanceContext hippyInstanceContext = (HippyInstanceContext)getContext();
-    if (hippyInstanceContext != null && (hippyInstanceContext.getBaseContext() instanceof Activity)){
-      Activity currentActivity = (Activity)(hippyInstanceContext.getBaseContext());
-      if (currentActivity != null && currentActivity.isFinishing()) {
-        return;
-      }
-    }
+		HippyInstanceContext hippyInstanceContext = (HippyInstanceContext)getContext();
+		if (hippyInstanceContext != null && (hippyInstanceContext.getBaseContext() instanceof Activity)){
+			Activity currentActivity = (Activity)(hippyInstanceContext.getBaseContext());
+			if (currentActivity != null && currentActivity.isFinishing()) {
+				return;
+			}
+		}
 
 		if (mTransparent)
 		{
