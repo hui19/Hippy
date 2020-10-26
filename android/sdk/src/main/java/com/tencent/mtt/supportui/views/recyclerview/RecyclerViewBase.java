@@ -3,6 +3,7 @@ package com.tencent.mtt.supportui.views.recyclerview;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import com.tencent.mtt.supportui.utils.ViewCompatTool;
@@ -3438,25 +3439,62 @@ public abstract class RecyclerViewBase extends ViewGroup
 			return null;
 		}
 
+		void putWormholeRecycledView(ViewHolder scrap, Adapter adapter, ArrayList<ViewHolder> scrapHeap) {
+			if (DEFAULT_WORMHOLE_MAX_SCRAP <= scrapHeap.size()) {
+				Collections.sort(scrapHeap, new Comparator<ViewHolder>() {
+					@Override
+					public int compare(ViewHolder lhs, ViewHolder rhs) {
+						int result = 0;
+						try {
+							int lkey = Integer.parseInt(lhs.mHolderReuseKey);
+							int rkey = Integer.parseInt(rhs.mHolderReuseKey);
+							result = lkey - rkey;
+						} catch (NumberFormatException e) {}
+
+						return result;
+					}
+				});
+
+				int abandonIndex = 0;
+				try {
+					int currKey = Integer.parseInt(scrap.mHolderReuseKey);
+					int firstKey = Integer.parseInt(scrapHeap.get(0).mHolderReuseKey);
+					if (currKey < firstKey) {
+						abandonIndex = scrapHeap.size() - 1;
+					}
+				} catch (NumberFormatException e) {}
+
+				ViewHolder holder = scrapHeap.get(abandonIndex);
+				if (adapter != null) {
+					adapter.onViewAbandon(holder);
+				}
+				scrapHeap.remove(abandonIndex);
+			}
+
+			scrap.mPosition = NO_POSITION;
+			scrap.mOldPosition = NO_POSITION;
+			scrap.mItemId = NO_ID;
+			scrap.clearFlagsForSharedPool();
+			scrapHeap.add(scrap);
+		}
+
 		public void putRecycledView(ViewHolder scrap, Adapter adapter)
 		{
 			final int viewType = scrap.getItemViewType();
 			final ArrayList<ViewHolder> scrapHeap = getScrapHeapForType(viewType);
+			if (viewType == ViewHolder.TYPE_WORMHOLE) {
+				putWormholeRecycledView(scrap, adapter, scrapHeap);
+				return;
+			}
+
 			if (mMaxScrap.get(viewType) <= scrapHeap.size())
 			{
-				if (viewType == ViewHolder.TYPE_WORMHOLE) {
-					ViewHolder vh = scrapHeap.get(0);
-					if (adapter != null) {
-						adapter.onViewAbandon(vh);
-					}
-					scrapHeap.remove(0);
-				} else {
-					// 如果scrapHeap已经满了，就不再向里面添加，此时这个viewHolder就被废弃，需要通知出去给adapter
-					if (adapter != null) {
-						adapter.onViewAbandon(scrap);
-					}
-					return;
+				// 如果scrapHeap已经满了，就不再向里面添加，此时这个viewHolder就被废弃，需要通知出去给adapter
+				if (adapter != null)
+				{
+					adapter.onViewAbandon(scrap);
 				}
+				return;
 			}
 			if (DEBUG)
 			{
@@ -3951,10 +3989,10 @@ public abstract class RecyclerViewBase extends ViewGroup
 				return;
 			}
 			//			if (((QBViewHolder) holder).mViewType != QBViewHolder.TYPE_NORMAL && holder instanceof QBViewHolder)
-//			if (holder.mViewType != ViewHolder.TYPE_NORMAL && holder.mViewType != ViewHolder.TYPE_WORMHOLE)
-//			{
-//				return;
-//			}
+			if (holder.mViewType != ViewHolder.TYPE_NORMAL)
+			{
+				return;
+			}
 
 			if (holder.isScrap() || holder.itemView.getParent() != null)
 			{
