@@ -3,6 +3,7 @@ apply plugin: 'maven-publish'
 ext {
     def propFile = file('maven-auth.properties')
     def keys = ['MAVEN_USER', 'MAVEN_PWD']
+    println("=======propFile.absolutePath=" + propFile.absolutePath)
     if (propFile.exists()) {
         project.file('maven-auth.properties').with {
             Properties p = new Properties()
@@ -36,17 +37,17 @@ publishing {
       groupId "com.tencent.mobileqq"
       artifactId "Hippy"
       //version "0.0.4-SNAPSHOT"
-      version "0.1.8"
+      version "0.1.9"
       artifact("build/outputs/aar/hippy.jar")     //托管指定路径的包
 
       pom.withXml {
         //properties信息必填，否则合入主干MR不通过
         def propertiesNode = asNode().appendNode('properties')
         propertiesNode.appendNode('jarName', 'hippy.jar')
-        propertiesNode.appendNode('jarDescription', 'Hippy SDK for QQ 8.4.10')
-        propertiesNode.appendNode('sourceUrl', 'https://github.com/siguangli/Hippy/tree/release/8.4.10')
-        propertiesNode.appendNode('deployUrl', 'https://github.com/siguangli/Hippy/tree/release/8.4.10')
-        propertiesNode.appendNode('commitId', '0.1.8')
+        propertiesNode.appendNode('jarDescription', 'Hippy SDK for QQ 8.4.17')
+        propertiesNode.appendNode('sourceUrl', 'https://github.com/siguangli/Hippy/tree/release/8.4.17')
+        propertiesNode.appendNode('deployUrl', 'https://github.com/siguangli/Hippy/tree/release/8.4.17')
+        propertiesNode.appendNode('commitId', '0.1.9')
       }
     }
   }
