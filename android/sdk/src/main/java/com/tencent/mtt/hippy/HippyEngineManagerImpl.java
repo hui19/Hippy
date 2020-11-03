@@ -98,7 +98,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 	boolean             						mDevManagerInited 			= false;
 	TimeMonitor									mStartTimeMonitor;
 	boolean										mHasReportEngineLoadResult	= false;
-	private int									mGroupId;
 	private HippyThirdPartyAdapter	mThirdPartyAdapter;
 
 	Handler										mHandler					= new Handler(Looper.getMainLooper())
@@ -620,15 +619,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		HippyBundleLoader loader = ((HippyInstanceContext) instance.getContext()).getBundleLoader();
 		if (!mDebugMode && loader != null)
 		{
-			if (loader != null) {
-			    instance.getTimeMonitor().startEvent(HippyEngineMonitorEvent.MODULE_LOAD_EVENT_WAIT_LOAD_BUNDLE);
-				mEngineContext.getBridgeManager().runBundle(instance.getId(), loader, mModuleListener, instance);
-			}
-			else
-			{
-				notifyModuleLoaded(STATUS_VARIABLE_UNINIT, "load module error. loader null", instance);
-				return;
-			}
+			instance.getTimeMonitor().startEvent(HippyEngineMonitorEvent.MODULE_LOAD_EVENT_WAIT_LOAD_BUNDLE);
+			mEngineContext.getBridgeManager().runBundle(instance.getId(), loader, mModuleListener, instance);
 		}
 		LogUtils.d(TAG, "in internalLoadInstance before loadInstance");
 		mEngineContext.getBridgeManager().loadInstance(instance.getName(), instance.getId(), launchParams);
@@ -723,7 +715,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 	public abstract int getBridgeType();
 
 	@Override
-	public void handleThreadUncaughtException(Thread t, Throwable e)
+	public void handleThreadUncaughtException(Thread t, Throwable e, Integer groupId)
 	{
 		if (mDebugMode && mDevSupportManager != null)
 		{

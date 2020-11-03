@@ -22,6 +22,7 @@ import android.view.ViewConfiguration;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.HippyRootView;
+import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
@@ -51,6 +52,8 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback
 																		{
 																			if (view != null && view.getContext() instanceof HippyInstanceContext)
 																			{
+																				reportGestureEventCallStack(((HippyInstanceContext) view.getContext())
+																						.getEngineContext(), "onClick", "before postDelayed");
 																				view.postDelayed(new Runnable()
 																				{
 																					@Override
@@ -166,6 +169,15 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback
 		return mOnDetachedFromWindowListener;
 	}
 
+	public static void reportGestureEventCallStack(HippyEngineContext context, String funcName, String msg) {
+		if (context != null) {
+			HippyEngineMonitorAdapter monitorAdapter = context.getGlobalConfigs().getEngineMonitorAdapter();
+			if (monitorAdapter != null) {
+				monitorAdapter.reportGestureEventCallStack(funcName, msg);
+			}
+		}
+	}
+
 	public static void handleClick(HippyEngineContext context, int tagId)
 	{
 		if (context == null)
@@ -175,6 +187,7 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback
 		HippyMap params = new HippyMap();
 		params.pushString(KEY_EVENT_NAME, NodeProps.ON_CLICK);
 		params.pushInt(KEY_TAG_ID, tagId);
+		reportGestureEventCallStack(context, "handleClick", "tagId=" + tagId);
 		context.getModuleManager().getJavaScriptModule(EventDispatcher.class).receiveNativeGesture(params);
 		LogUtils.d(TAG, "send msg: " + NodeProps.ON_CLICK);
 	}
@@ -237,6 +250,10 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback
 
 	public static void handleTouchDown(HippyEngineContext context, int mTagId, float x, float y, int viewId)
 	{
+		if (context == null)
+		{
+			return;
+		}
 		int[] viewCoords = new int[2];
 		getLocationInWindow(context, viewId, viewCoords);
 		HippyMap params = new HippyMap();
@@ -249,6 +266,10 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback
 
 	public static void handleTouchMove(HippyEngineContext context, int mTagId, float x, float y, int viewId)
 	{
+		if (context == null)
+		{
+			return;
+		}
 		int[] viewCoords = new int[2];
 		getLocationInWindow(context, viewId, viewCoords);
 		HippyMap params = new HippyMap();
@@ -261,6 +282,10 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback
 
 	public static void handleTouchEnd(HippyEngineContext context, int mTagId, float x, float y, int viewId)
 	{
+		if (context == null)
+		{
+			return;
+		}
 		int[] viewCoords = new int[2];
 		getLocationInWindow(context, viewId, viewCoords);
 		HippyMap params = new HippyMap();
@@ -273,6 +298,10 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback
 
 	public static void handleTouchCancel(HippyEngineContext context, int mTagId, float x, float y, int viewId)
 	{
+		if (context == null)
+		{
+			return;
+		}
 		int[] viewCoords = new int[2];
 		getLocationInWindow(context, viewId, viewCoords);
 		HippyMap params = new HippyMap();
@@ -295,6 +324,10 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback
 
 	private static void getLocationInWindow(HippyEngineContext context, int id, int[] viewCoords)
 	{
+		if (context == null)
+		{
+			return;
+		}
 		if (id >= 0)
 		{
 			View view = context.getRenderManager().getControllerManager().findView(id);
@@ -305,6 +338,11 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback
 
 	public boolean handleTouchEvent(MotionEvent event)
 	{
+		int action = event.getAction() & MotionEvent.ACTION_MASK;
+		if (action == MotionEvent.ACTION_DOWN) {
+			boolean needHandle = needHandle(NodeProps.ON_PRESS_IN);
+			reportGestureEventCallStack(mEngineContext, "handleTouchEvent", "needHandle=" + needHandle);
+		}
 		if (mGestureProcessor == null)
 		{
 			mGestureProcessor = new NativeGestureProcessor(this);
@@ -359,6 +397,7 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback
 
 		if (TextUtils.equals(type, NodeProps.ON_PRESS_IN))
 		{
+			reportGestureEventCallStack(mEngineContext, "handle", "ON_PRESS_IN id=" + mTargetView.getId());
 			handlePressIn(mEngineContext, mTargetView.getId());
 		}
 		else if (TextUtils.equals(type, NodeProps.ON_PRESS_OUT))
