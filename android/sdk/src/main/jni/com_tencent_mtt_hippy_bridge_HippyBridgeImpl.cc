@@ -608,7 +608,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromUri(
   }
 
   HIPPY_DLOG(hippy::Debug, "runScriptFromUri begin");
-  auto time1 = std::chrono::time_point_cast<std::chrono::microseconds>(
+  auto time_begin = std::chrono::time_point_cast<std::chrono::microseconds>(
                    std::chrono::system_clock::now())
                    .time_since_epoch()
                    .count();
@@ -630,11 +630,11 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromUri(
   const std::string base_path = protocol + uri_path.substr(0, pos + 1);
 
   HIPPY_LOG(hippy::Debug,
-            "runScriptFromUri uri = %s, uri_path = %s, script_name = %s, protocol = %s, base_path = %s, "
+            "runScriptFromUri uri = %s, uri_path = %s, script_name = %s, "
+            "protocol = %s, base_path = %s, "
             "code_cache_dir = %s",
-            uri.c_str(), uri_path.c_str(), script_name.c_str(), protocol.c_str(),
-            base_path.c_str(),
-            code_cache_dir.c_str());
+            uri.c_str(), uri_path.c_str(), script_name.c_str(),
+            protocol.c_str(), base_path.c_str(), code_cache_dir.c_str());
 
   auto runner = runtime->engine_->GetJSRunner();
   std::shared_ptr<Ctx> ctx = runtime->scope_->GetContext();
@@ -644,6 +644,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromUri(
   };
   runner->PostTask(task);
 
+  AAssetManager* aasset_manager = nullptr;
   if (protocol == "file:") {
     HIPPY_LOG(hippy::Debug, "FileLoader");
     std::shared_ptr<FileLoader> loader =
@@ -656,8 +657,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromUri(
     runtime->scope_->SetUriLoader(loader);
   } else if (protocol == "asset:") {
     HIPPY_LOG(hippy::Debug, "AssetLoader");
-    AAssetManager* aasset_manager =
-        AAssetManager_fromJava(env, j_asset_manager);
+    aasset_manager = AAssetManager_fromJava(env, j_asset_manager);
     std::shared_ptr<AssetLoader> loader =
         std::make_shared<AssetLoader>(aasset_manager, base_path);
     runtime->scope_->SetUriLoader(loader);
@@ -669,20 +669,21 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromUri(
   std::shared_ptr<JavaRef> save_object = std::make_shared<JavaRef>(env, j_cb);
   task = std::make_shared<JavaScriptTask>();
   task->callback = [runtime, save_object_ = std::move(save_object), script_name,
-                    j_can_use_code_cache, code_cache_dir, uri, time1] {
+                    j_can_use_code_cache, code_cache_dir, uri, aasset_manager,
+                    time_begin] {
     HIPPY_DLOG(hippy::Debug, "runScriptFromFile enter tast");
     bool flag = RunScript(runtime, script_name, j_can_use_code_cache,
-                          code_cache_dir, uri, nullptr);
+                          code_cache_dir, uri, aasset_manager);
     jlong value = flag == false ? 0 : 1;
     CallJavaMethod(save_object_->GetObj(), value);
 
-    auto time2 = std::chrono::time_point_cast<std::chrono::microseconds>(
+    auto time_end = std::chrono::time_point_cast<std::chrono::microseconds>(
                      std::chrono::system_clock::now())
                      .time_since_epoch()
                      .count();
 
     HIPPY_LOG(hippy::Debug, "pollytime runScriptFromUri = %lld, uri = %s",
-              (time2 - time1), uri.c_str());
+              (time_end - time_begin), uri.c_str());
 
     return flag;
   };

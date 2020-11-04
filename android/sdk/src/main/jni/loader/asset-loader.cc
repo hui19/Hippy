@@ -68,6 +68,7 @@ std::unique_ptr<std::vector<char>> AssetLoader::ReadAssetFile(
     }
     AAsset_close(asset);
   }
+  HIPPY_DLOG(hippy::Debug, "file_data = %s", file_data.data());
   return std::make_unique<std::vector<char>>(std::move(file_data));
 }
 
