@@ -24,6 +24,9 @@
 
 #include "core/base/file.h"
 
+const static std::string kFileProtocol = "file:";
+const static auto kFileProtocolLen = kFileProtocol.length();
+
 bool FileLoader::CheckValid(const std::string& path){
   auto pos = path.find_first_of(base_path_, 0);
   if (pos == 0) {
@@ -47,9 +50,14 @@ std::string FileLoader::Load(const std::string& uri) {
 }
 
 std::unique_ptr<std::vector<char>> FileLoader::LoadBytes(const std::string& uri) {
+  const auto pos = uri.find_first_of(kFileProtocol);
+  if (pos != 0) {
+    return nullptr;
+  }
+  std::string path = uri.substr(kFileProtocolLen);
   std::string rst;
-  if (CheckValid(uri)) {
-    return hippy::base::HippyFile::ReadFile(uri.c_str(), false);
+  if (CheckValid(path)) {
+    return hippy::base::HippyFile::ReadFile(path.c_str(), false);
   }
   return nullptr;
 }

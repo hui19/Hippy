@@ -26,7 +26,7 @@
 #include "core/base/logging.h"
 
 const static std::string kAssetProtocol = "asset:";
-const static auto kAssetProtocalLen = kAssetProtocol.length();
+const static auto kAssetProtocolLen = kAssetProtocol.length();
 
 std::unique_ptr<std::vector<char>> AssetLoader::ReadAssetFile(
     AAssetManager* asset_manager,
@@ -40,7 +40,7 @@ std::unique_ptr<std::vector<char>> AssetLoader::ReadAssetFile(
     return nullptr;
   }
 
-  std::string asset_path = str_file_path.substr(kAssetProtocalLen);
+  std::string asset_path = str_file_path.substr(kAssetProtocolLen);
   if (asset_path[0] == '/') {
     asset_path = asset_path.substr(1);
   }
@@ -49,7 +49,7 @@ std::unique_ptr<std::vector<char>> AssetLoader::ReadAssetFile(
             "asset_path = %s",
             pos, asset_path.c_str());
   auto asset = AAssetManager_open(asset_manager, asset_path.c_str(),
-      AASSET_MODE_STREAMING);
+                                  AASSET_MODE_STREAMING);
   std::vector<char> file_data;
   if (asset) {
     int size = AAsset_getLength(asset);
@@ -68,7 +68,8 @@ std::unique_ptr<std::vector<char>> AssetLoader::ReadAssetFile(
     }
     AAsset_close(asset);
   }
-  HIPPY_DLOG(hippy::Debug, "file_data = %s", file_data.data());
+  HIPPY_DLOG(hippy::Debug, "file_path = %s, file_data = %s", file_path,
+             file_data.data());
   return std::make_unique<std::vector<char>>(std::move(file_data));
 }
 

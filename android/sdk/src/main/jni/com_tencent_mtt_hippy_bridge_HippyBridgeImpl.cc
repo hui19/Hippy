@@ -146,6 +146,7 @@ bool RunScript(std::shared_ptr<V8Runtime> runtime,
       HIPPY_LOG(hippy::Debug, "GetFileModifytime cost %lld microseconds",
                 time2 - time1);
     }
+
     code_cache_path =
         code_cache_dir + file_name + "_" + std::to_string(modify_time);
     code_cache_dir_path = code_cache_dir.substr(0, code_cache_dir.length() - 1);
