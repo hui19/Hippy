@@ -174,6 +174,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 			mIniProps.pushString(NodeProps.CUSTOM_PROP_IMAGE_TYPE, iniProps.getString(NodeProps.CUSTOM_PROP_IMAGE_TYPE));
 		}
 
+		mIniProps.pushInt(NodeProps.REPEAT_COUNT, iniProps.getInt(NodeProps.REPEAT_COUNT));
 		mIniProps.pushBoolean(NodeProps.CUSTOM_PROP_ISGIF, iniProps.getBoolean(NodeProps.CUSTOM_PROP_ISGIF));
 		mIniProps.pushInt(NodeProps.WIDTH, width);
 		mIniProps.pushInt(NodeProps.HEIGHT, height);
@@ -600,7 +601,10 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 			isGif = !TextUtils.isEmpty(mImageType) && mImageType.equals(IMAGE_TYPE_GIF);
 		}
 
-		if (isGif) {
+		if (!TextUtils.isEmpty(mImageType) && mImageType.equals(IMAGE_TYPE_APNG)
+				&& mContentDrawable != null && !(mContentDrawable instanceof ContentDrawable)) {
+			return false;
+		} else if (isGif) {
 			if (mGifMovie == null) {
 				return true;
 			}
