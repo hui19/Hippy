@@ -672,7 +672,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromUri(
   task->callback = [runtime, save_object_ = std::move(save_object), script_name,
                     j_can_use_code_cache, code_cache_dir, uri, aasset_manager,
                     time_begin] {
-    HIPPY_DLOG(hippy::Debug, "runScriptFromFile enter tast");
+    HIPPY_DLOG(hippy::Debug, "runScriptFromUri enter tast");
     bool flag = RunScript(runtime, script_name, j_can_use_code_cache,
                           code_cache_dir, uri, aasset_manager);
     jlong value = flag == false ? 0 : 1;

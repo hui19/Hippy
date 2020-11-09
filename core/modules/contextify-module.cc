@@ -28,13 +28,12 @@
 #include <string>
 
 #include "core/base/logging.h"
+#include "core/base/uri-loader.h"
 #include "core/modules/module-register.h"
 #include "core/napi/callback-info.h"
 #include "core/napi/js-native-api-types.h"
 #include "core/napi/js-native-api.h"
 #include "core/napi/native-source-code.h"
-
-#include "core/base/uri-loader.h"
 #include "core/task/common-task.h"
 #include "core/task/javascript-task.h"
 
@@ -89,42 +88,34 @@ void ContextifyModule::LoadUriContent(const CallbackInfo& info) {
   std::weak_ptr<Scope> weak_scope = scope;
   std::weak_ptr<hippy::napi::CtxValue> weak_function = function;
 
-  task->func_ = [weak_scope, weak_function, key]() { 
+  task->func_ = [weak_scope, weak_function, key]() {
     std::shared_ptr<Scope> scope = weak_scope.lock();
     if (!scope) {
       return;
     }
 
     std::shared_ptr<UriLoader> loader = scope->GetUriLoader();
-     std::string test(key);
-	 /*
-    if (key.find_first_of("asset:") != -1) {
-      test = std::string("asset:/") + key.substr(key.find_first_of(":") + 1);
-    }
-	*/
-    std::string uri = loader->Normalize(test);
-	/*
-    if (key.find_first_of("asset:") != -1) {
-      uri = std::string("asset:") + uri.substr(uri.find_first_of(":") + 2);
-    }
-	*/
-    std::string cur_dir_str;
+    std::string uri = loader->Normalize(key);
+    std::string cur_dir;
+    std::string file_name;
     auto pos = uri.find_last_of('/');
     if (pos != -1) {
-      cur_dir_str = uri.substr(0, pos + 1);
+      cur_dir = uri.substr(0, pos + 1);
+      file_name = uri.substr(pos + 1);
     }
-    
+
     const std::string code = loader->Load(uri);
     if (code.empty()) {
       HIPPY_LOG(hippy::Warning, "Load key = %s, uri = %s, code empty",
-		key.c_str(), uri.c_str());
+                key.c_str(), uri.c_str());
     } else {
       HIPPY_DLOG(hippy::Debug, "Load key = %s, uri = %s, code = %s",
-		key.c_str(), uri.c_str(), code.c_str());
+                 key.c_str(), uri.c_str(), code.c_str());
     }
     std::shared_ptr<JavaScriptTask> js_task =
         std::make_shared<JavaScriptTask>();
-    js_task->callback = [weak_scope, weak_function, code, cur_dir_str]() {
+    js_task->callback = [weak_scope, weak_function, code, cur_dir,
+                         file_name]() {
       std::shared_ptr<Scope> scope = weak_scope.lock();
       if (!scope) {
         return;
@@ -134,14 +125,14 @@ void ContextifyModule::LoadUriContent(const CallbackInfo& info) {
       std::shared_ptr<CtxValue> status;
       if (!code.empty()) {
         auto last_dir_str_obj = ctx->GetGlobalStrVar("__HIPPYCURDIR__");
-        ctx->SetGlobalStrVar("__HIPPYCURDIR__", cur_dir_str.c_str());
-        scope->RunJS(code);
+        ctx->SetGlobalStrVar("__HIPPYCURDIR__", cur_dir.c_str());
+        scope->RunJS(code, file_name);
         ctx->SetGlobalObjVar("__HIPPYCURDIR__", last_dir_str_obj);
         std::shared_ptr<CtxValue> status = ctx->CreateBoolean(true);
       } else {
         std::shared_ptr<CtxValue> status = ctx->CreateBoolean(false);
       }
-      
+
       std::shared_ptr<CtxValue> function = weak_function.lock();
       if (function) {
         std::shared_ptr<CtxValue> argv[] = {status};

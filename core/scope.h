@@ -80,10 +80,10 @@ class Scope {
     return binding_data_;
   }
 
-  void RunJS(const std::string& js);
+  void RunJS(const std::string& js, const std::string& name);
   std::shared_ptr<CtxValue> RunJS(const uint8_t* data,
                                   size_t len,
-                                  const char* name = nullptr);
+                                  const std::string& name);
 
   inline std::shared_ptr<JavaScriptTaskRunner> GetTaskRunner() {
     return engine_->GetJSRunner();

@@ -92,7 +92,7 @@ class Ctx {
   virtual std::shared_ptr<CtxValue> EvaluateJavascript(
       const uint8_t* data,
       size_t len,
-      const char* name = nullptr) = 0;
+      const std::string& name) = 0;
   virtual std::shared_ptr<CtxValue> CreateNumber(double number) = 0;
   virtual std::shared_ptr<CtxValue> CreateBoolean(bool b) = 0;
   virtual std::shared_ptr<CtxValue> CreateString(const char* string) = 0;

@@ -152,13 +152,13 @@ void Scope::SaveFunctionData(std::unique_ptr<hippy::napi::FunctionData> data) {
   function_data_.push_back(std::move(data));
 }
 
-void Scope::RunJS(const std::string& js) {
+void Scope::RunJS(const std::string& js, const std::string& name) {
   JavaScriptTask::Function callback = [=] {
-    if (context_ == nullptr) {
+    if (!context_) {
       return;
     }
     const uint8_t* data = reinterpret_cast<const uint8_t*>(js.c_str());
-    context_->EvaluateJavascript(data, js.length(), "");
+    context_->EvaluateJavascript(data, js.length(), name);
   };
 
   std::shared_ptr<JavaScriptTaskRunner> runner = engine_->GetJSRunner();
@@ -173,7 +173,7 @@ void Scope::RunJS(const std::string& js) {
 
 std::shared_ptr<CtxValue> Scope::RunJS(const uint8_t* data,
                                        size_t len,
-                                       const char* name) {
+                                       const std::string& name) {
   std::promise<std::shared_ptr<CtxValue>> promise;
   std::future<std::shared_ptr<CtxValue>> future = promise.get_future();
   JavaScriptTask::Function cb = hippy::base::MakeCopyable(

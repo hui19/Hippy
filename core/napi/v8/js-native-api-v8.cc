@@ -388,9 +388,9 @@ void V8Ctx::RegisterNativeBinding(const std::string& name,
 std::shared_ptr<CtxValue> V8Ctx::EvaluateJavascript(
     const uint8_t* javascript_data,
     size_t javascript_length,
-    const char* js_file_name) {
+    const std::string& js_file_name) {
   HIPPY_DLOG(hippy::Debug, "EvaluateJavascript js_file_name = %s",
-             js_file_name);
+             js_file_name.c_str());
   if (!javascript_data || !javascript_length) {
     HIPPY_LOG(hippy::Error,
               "EvaluateJavascript javascript_data or javascript_length "
@@ -408,17 +408,9 @@ std::shared_ptr<CtxValue> V8Ctx::EvaluateJavascript(
       v8::String::NewExternalOneByte(isolate_, source).ToLocalChecked();
 
   v8::MaybeLocal<v8::Script> v8_maybe_script;
-  if (js_file_name) {
-    std::string file_name;
-    bool debug = false;
-    if (debug) {  // fix bug: file source not show at the first time on dev
-                  // tools
-      file_name = std::string("hippy-core-debug:///internal_") +
-                  std::string(js_file_name);
-    } else {
-      file_name =
-          std::string("hippy-core:///internal_") + std::string(js_file_name);
-    }
+  if (js_file_name.length() > 0) {
+    std::string file_name =
+        std::string("hippy-core:///internal_") + js_file_name;
     v8::ScriptOrigin origin(v8::String::NewFromUtf8(isolate_, file_name.c_str(),
                                                     v8::NewStringType::kNormal)
                                 .FromMaybe(v8::Local<v8::String>()));

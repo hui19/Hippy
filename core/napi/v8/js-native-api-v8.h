@@ -148,7 +148,7 @@ struct V8Ctx : public Ctx {
   virtual std::shared_ptr<CtxValue> EvaluateJavascript(
       const uint8_t *javascript_data,
       size_t javascript_length,
-      const char *js_file_name = nullptr);
+      const std::string &js_file_name);
 
   virtual std::shared_ptr<CtxValue> CreateNumber(double number);
   virtual std::shared_ptr<CtxValue> CreateBoolean(bool b);
