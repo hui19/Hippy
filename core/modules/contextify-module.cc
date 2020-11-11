@@ -114,7 +114,7 @@ void ContextifyModule::LoadUriContent(const CallbackInfo& info) {
     }
     std::shared_ptr<JavaScriptTask> js_task =
         std::make_shared<JavaScriptTask>();
-    js_task->callback = [weak_scope, weak_function, code, cur_dir,
+    js_task->callback = [weak_scope, weak_function, move_code = std::move(code), cur_dir,
                          file_name]() {
       std::shared_ptr<Scope> scope = weak_scope.lock();
       if (!scope) {
@@ -123,11 +123,15 @@ void ContextifyModule::LoadUriContent(const CallbackInfo& info) {
 
       std::shared_ptr<Ctx> ctx = scope->GetContext();
       std::shared_ptr<CtxValue> status;
-      if (!code.empty()) {
+      if (!move_code.empty()) {
         auto last_dir_str_obj = ctx->GetGlobalStrVar("__HIPPYCURDIR__");
+        HIPPY_DLOG(hippy::debug, "__HIPPYCURDIR__ cur_dir = %s", cur_dir.c_str());
         ctx->SetGlobalStrVar("__HIPPYCURDIR__", cur_dir.c_str());
-        scope->RunJS(code, file_name);
+        scope->RunJS(move_code, file_name);
         ctx->SetGlobalObjVar("__HIPPYCURDIR__", last_dir_str_obj);
+        std::string last_dir_str;
+        ctx->GetValueString(last_dir_str_obj, &last_dir_str);
+        HIPPY_DLOG(hippy::debug, "restore __HIPPYCURDIR__ = %s", last_dir_str.c_str());
         std::shared_ptr<CtxValue> status = ctx->CreateBoolean(true);
       } else {
         std::shared_ptr<CtxValue> status = ctx->CreateBoolean(false);

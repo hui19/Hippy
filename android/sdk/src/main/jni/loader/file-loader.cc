@@ -23,6 +23,7 @@
 #include "file-loader.h"
 
 #include "core/base/file.h"
+#include "core/base/logging.h"
 
 const static std::string kFileProtocol = "file:";
 const static auto kFileProtocolLen = kFileProtocol.length();
@@ -41,12 +42,15 @@ FileLoader::FileLoader(const std::string& base_path) : base_path_(base_path) {
 }
 
 std::string FileLoader::Load(const std::string& uri) {
-  std::string rst;
-  auto ret = LoadBytes(uri);
-  if (ret) {
-    rst = ret->data();
+  std::string ret;
+  auto rst = LoadBytes(uri);
+  if (rst) {
+    ret = rst->data();
   }
-  return rst;
+
+  HIPPY_DLOG(hippy::Debug, "FileLoader::Load uri = %s, ret = %s,",
+             uri.c_str(), ret.c_str());
+  return ret;
 }
 
 std::unique_ptr<std::vector<char>> FileLoader::LoadBytes(const std::string& uri) {

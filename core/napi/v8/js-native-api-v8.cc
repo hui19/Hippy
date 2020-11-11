@@ -389,8 +389,8 @@ std::shared_ptr<CtxValue> V8Ctx::EvaluateJavascript(
     const uint8_t* javascript_data,
     size_t javascript_length,
     const std::string& js_file_name) {
-  HIPPY_DLOG(hippy::Debug, "EvaluateJavascript js_file_name = %s",
-             js_file_name.c_str());
+  HIPPY_DLOG(hippy::Debug, "EvaluateJavascript js_file_name = %s, javascript_length = %d",
+             js_file_name.c_str(), javascript_length);
   if (!javascript_data || !javascript_length) {
     HIPPY_LOG(hippy::Error,
               "EvaluateJavascript javascript_data or javascript_length "
