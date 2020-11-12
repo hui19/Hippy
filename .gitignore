@@ -11,7 +11,7 @@ layout/cproject
 layout/.project
 layout/.settings
 examples/*/res/vendor-manifest.json
-android/sdk/src/main/jni/core
+android/sdk/src/main/jni/.vs
 android/sdk/maven-auth.properties
 android/sdk/libs/hippy.jar
 examples/android-demo/example/src/main/assets/

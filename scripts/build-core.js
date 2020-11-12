@@ -184,5 +184,5 @@ function generateCpp(platform, buildDirPath) {
 }
 
 // Start to work
-generateCpp('ios', getAbsolutePath('../core/napi/jsc'));
-generateCpp('android', getAbsolutePath('../core/napi/v8/'));
+generateCpp('ios', getAbsolutePath('../core/src/napi/jsc/'));
+generateCpp('android', getAbsolutePath('../core/src/napi/v8/'));

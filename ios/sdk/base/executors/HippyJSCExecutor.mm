@@ -126,6 +126,7 @@ HIPPY_EXPORT_MODULE()
         std::shared_ptr<Scope> scope = wrapper->scope_.lock();
         if (scope) {
             std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::napi::JSCCtx>(scope->GetContext());
+            JSContext* jsContext = [JSContext contextWithJSGlobalContextRef:context->GetCtxRef()];
             context->RegisterGlobalInJs();
             NSMutableDictionary *deviceInfo = [NSMutableDictionary dictionaryWithDictionary:[strongSelf.bridge deviceInfo]];
             if ([strongSelf.bridge.delegate respondsToSelector:@selector(objectsBeforeExecuteCode)]) {
@@ -138,8 +139,14 @@ HIPPY_EXPORT_MODULE()
             NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
             context->SetGlobalVar("__HIPPYNATIVEGLOBAL__", [string UTF8String]);
             context->SetGlobalVar("__fbBatchedBridgeConfig", [[strongSelf.bridge moduleConfig] UTF8String]);
-            JSContext* jsContext = [JSContext contextWithJSGlobalContextRef:context->GetCtxRef()];
             installBasicSynchronousHooksOnContext(jsContext);
+	    jsContext[@"reportUncaughtException"] = ^(NSString* err) {
+	    	RCTJSCExecutor *strongSelf = weakSelf;
+		if (strongSelf && err) {
+			NSError *error = RCTErrorWithMessageAndModule(err, strongSelf.bridge.moduleName);
+			RCTFatal(error);
+		}
+	    };
             jsContext[@"nativeRequireModuleConfig"] = ^NSArray *(NSString *moduleName) {
                 HippyJSCExecutor *strongSelf = weakSelf;
                 if (!strongSelf.valid) {
@@ -185,9 +192,21 @@ HIPPY_EXPORT_MODULE()
     #endif
         }
     };
+	
+    hippy::base::RegisterFunction jsExceptionCB = [weakSelf](void *p) {
+        RCTJSCExecutor *strongSelf = weakSelf;
+        if (strongSelf && p) {
+            const char *errorString = (char*)p;
+            NSString *err = [NSString stringWithUTF8String:errorString];
+            NSError *error = RCTErrorWithMessageAndModule(err, strongSelf.bridge.moduleName);
+            RCTFatal(error);
+        }
+    };
+	
     std::unique_ptr<Engine::RegisterMap> ptr = std::make_unique<Engine::RegisterMap>();
     ptr->insert(std::make_pair("ASYNC_TASK_END", taskEndCB));
     ptr->insert(std::make_pair(hippy::base::kContextCreatedCBKey, ctxCreateCB));
+    ptr->insert(std::make_pair(hippy::base::kHandleExceptionKey, jsExceptionCB));
     return ptr;
 }
 
