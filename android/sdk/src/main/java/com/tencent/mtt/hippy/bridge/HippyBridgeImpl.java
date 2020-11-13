@@ -99,7 +99,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 				this.mCodeCacheThreadExecutor.allowCoreThreadTimeOut(true);
 			}
 		}
-        
+
 		if (!mBridgeParamJson)
 		{
 			mHippyBuffer = new HippyBuffer();
@@ -277,7 +277,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 				mCodeCacheThreadExecutor = null;
 			}
 		}
-		
+
 		if (!mBridgeParamJson && mHippyBuffer != null)
 		{
 			mHippyBuffer.release();
@@ -402,7 +402,6 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		} catch (InterruptedException e) {
 			LogUtils.e("hippy", "requireSubResource: " + e.getMessage());
 		}
-
 		return output.toByteArray();
 	}
 

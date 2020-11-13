@@ -586,6 +586,17 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromUri(
                         std::chrono::system_clock::now())
                         .time_since_epoch()
                         .count();
+  /*
+  http_parser_url url{};
+  const char* url_c_str = uri.c_str();
+  if (http_parser_parse_url(url_c_str, uri.size(), 0, &url)) {
+    HIPPY_LOG(hippy::Warning,
+              "http_parser_parse_url error, uri = %s ", uri.c_str());
+    return false;
+  };
+
+  std::string uri_path = util::get_uri_field(url_c_str, url, UF_PATH);
+  */
 
   const std::string uri = JniUtils::CovertJavaStringToString(env, j_uri);
   const std::string code_cache_dir =

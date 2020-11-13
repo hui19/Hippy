@@ -64,6 +64,10 @@ void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo& info) {
   info.GetReturnValue()->Set(ret);
 }
 
+void ContextifyModule::RemoveCBFunc(const std::string& uri) {
+  cb_func_map_.erase(uri);
+}
+
 void ContextifyModule::LoadUriContent(const CallbackInfo& info) {
   std::shared_ptr<Scope> scope = info.GetScope();
   std::shared_ptr<hippy::napi::Ctx> context = scope->GetContext();
@@ -76,8 +80,13 @@ void ContextifyModule::LoadUriContent(const CallbackInfo& info) {
     return;
   }
 
+  std::shared_ptr<UriLoader> loader = scope->GetUriLoader();
+  std::string uri = loader->Normalize(key);
   std::shared_ptr<hippy::napi::CtxValue> function = info[1];
-  if (!context->IsFunction(function)) {
+  if (context->IsFunction(function)) {
+    cb_func_map_[uri] = function;
+  } else {
+    HIPPY_DLOG(hippy::debug, "cb is not function");
     function = nullptr;
   }
 
@@ -88,14 +97,12 @@ void ContextifyModule::LoadUriContent(const CallbackInfo& info) {
   std::weak_ptr<Scope> weak_scope = scope;
   std::weak_ptr<hippy::napi::CtxValue> weak_function = function;
 
-  task->func_ = [weak_scope, weak_function, key]() {
+  task->func_ = [this, weak_scope, weak_function, uri]() {
     std::shared_ptr<Scope> scope = weak_scope.lock();
     if (!scope) {
       return;
     }
 
-    std::shared_ptr<UriLoader> loader = scope->GetUriLoader();
-    std::string uri = loader->Normalize(key);
     std::string cur_dir;
     std::string file_name;
     auto pos = uri.find_last_of('/');
@@ -103,44 +110,47 @@ void ContextifyModule::LoadUriContent(const CallbackInfo& info) {
       cur_dir = uri.substr(0, pos + 1);
       file_name = uri.substr(pos + 1);
     }
-
+    std::shared_ptr<UriLoader> loader = scope->GetUriLoader();
     const std::string code = loader->Load(uri);
     if (code.empty()) {
-      HIPPY_LOG(hippy::Warning, "Load key = %s, uri = %s, code empty",
-                key.c_str(), uri.c_str());
+      HIPPY_LOG(hippy::Warning, "Load uri = %s, code empty", uri.c_str());
     } else {
-      HIPPY_DLOG(hippy::Debug, "Load key = %s, uri = %s, code = %s",
-                 key.c_str(), uri.c_str(), code.c_str());
+      HIPPY_DLOG(hippy::Debug, "Load uri = %s, code = %s", uri.c_str(), code.c_str());
     }
     std::shared_ptr<JavaScriptTask> js_task =
         std::make_shared<JavaScriptTask>();
-    js_task->callback = [weak_scope, weak_function, move_code = std::move(code), cur_dir,
-                         file_name]() {
+    js_task->callback = [this, weak_scope, weak_function, move_code = std::move(code),
+                         cur_dir, file_name, uri]() {
       std::shared_ptr<Scope> scope = weak_scope.lock();
       if (!scope) {
         return;
       }
 
       std::shared_ptr<Ctx> ctx = scope->GetContext();
-      std::shared_ptr<CtxValue> status;
+      std::shared_ptr<CtxValue> error;
       if (!move_code.empty()) {
         auto last_dir_str_obj = ctx->GetGlobalStrVar("__HIPPYCURDIR__");
-        HIPPY_DLOG(hippy::debug, "__HIPPYCURDIR__ cur_dir = %s", cur_dir.c_str());
+        HIPPY_DLOG(hippy::debug, "__HIPPYCURDIR__ cur_dir = %s",
+                   cur_dir.c_str());
         ctx->SetGlobalStrVar("__HIPPYCURDIR__", cur_dir.c_str());
         scope->RunJS(move_code, file_name);
         ctx->SetGlobalObjVar("__HIPPYCURDIR__", last_dir_str_obj);
         std::string last_dir_str;
         ctx->GetValueString(last_dir_str_obj, &last_dir_str);
-        HIPPY_DLOG(hippy::debug, "restore __HIPPYCURDIR__ = %s", last_dir_str.c_str());
-        std::shared_ptr<CtxValue> status = ctx->CreateBoolean(true);
+        HIPPY_DLOG(hippy::debug, "restore __HIPPYCURDIR__ = %s",
+                   last_dir_str.c_str());
+
+        error = ctx->CreateNull();
       } else {
-        std::shared_ptr<CtxValue> status = ctx->CreateBoolean(false);
+        error = ctx->CreateJsError(uri + " not found");
       }
 
       std::shared_ptr<CtxValue> function = weak_function.lock();
       if (function) {
-        std::shared_ptr<CtxValue> argv[] = {status};
+        HIPPY_DLOG(hippy::debug, "run js cb");
+        std::shared_ptr<CtxValue> argv[] = {error};
         ctx->CallFunction(function, 1, argv);
+        RemoveCBFunc(uri);
       }
     };
     scope->GetTaskRunner()->PostTask(js_task);
@@ -149,3 +159,4 @@ void ContextifyModule::LoadUriContent(const CallbackInfo& info) {
 
   info.GetReturnValue()->SetUndefined();
 }
+

@@ -160,6 +160,7 @@ struct V8Ctx : public Ctx {
   virtual std::shared_ptr<CtxValue> CreateArray(
       size_t count,
       std::shared_ptr<CtxValue> value[]);
+  virtual std::shared_ptr<CtxValue> CreateJsError(const std::string &msg);
 
   virtual bool GetValueNumber(std::shared_ptr<CtxValue>, double *result);
   virtual bool GetValueNumber(std::shared_ptr<CtxValue>, int32_t *result);

@@ -104,6 +104,7 @@ class Ctx {
   virtual std::shared_ptr<CtxValue> CreateArray(
       size_t count,
       std::shared_ptr<CtxValue> value[]) = 0;
+  virtual std::shared_ptr<CtxValue> CreateJsError(const std::string& msg) = 0;
 
   // Get From Value
   virtual std::shared_ptr<CtxValue> CallFunction(

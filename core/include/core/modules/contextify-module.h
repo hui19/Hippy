@@ -27,6 +27,8 @@
 #include "core/napi/callback-info.h"
 #include "core/napi/js-native-api-types.h"
 
+using CtxValue = hippy::napi::CtxValue;
+
 class Scope;
 
 class ContextifyModule : public ModuleBase {
@@ -34,6 +36,10 @@ class ContextifyModule : public ModuleBase {
   explicit ContextifyModule(){};
   void RunInThisContext(const hippy::napi::CallbackInfo& info);
   void LoadUriContent(const hippy::napi::CallbackInfo& info);
+  void RemoveCBFunc(const std::string& uri);
+
+ private:
+  std::unordered_map<std::string, std::shared_ptr<CtxValue>> cb_func_map_;
 };
 
 #endif  // CORE_MODULES_CONTEXTIFY_MODULE_H_
