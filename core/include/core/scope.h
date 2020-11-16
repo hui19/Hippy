@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef CORE_SCOPE_H_
-#define CORE_SCOPE_H_
+#ifndef HIPPY_CORE_SCOPE_H_
+#define HIPPY_CORE_SCOPE_H_
 
 #include <string>
 #include <unordered_map>
@@ -29,10 +29,10 @@
 #include "core/base/common.h"
 #include "core/base/task.h"
 #include "core/engine.h"
-#include "core/napi/js-native-api-types.h"
-#include "core/napi/js-native-api.h"
-#include "core/task/worker-task-runner.h"
-#include "core/base/uri-loader.h"
+#include "core/napi/js_native_api_types.h"
+#include "core/napi/js_native_api.h"
+#include "core/task/worker_task_runner.h"
+#include "core/base/uri_loader.h"
 
 class JavaScriptTaskRunner;
 class ModuleBase;
@@ -126,4 +126,4 @@ class Scope {
   std::shared_ptr<UriLoader> loader_;
 };
 
-#endif  // CORE_SCOPE_H_
+#endif  // HIPPY_CORE_SCOPE_H_

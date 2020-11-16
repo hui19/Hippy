@@ -20,17 +20,17 @@
  *
  */
 
-#ifndef CORE_ENGINE_H_
-#define CORE_ENGINE_H_
+#ifndef HIPPY_CORE_ENGINE_H_
+#define HIPPY_CORE_ENGINE_H_
 
 #include <memory>
 #include <mutex>  // NOLINT(build/c++11)
 #include <vector>
 
 #include "core/base/common.h"
-#include "core/napi/js-native-api-types.h"
-#include "core/task/javascript-task-runner.h"
-#include "core/task/worker-task-runner.h"
+#include "core/napi/js_native_api_types.h"
+#include "core/task/javascript_task_runner.h"
+#include "core/task/worker_task_runner.h"
 
 class Scope;
 
@@ -75,4 +75,4 @@ class Engine {
   uint32_t scope_cnt_;
 };
 
-#endif  // CORE_ENGINE_H_
+#endif  // HIPPY_CORE_ENGINE_H_

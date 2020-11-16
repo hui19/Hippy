@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef CORE_BASE_TASK_H_
-#define CORE_BASE_TASK_H_
+#ifndef HIPPY_CORE_BASE_TASK_H_
+#define HIPPY_CORE_BASE_TASK_H_
 
 #include <stdint.h>
 
@@ -44,4 +44,4 @@ class Task {
 }  // namespace base
 }  // namespace hippy
 
-#endif  // CORE_BASE_TASK_H_
+#endif  // HIPPY_CORE_BASE_TASK_H_

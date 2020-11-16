@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef CORE_BASE_MACROS_H_
-#define CORE_BASE_MACROS_H_
+#ifndef HIPPY_CORE_BASE_MACROS_H_
+#define HIPPY_CORE_BASE_MACROS_H_
 
 #include <stddef.h>
 
@@ -48,4 +48,4 @@ char (&ArraySizeHelper(T (&array)[N]))[N];
   Type& operator=(Type&&) noexcept = default; \
   DISALLOW_COPY_AND_ASSIGN(Type)
 
-#endif  // CORE_BASE_MACROS_H_
+#endif  // HIPPY_CORE_BASE_MACROS_H_

@@ -27,13 +27,10 @@
 
 #include "core/base/logging.h"
 #include "core/scope.h"
-#include "core/task/javascript-task-runner.h"
-#include "core/task/javascript-task.h"
-
-using namespace hippy::napi;
+#include "core/task/javascript_task_runner.h"
+#include "core/task/javascript_task.h"
 
 #ifdef OS_ANDROID
-
 const uint32_t Engine::kDefaultWorkerPoolSize = 1;
 #else
 const uint32_t Engine::kDefaultWorkerPoolSize = 0;

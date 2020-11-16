@@ -26,6 +26,7 @@
 #include <sys/stat.h>
 
 #include <fstream>
+#include <iostream>
 #include <vector>
 
 #include "core/base/logging.h"
@@ -54,13 +55,14 @@ std::unique_ptr<std::vector<char>> HippyFile::ReadFile(const char* file_path,
   std::vector<char> file_data;
 
   if (!file.fail()) {
-    file.seekg(0, std::ios::end);
-    int size = file.tellg();
+    file.ignore(std::numeric_limits<std::streamsize>::max());
+    std::streamsize size = file.gcount();
+    file.clear();
+    file.seekg(0, std::ios_base::beg);
     if (is_auto_fill) { 
       size += 1;
     }
     file_data.resize(size);
-    file.seekg(0, std::ios::beg);
     file.read(file_data.data(), file_data.size());
     if (is_auto_fill) {
       file_data.back() = 0;
@@ -70,6 +72,7 @@ std::unique_ptr<std::vector<char>> HippyFile::ReadFile(const char* file_path,
   } else {
     HIPPY_DLOG(hippy::Debug, "ReadFile fail");
   }
+  
   return std::make_unique<std::vector<char>>(std::move(file_data));
 }
 
@@ -94,13 +97,13 @@ int HippyFile::RmFullPath(std::string dir_full_path) {
       continue;
     }
     if (S_ISDIR(st.st_mode)) {
-      if (RmFullPath(sub_path) == -1)  // 如果是目录文件，递归删除
+      if (RmFullPath(sub_path) == -1)  // 濡傛灉鏄洰褰曟枃浠讹紝閫掑綊鍒犻櫎
       {
         return -1;
       }
       rmdir(sub_path.c_str());
     } else if (S_ISREG(st.st_mode)) {
-      unlink(sub_path.c_str());  // 如果是普通文件，则unlink
+      unlink(sub_path.c_str());  // 濡傛灉鏄櫘閫氭枃浠讹紝鍒檜nlink
     } else {
       continue;
     }

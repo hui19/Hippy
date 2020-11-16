@@ -30,10 +30,10 @@
 #include "core/base/common.h"
 #include "core/base/logging.h"
 #include "core/engine.h"
-#include "core/modules/module-register.h"
-#include "core/napi/native-source-code.h"
-#include "core/task/javascript-task-runner.h"
-#include "core/task/javascript-task.h"
+#include "core/modules/module_register.h"
+#include "core/napi/native_source_code.h"
+#include "core/task/javascript_task_runner.h"
+#include "core/task/javascript_task.h"
 
 using RegisterMap = hippy::base::RegisterMap;
 using RegisterFunction = hippy::base::RegisterFunction;

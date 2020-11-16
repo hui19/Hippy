@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef HIPPY_BASE_FILE_H
-#define HIPPY_BASE_FILE_H
+#ifndef HIPPY_CORE_BASE_FILE_H
+#define HIPPY_CORE_BASE_FILE_H
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -50,4 +50,4 @@ class HippyFile {
 };
 }  // namespace base
 }  // namespace hippy
-#endif  // HIPPY_BASE_FILE_H
+#endif  // HIPPY_CORE_BASE_FILE_H

@@ -10,7 +10,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE_2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,10 +20,21 @@
  *
  */
 
-#ifndef HIPPY_H_
-#define HIPPY_H_
+#ifndef HIPPY_HIPPY_H_
+#define HIPPY_HIPPY_H_
 
-#include "runtime.h"
+#include "inspector/v8_channel_impl.h"
+#include "inspector/v8_inspector_client_impl.h"
+#include "jni/com_tencent_mtt_hippy_bridge_HippyBridgeImpl.h"
+#include "jni/exception_handler.h"
+#include "jni/jni_env.h"
+#include "jni/jni_utils.h"
+#include "jni/runtime.h"
+#include "jni/scoped_java_ref.h"
+#include "loader/adr_loader.h"
+#include "loader/asset_loader.h"
+#include "loader/debugger_loader.h"
+#include "loader/file_loader.h"
 #include "third_party/v8/v8.h"
 
-#endif  // HIPPY_H_
+#endif  // HIPPY_HIPPY_H_

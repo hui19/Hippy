@@ -210,7 +210,7 @@ task dealNdkLibSymbols(type: JavaExec) {
             '-readelf', findNdkFullPath() + '/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-readelf'
 }
 task address2Line(type: Exec) {
-    def address = " 00014dbd "
+    def address = " 0000cc59 "
     commandLine getToolPath("arm-linux-androideabi-addr2line"),
             "-C",
             "-f",

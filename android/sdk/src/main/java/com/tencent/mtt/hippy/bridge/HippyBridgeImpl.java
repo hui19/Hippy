@@ -401,7 +401,11 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 			countDownLatch.await();
 		} catch (InterruptedException e) {
 			LogUtils.e("hippy", "requireSubResource: " + e.getMessage());
+			return null;
 		}
+		if (output.size() == 0) {
+		  return null;
+    	}
 		return output.toByteArray();
 	}
 

@@ -20,12 +20,12 @@
  *
  */
 
-#ifndef CORE_BASE_THREAD_H_
-#define CORE_BASE_THREAD_H_
+#ifndef HIPPY_CORE_BASE_THREAD_H_
+#define HIPPY_CORE_BASE_THREAD_H_
 
 #include <pthread.h>
 
-#include "core/base/thread-id.h"
+#include "core/base/thread_id.h"
 
 namespace hippy {
 namespace base {
@@ -73,4 +73,4 @@ class Thread {
 }  // namespace base
 }  // namespace hippy
 
-#endif  // CORE_BASE_THREAD_H_
+#endif  // HIPPY_CORE_BASE_THREAD_H_

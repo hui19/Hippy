@@ -25,7 +25,7 @@
 #include <sstream>
 
 #include "core/base/macros.h"
-#include "core/platform/logging-impl.h"
+#include "core/platform/logging_impl.h"
 
 namespace hippy {
 namespace internal {

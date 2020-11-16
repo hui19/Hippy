@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef CORE_BASE_LOGGING_H_
-#define CORE_BASE_LOGGING_H_
+#ifndef HIPPY_CORE_BASE_LOGGING_H_
+#define HIPPY_CORE_BASE_LOGGING_H_
 
 #include <assert.h>
 
@@ -90,4 +90,4 @@ void Log(LoggingLevel level,
 #define HIPPY_CHECK(condition) HIPPY_CHECK_WITH_MSG(condition, #condition)
 #define HIPPY_DCHECK(condition) HIPPY_DCHECK_WITH_MSG(condition, #condition)
 
-#endif  // CORE_BASE_LOGGING_H_
+#endif  // HIPPY_CORE_BASE_LOGGING_H_

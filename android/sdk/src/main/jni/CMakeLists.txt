@@ -74,7 +74,6 @@ get_filename_component(CORE_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../
 
 file(GLOB_RECURSE CORE_SRC ${CORE_SRC_DIR}/src/*.cc)
 file(GLOB_RECURSE JNI_SRC ${PROJECT_SOURCE_DIR}/src/*.cc)
-file(GLOB_RECURSE URL_PARSER_SRC ${PROJECT_SOURCE_DIR}/third_party/url_parser/*.cc)
 
 message("PROJECT_SOURCE_DIR: ${PROJECT_SOURCE_DIR}")
 message("CORE_SRC_DIR: ${CORE_SRC_DIR}")

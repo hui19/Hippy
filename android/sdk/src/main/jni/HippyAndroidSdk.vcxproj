@@ -49,35 +49,38 @@
     <ClCompile Include="loader\asset-loader.cc" />
     <ClCompile Include="loader\debugger-loader.cc" />
     <ClCompile Include="loader\file-loader.cc" />
-    <ClCompile Include="src\com_tencent_mtt_hippy_bridge_HippyBridgeImpl.cc" />
-    <ClCompile Include="src\exception-handler.cc" />
-    <ClCompile Include="src\hippy-buffer.cc" />
-    <ClCompile Include="src\inspector\v8-channel-impl.cc" />
-    <ClCompile Include="src\inspector\v8-inspector-client-impl.cc" />
-    <ClCompile Include="src\jni-env.cc" />
-    <ClCompile Include="src\jni-utils.cc" />
-    <ClCompile Include="src\loader\adr-loader.cc" />
-    <ClCompile Include="src\loader\asset-loader.cc" />
-    <ClCompile Include="src\loader\debugger-loader.cc" />
-    <ClCompile Include="src\loader\file-loader.cc" />
-    <ClCompile Include="src\runtime.cc" />
-    <ClCompile Include="src\scoped-java-ref.cc" />
+    <ClCompile Include="src\jni\com_tencent_mtt_hippy_bridge_HippyBridgeImpl.cc" />
+    <ClCompile Include="src\jni\exception_handler.cc" />
+    <ClCompile Include="src\jni\hippy_buffer.cc" />
+    <ClCompile Include="src\inspector\v8_channel_impl.cc" />
+    <ClCompile Include="src\inspector\v8_inspector_client_impl.cc" />
+    <ClCompile Include="src\jni\jni_env.cc" />
+    <ClCompile Include="src\jni\jni_utils.cc" />
+    <ClCompile Include="src\loader\adr_loader.cc" />
+    <ClCompile Include="src\loader\asset_loader.cc" />
+    <ClCompile Include="src\loader\debugger_loader.cc" />
+    <ClCompile Include="src\loader\file_loader.cc" />
+    <ClCompile Include="src\jni\runtime.cc" />
+    <ClCompile Include="src\jni\scoped_java_ref.cc" />
+    <ClCompile Include="third_party\url_parser\url_parser.cc" />
+    <ClCompile Include="third_party\url_parser\util.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\base\url.h" />
     <ClInclude Include="core\base\url_host.h" />
-    <ClInclude Include="include\exception-handler.h" />
-    <ClInclude Include="include\hippy-buffer.h" />
-    <ClInclude Include="include\inspector\v8-channel-impl.h" />
-    <ClInclude Include="include\inspector\v8-inspector-client-impl.h" />
-    <ClInclude Include="include\jni-env.h" />
-    <ClInclude Include="include\jni-utils.h" />
-    <ClInclude Include="include\loader\adr-loader.h" />
-    <ClInclude Include="include\loader\asset-loader.h" />
-    <ClInclude Include="include\loader\debugger-loader.h" />
-    <ClInclude Include="include\loader\file-loader.h" />
-    <ClInclude Include="include\runtime.h" />
-    <ClInclude Include="include\scoped-java-ref.h" />
+    <ClInclude Include="include\hippy.h" />
+    <ClInclude Include="include\inspector\v8_channel_impl.h" />
+    <ClInclude Include="include\inspector\v8_inspector_client_impl.h" />
+    <ClInclude Include="include\jni\exception_handler.h" />
+    <ClInclude Include="include\jni\hippy_buffer.h" />
+    <ClInclude Include="include\jni\jni_env.h" />
+    <ClInclude Include="include\jni\jni_utils.h" />
+    <ClInclude Include="include\jni\runtime.h" />
+    <ClInclude Include="include\jni\scoped_java_ref.h" />
+    <ClInclude Include="include\loader\adr_loader.h" />
+    <ClInclude Include="include\loader\asset_loader.h" />
+    <ClInclude Include="include\loader\debugger_loader.h" />
+    <ClInclude Include="include\loader\file_loader.h" />
     <ClInclude Include="loader\asset-loader.h" />
     <ClInclude Include="loader\adr-loader.h" />
     <ClInclude Include="core\base\base-time.h" />
@@ -113,10 +116,10 @@
     <ClInclude Include="loader\file-loader.h" />
     <ClInclude Include="inspector\v8-channel-impl.h" />
     <ClInclude Include="inspector\v8-inspector-client-impl.h" />
-    <ClInclude Include="src\com_tencent_mtt_hippy_bridge_HippyBridgeImpl.h" />
-    <ClInclude Include="src\inspector\v8-channel-impl.h" />
-    <ClInclude Include="src\inspector\v8-inspector-client-impl.h" />
+    <ClInclude Include="include\jni\com_tencent_mtt_hippy_bridge_HippyBridgeImpl.h" />
     <ClInclude Include="core\base\uri-loader.h" />
+    <ClInclude Include="third_party\url_parser\url_parser.h" />
+    <ClInclude Include="third_party\url_parser\util.h" />
     <ClInclude Include="third_party\v8\libplatform\libplatform-export.h" />
     <ClInclude Include="third_party\v8\libplatform\libplatform.h" />
     <ClInclude Include="third_party\v8\libplatform\v8-tracing.h" />
@@ -234,7 +237,7 @@
       </PrecompiledHeaderFile>
       <CppLanguageStandard>c++14</CppLanguageStandard>
       <PreprocessorDefinitions>__ANDROID_API__=$(AndroidAPILevelNumber);OS_ANDROID;DEBUG</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Hippy\github\Hippy\android\sdk\src\main\jni\include;C:\Hippy\github\Hippy\core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Hippy\github\Hippy\android\sdk\src\main\jni;C:\Hippy\github\Hippy\android\sdk\src\main\jni\include;C:\Hippy\github\Hippy\core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>third_party\v8\armeabi-v7a\libmtt_shared.so;third_party\v8\armeabi-v7a\libmttv8.so</AdditionalDependencies>
