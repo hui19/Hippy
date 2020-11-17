@@ -35,7 +35,7 @@ class JniUtils {
   ~JniUtils() = default;
 
  public:
-  static std::unique_ptr<std::vector<char>> AppendJavaByteArrayToByteVector(
+  static std::string AppendJavaByteArrayToString(
       JNIEnv* env,
       jbyteArray byte_array);
   static std::string CovertJavaStringToString(JNIEnv* env, jstring str);

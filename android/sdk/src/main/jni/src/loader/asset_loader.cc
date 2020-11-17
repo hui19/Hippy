@@ -25,7 +25,7 @@
 #include "jni/uri.h"
 
 
-std::unique_ptr<std::vector<char>> AssetLoader::ReadAssetFile(
+std::string AssetLoader::ReadAssetFile(
     AAssetManager* asset_manager,
     const std::string& file_path,
     bool is_auto_fill) {
@@ -39,7 +39,7 @@ std::unique_ptr<std::vector<char>> AssetLoader::ReadAssetFile(
   HIPPY_LOG(hippy::Debug, "path = %s", path.c_str());
   auto asset =
       AAssetManager_open(asset_manager, path.c_str(), AASSET_MODE_STREAMING);
-  std::vector<char> file_data;
+  std::string file_data;
   if (asset) {
     int size = AAsset_getLength(asset);
     if (is_auto_fill) {
@@ -48,18 +48,18 @@ std::unique_ptr<std::vector<char>> AssetLoader::ReadAssetFile(
     file_data.resize(size);
     int offset = 0;
     int readbytes;
-    while ((readbytes = AAsset_read(asset, file_data.data() + offset,
+    while ((readbytes = AAsset_read(asset, &file_data[0] + offset,
                                     file_data.size() - offset)) > 0) {
       offset += readbytes;
     }
     if (is_auto_fill) {
-      file_data.back();
+      file_data.back() = '\0';
     }
     AAsset_close(asset);
   }
   HIPPY_DLOG(hippy::Debug, "file_path = %s, file_data = %s", file_path.c_str(),
              file_data.data());
-  return std::make_unique<std::vector<char>>(std::move(file_data));
+  return file_data;
 }
 
 bool AssetLoader::CheckValid(const std::string& path) {
@@ -75,16 +75,7 @@ AssetLoader::AssetLoader(AAssetManager* asset_manager,
                          const std::string& base_path)
     : base_path_(base_path), asset_manager_(asset_manager) {}
 
-std::string AssetLoader::Load(const std::string& uri) {
-  std::unique_ptr<std::vector<char>> rst = LoadBytes(uri);
-  std::string ret;
-  if (rst) {
-    ret = std::string(rst->data(), rst->size());
-  }
-  return ret;
-}
-
-std::unique_ptr<std::vector<char>> AssetLoader::LoadBytes(
+std::string AssetLoader::Load(
     const std::string& uri) {
   return ReadAssetFile(asset_manager_, uri, false);
 }

@@ -35,12 +35,12 @@ namespace hippy {
 namespace base {
 
 bool HippyFile::SaveFile(const char* file_path,
-                         std::shared_ptr<std::vector<char>> content,
+                         const std::string& content,
                          std::ios::openmode mode) {
   HIPPY_LOG(hippy::Debug, "SaveFile file_path = %s", file_path);
   std::ofstream file(file_path, mode);
   if (file.is_open()) {
-    file.write(content->data(), content->size());
+    file.write(content.c_str(), content.length());
     file.close();
     return true;
   } else {
@@ -48,37 +48,42 @@ bool HippyFile::SaveFile(const char* file_path,
   }
 }
 
-std::unique_ptr<std::vector<char>> HippyFile::ReadFile(const char* file_path,
-                                                       bool is_auto_fill) {
-  HIPPY_DLOG(hippy::Debug, "ReadFile file_path = %s", file_path);
+std::string HippyFile::ReadFile(const char* file_path, bool is_auto_fill) {
   std::ifstream file(file_path);
-  std::vector<char> file_data;
-
+  std::string ret;
   if (!file.fail()) {
     file.ignore(std::numeric_limits<std::streamsize>::max());
     std::streamsize size = file.gcount();
     file.clear();
     file.seekg(0, std::ios_base::beg);
-    if (is_auto_fill) { 
-      size += 1;
-    }
-    file_data.resize(size);
-    file.read(file_data.data(), file_data.size());
+    int data_size = size;
     if (is_auto_fill) {
-      file_data.back() = 0;
+      data_size += 1;
+    }
+    ret.resize(data_size);
+    int read_size = file.read(&ret[0], size).gcount();
+    if (size != read_size) {
+      HIPPY_LOG(hippy::Warning,
+                "ReadFile file_path = %s, size = %d, read_size = %d", file_path,
+                size, read_size);
+    }
+    if (is_auto_fill) {
+      ret[data_size - 1] = '\0';
     }
     file.close();
-    HIPPY_DLOG(hippy::Debug, "ReadFile succ");
+    HIPPY_DLOG(hippy::Debug,
+               "ReadFile succ, file_path = %s, size = %d, read_size = %d",
+               file_path, size, read_size);
   } else {
-    HIPPY_DLOG(hippy::Debug, "ReadFile fail");
+    HIPPY_DLOG(hippy::Debug, "ReadFile fail, file_path = %s", file_path);
   }
-  
-  return std::make_unique<std::vector<char>>(std::move(file_data));
+
+  return ret;
 }
 
 int HippyFile::RmFullPath(std::string dir_full_path) {
   HIPPY_DLOG(hippy::Debug, "RmFullPath dir_full_path = %s",
-            dir_full_path.c_str());
+             dir_full_path.c_str());
   DIR* dir_parent = opendir(dir_full_path.c_str());
   if (!dir_parent) {
     HIPPY_DLOG(hippy::Debug, "RmFullPath dir_parent null");

@@ -38,7 +38,7 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient {
   void Reset(std::shared_ptr<Scope> scope, std::shared_ptr<JavaRef> bridge);
   void Connect(std::shared_ptr<JavaRef> bridge);
 
-  void SendMessageToV8(std::shared_ptr<std::vector<uint8_t>> params);
+  void SendMessageToV8(const std::string& params);
   void CreateContext();
   void DestroyContext();
 

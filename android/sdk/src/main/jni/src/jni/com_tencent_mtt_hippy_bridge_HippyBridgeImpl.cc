@@ -39,12 +39,10 @@
 #include "jni/jni_utils.h"          // NOLINT(build/include_subdir)
 #include "jni/runtime.h"            // NOLINT(build/include_subdir)
 #include "jni/scoped_java_ref.h"
+#include "jni/uri.h"
 #include "loader/asset_loader.h"
 #include "loader/debugger_loader.h"
 #include "loader/file_loader.h"
-#include "jni/uri.h"
-
-#define RANGE(x) (int)((x).afterLast - (x).first), ((x).first)
 
 using namespace v8;
 using namespace hippy::napi;
@@ -111,8 +109,8 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
             "code_cache_dir = %s, uri = %s, asset_manager = %d",
             file_name.c_str(), is_use_code_cache, code_cache_dir.c_str(),
             uri.c_str(), asset_manager);
-  std::unique_ptr<std::vector<char>> script_content;
-  std::shared_ptr<std::vector<char>> code_cache_content;
+  std::string script_content;
+  std::string code_cache_content;
   uint64_t modify_time = 0;
   std::string code_cache_path;
   std::string code_cache_dir_path;
@@ -138,16 +136,15 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
     code_cache_path =
         code_cache_dir + file_name + "_" + std::to_string(modify_time);
     code_cache_dir_path = code_cache_dir.substr(0, code_cache_dir.length() - 1);
-    std::promise<std::unique_ptr<std::vector<char>>> read_file_promise;
-    std::future<std::unique_ptr<std::vector<char>>> read_file_future =
-        read_file_promise.get_future();
+    std::promise<std::string> read_file_promise;
+    std::future<std::string> read_file_future = read_file_promise.get_future();
     std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();
     task->func_ = hippy::base::MakeCopyable([p = std::move(read_file_promise),
                                              code_cache_path,
                                              code_cache_dir_path]() mutable {
-      std::unique_ptr<std::vector<char>> content =
+      const std::string content =
           hippy::base::HippyFile::ReadFile(code_cache_path.c_str(), true);
-      if (content->empty()) {
+      if (content.empty()) {
         HIPPY_DLOG(hippy::Debug, "Read code cache failed ");
         int ret =
             hippy::base::HippyFile::RmFullPath(code_cache_dir_path.c_str());
@@ -164,24 +161,25 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
     task_runner = engine->GetWorkerTaskRunner();
     task_runner->PostTask(std::move(task));
 
-    script_content = runtime->GetScope()->GetUriLoader()->LoadBytes(uri);
+    script_content = runtime->GetScope()->GetUriLoader()->Load(uri);
     code_cache_content = read_file_future.get();
   } else {
-    script_content = runtime->GetScope()->GetUriLoader()->LoadBytes(uri);
+    script_content = runtime->GetScope()->GetUriLoader()->Load(uri);
   }
 
-  HIPPY_DLOG(hippy::Error, "script content = %s", script_content->data());
+  HIPPY_DLOG(hippy::Error, "uri = %s, len = %d, script content = %s",
+             uri.c_str(), script_content.length(), script_content.c_str());
 
-  if (script_content->empty()) {
-    HIPPY_LOG(hippy::Error, "script content empty");
+  if (script_content.empty()) {
+    HIPPY_LOG(hippy::Error, "script content empty, uri = %s", uri.c_str());
     return false;
   }
 
   bool flag = std::static_pointer_cast<V8Ctx>(runtime->GetScope()->GetContext())
-                  ->RunScriptWithCache(std::move(script_content), file_name,
+                  ->RunScriptWithCache(script_content, file_name,
                                        is_use_code_cache, code_cache_content);
   if (is_use_code_cache) {
-    if (code_cache_content->size() > 0) {
+    if (code_cache_content.length() > 0) {
       std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();
       task->func_ = [code_cache_path, code_cache_dir_path, code_cache_content] {
         std::string parent_dir = code_cache_dir_path.substr(
@@ -457,8 +455,8 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_initJSFramework(
   std::unique_ptr<RegisterMap> engine_cb_map = std::make_unique<RegisterMap>();
   engine_cb_map->insert(std::make_pair(hippy::base::kVMCreateCBKey, vm_cb));
 
-  std::shared_ptr<std::vector<char>> global_config =
-      JniUtils::AppendJavaByteArrayToByteVector(env, globalConfig);
+  std::string global_config =
+      JniUtils::AppendJavaByteArrayToString(env, globalConfig);
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   std::shared_ptr<JavaRef> save_object =
       std::make_shared<JavaRef>(env, jcallback);
@@ -490,12 +488,12 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_initJSFramework(
     ctx->RegisterGlobalInJs();
     ctx->RegisterNativeBinding("hippyCallNatives", CallNative,
                                (void*)runtime_key.get());
-    std::string json(global_config->begin(), global_config->end());
-    bool ret = ctx->SetGlobalJsonVar("__HIPPYNATIVEGLOBAL__", json.c_str());
+    bool ret =
+        ctx->SetGlobalJsonVar("__HIPPYNATIVEGLOBAL__", global_config.c_str());
     if (!ret) {
       HIPPY_LOG(hippy::Error, "register __HIPPYNATIVEGLOBAL__ failed");
       ExceptionHandler exception;
-      exception.JSONException(runtime, (char*)global_config->data());
+      exception.JSONException(runtime, global_config.c_str());
     }
   };
   std::unique_ptr<RegisterMap> scope_cb_map = std::make_unique<RegisterMap>();
@@ -586,8 +584,8 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromUri(
   std::shared_ptr<Uri> uri_obj = std::make_shared<Uri>(uri);
   std::string uri_schema = uri_obj->GetScheme();
   std::string uri_path = uri_obj->GetPath();
-  auto pos = uri_path.find_last_of('/');
-  const std::string script_name = uri_path.substr(pos + 1);
+  auto pos = uri.find_last_of('/');
+  const std::string script_name = uri.substr(pos + 1);
   const std::string base_path = uri.substr(0, pos + 1);
   HIPPY_LOG(hippy::Debug,
             "runScriptFromUri uri = %s,  uri_schema = %s, uri_path = %s, "
@@ -704,12 +702,9 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
   }
   std::string action_name = JniUtils::CovertJavaStringToString(env, action);
 
-  std::shared_ptr<std::vector<char>> hippy_params =
-      JniUtils::AppendJavaByteArrayToByteVector(env, params);
-  HIPPY_DLOG(
-      hippy::Debug, "callFunction action_name = %s, hippy_params = %s",
-      action_name.c_str(),
-      std::string((char*)hippy_params->data(), hippy_params->size()).c_str());
+  std::string hippy_params = JniUtils::AppendJavaByteArrayToString(env, params);
+  HIPPY_DLOG(hippy::Debug, "callFunction action_name = %s, hippy_params = %s",
+             action_name.c_str(), hippy_params.c_str());
   std::shared_ptr<JavaRef> save_object =
       std::make_shared<JavaRef>(env, jcallback);
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
@@ -717,10 +712,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
                     hippy_params] {
     std::shared_ptr<Ctx> context = runtime->GetScope()->GetContext();
     if (runtime->IsDebug() && !action_name.compare("onWebsocketMsg")) {
-      std::shared_ptr<std::vector<uint8_t>> params =
-          std::make_shared<std::vector<uint8_t>>(hippy_params->begin(),
-                                                 hippy_params->end());
-      global_inspector->SendMessageToV8(params);
+      global_inspector->SendMessageToV8(hippy_params);
     } else {
       if (!runtime->GetBridgeFunc()) {
         HIPPY_DLOG(hippy::Debug, "bridge_func_ init");
@@ -735,12 +727,11 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
           runtime->SetBridgeFunc(fn);
         }
       }
-      std::string params_str((char*)hippy_params->data(), hippy_params->size());
       // to do params_str invalid
       std::shared_ptr<CtxValue> action =
           context->CreateString(action_name.c_str());
       std::shared_ptr<CtxValue> params =
-          context->CreateObject(params_str.c_str());
+          context->CreateObject(hippy_params.c_str());
       std::shared_ptr<CtxValue> argv[] = {action, params};
       context->CallFunction(runtime->GetBridgeFunc(), 2, argv);
     }

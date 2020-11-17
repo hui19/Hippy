@@ -34,7 +34,6 @@ class DebuggerLoader : public ADRLoader {
 
   inline void SetBridge(std::shared_ptr<JavaRef> bridge) { bridge_ = bridge; };
   virtual std::string Load(const std::string& uri);
-  virtual std::unique_ptr<std::vector<char>> LoadBytes(const std::string& uri);
 
  private:
   std::shared_ptr<JavaRef> bridge_;

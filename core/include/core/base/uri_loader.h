@@ -36,7 +36,6 @@ class UriLoader {
   virtual ~UriLoader(){};
 
   virtual std::string Load(const std::string& uri) = 0;
-  virtual std::unique_ptr<std::vector<char>> LoadBytes(const std::string& uri) = 0;
   virtual std::string Normalize(const std::string& uri) = 0;
 };
 }  // namespace base

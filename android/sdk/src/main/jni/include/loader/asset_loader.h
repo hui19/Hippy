@@ -32,13 +32,12 @@ class AssetLoader : public ADRLoader {
   AssetLoader(AAssetManager* asset_manager, const std::string& base_path);
   virtual ~AssetLoader(){};
 
-  static std::unique_ptr<std::vector<char>> ReadAssetFile(
+  static std::string ReadAssetFile(
       AAssetManager* asset_manager,
       const std::string& file_path,
       bool is_auto_fill = false);
 
   virtual std::string Load(const std::string& uri);
-  virtual std::unique_ptr<std::vector<char>> LoadBytes(const std::string& uri);
 
  private:
   bool CheckValid(const std::string& path);

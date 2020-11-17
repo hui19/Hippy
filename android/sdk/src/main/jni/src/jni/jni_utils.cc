@@ -36,7 +36,7 @@ size_t SafeGetArrayLength(JNIEnv* env, const jbyteArray& jarray) {
   return static_cast<size_t>(std::max(0, length));
 }
 
-std::unique_ptr<std::vector<char>> JniUtils::AppendJavaByteArrayToByteVector(
+std::string JniUtils::AppendJavaByteArrayToString(
     JNIEnv* env,
     jbyteArray byte_array) {
   if (!byte_array)
@@ -44,10 +44,11 @@ std::unique_ptr<std::vector<char>> JniUtils::AppendJavaByteArrayToByteVector(
   size_t len = SafeGetArrayLength(env, byte_array);
   if (!len)
     return nullptr;
-  std::vector<char> ret(len);
+  std::string ret;
+  ret.resize(len);
   env->GetByteArrayRegion(byte_array, 0, len,
-                          reinterpret_cast<int8_t*>(ret.data()));
-  return std::make_unique<std::vector<char>>(std::move(ret));
+                          reinterpret_cast<int8_t*>(&ret[0]));
+  return ret;
 }
 
 // todo

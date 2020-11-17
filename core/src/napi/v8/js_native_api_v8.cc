@@ -454,10 +454,10 @@ std::shared_ptr<CtxValue> GetInternalBindingFn(std::shared_ptr<Scope> scope) {
   return std::make_shared<V8CtxValue>(isolate, v8_function);
 }
 
-bool V8Ctx::RunScriptWithCache(std::unique_ptr<std::vector<char>> script,
+bool V8Ctx::RunScriptWithCache(const std::string& script,
                                const std::string& file_name,
                                bool is_use_code_cache,
-                               std::shared_ptr<std::vector<char>>& cache) {
+                               std::string& cache) {
   HIPPY_DLOG(hippy::Debug,
              "V8Ctx::RunScriptWithCache file_name = %s, is_use_code_cache = %d",
              file_name.c_str(), is_use_code_cache);
@@ -465,18 +465,18 @@ bool V8Ctx::RunScriptWithCache(std::unique_ptr<std::vector<char>> script,
   v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   v8::Handle<v8::String> v8_source =
-      v8::String::NewFromUtf8(isolate_, script->data(),
+      v8::String::NewFromUtf8(isolate_, script.c_str(),
                               v8::NewStringType::kNormal)
           .FromMaybe(v8::Local<v8::String>());
   v8::ScriptOrigin origin(v8::String::NewFromUtf8(isolate_, file_name.c_str(),
                                                   v8::NewStringType::kNormal)
                               .FromMaybe(v8::Local<v8::String>()));
   v8::MaybeLocal<v8::Script> v8_script;
-  if (cache && !cache->empty()) {
+  if (!cache.empty()) {
     HIPPY_DLOG(hippy::Debug, "code_cache_content not empty");
     v8::ScriptCompiler::CachedData* cached_data =
         new v8::ScriptCompiler::CachedData(
-            reinterpret_cast<const uint8_t*>(cache->data()), cache->size(),
+            reinterpret_cast<const uint8_t*>(&cache[0]), cache.length(),
             v8::ScriptCompiler::CachedData::BufferNotOwned);
     v8::ScriptCompiler::Source script_source(v8_source, origin, cached_data);
     v8_script = v8::ScriptCompiler::Compile(
@@ -492,8 +492,7 @@ bool V8Ctx::RunScriptWithCache(std::unique_ptr<std::vector<char>> script,
       }
       const v8::ScriptCompiler::CachedData* cached_data =
           v8::ScriptCompiler::CreateCodeCache(local_script->GetUnboundScript());
-      cache = std::make_shared<std::vector<char>>(
-          cached_data->data, cached_data->data + cached_data->length);
+      cache = std::string((char*)cached_data->data, cached_data->length);
     } else {
       v8_script = v8::Script::Compile(context, v8_source, &origin);
     }

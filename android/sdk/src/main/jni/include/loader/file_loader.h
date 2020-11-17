@@ -9,7 +9,6 @@ class FileLoader : public ADRLoader {
   virtual ~FileLoader(){};
 
   virtual std::string Load(const std::string& uri);
-  virtual std::unique_ptr<std::vector<char>> LoadBytes(const std::string& uri);
 
  private:
   bool CheckValid(const std::string& path);

@@ -57,15 +57,14 @@ void V8InspectorClientImpl::CreateContext() {
       context, 1, v8_inspector::StringView(name_uint8, arraysize(name_uint8))));
 }
 
-void V8InspectorClientImpl::SendMessageToV8(
-    std::shared_ptr<std::vector<uint8_t>> params) {
+void V8InspectorClientImpl::SendMessageToV8(const std::string& params) {
   if (channel_) {
-    std::string str(params->begin(), params->end());
-    if (!str.compare("chrome_socket_closed")) {
+    if (!params.compare("chrome_socket_closed")) {
       session_ =
           inspector_->connect(1, channel_.get(), v8_inspector::StringView());
     } else {
-      v8_inspector::StringView message_view(params->data(), params->size());
+      v8_inspector::StringView message_view((uint8_t*)params.c_str(),
+                                            params.length());
       session_->dispatchProtocolMessage(message_view);
     }
   }

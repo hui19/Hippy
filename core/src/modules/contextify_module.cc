@@ -31,8 +31,8 @@
 #include "core/base/uri_loader.h"
 #include "core/modules/module_register.h"
 #include "core/napi/callback_info.h"
-#include "core/napi/js_native_api_types.h"
 #include "core/napi/js_native_api.h"
+#include "core/napi/js_native_api_types.h"
 #include "core/napi/native_source_code.h"
 #include "core/task/common_task.h"
 #include "core/task/javascript_task.h"
@@ -118,12 +118,14 @@ void ContextifyModule::LoadUriContent(const CallbackInfo& info) {
     if (code.empty()) {
       HIPPY_LOG(hippy::Warning, "Load uri = %s, code empty", uri.c_str());
     } else {
-      HIPPY_DLOG(hippy::Debug, "Load uri = %s, code = %s", uri.c_str(), code.c_str());
+      HIPPY_DLOG(hippy::Debug, "Load uri = %s, len = %d, code = %s",
+                 uri.c_str(), code.length(), code.c_str());
     }
     std::shared_ptr<JavaScriptTask> js_task =
         std::make_shared<JavaScriptTask>();
-    js_task->callback = [this, weak_scope, weak_function, move_code = std::move(code),
-                         cur_dir, file_name, uri]() {
+    js_task->callback = [this, weak_scope, weak_function,
+                         move_code = std::move(code), cur_dir, file_name,
+                         uri]() {
       std::shared_ptr<Scope> scope = weak_scope.lock();
       if (!scope) {
         return;
@@ -162,4 +164,3 @@ void ContextifyModule::LoadUriContent(const CallbackInfo& info) {
 
   info.GetReturnValue()->SetUndefined();
 }
-

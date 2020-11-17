@@ -37,11 +37,11 @@ namespace base {
 class HippyFile {
  public:
   static bool SaveFile(const char* file_name,
-                       std::shared_ptr<std::vector<char>> content,
+                       const std::string& content,
                        std::ios::openmode mode = std::ios::out |
                                                  std::ios::binary |
                                                  std::ios::trunc);
-  static std::unique_ptr<std::vector<char>> ReadFile(const char* file_path,
+  static std::string ReadFile(const char* file_path,
                                                      bool is_auto_fill = false);
   static int RmFullPath(std::string dir_full_path);
   static int CreateDir(const char* path, mode_t mode);

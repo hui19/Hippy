@@ -35,24 +35,13 @@ bool FileLoader::CheckValid(const std::string& path) {
 
 FileLoader::FileLoader(const std::string& base_path) : base_path_(base_path) {}
 
-std::string FileLoader::Load(const std::string& uri) {
-  std::string ret;
-  auto rst = LoadBytes(uri);
-  if (rst) {
-    ret = rst->data();
-  }
-
-  HIPPY_DLOG(hippy::Debug, "FileLoader::Load uri = %s, ret = %s,", uri.c_str(),
-             ret.c_str());
-  return ret;
-}
-
-std::unique_ptr<std::vector<char>> FileLoader::LoadBytes(
+std::string FileLoader::Load(
     const std::string& uri) {
+  std::string ret;
   if (CheckValid(uri)) {
     std::shared_ptr<Uri> uri_obj = std::make_shared<Uri>(uri);
     std::string path = uri_obj->GetPath();
-    return hippy::base::HippyFile::ReadFile(path.c_str(), false);
+    ret = hippy::base::HippyFile::ReadFile(path.c_str(), false);
   }
-  return nullptr;
+  return ret;
 }
