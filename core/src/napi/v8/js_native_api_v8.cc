@@ -35,7 +35,6 @@
 #include "core/napi/callback_info.h"
 #include "core/napi/native_source_code.h"
 #include "core/scope.h"
-
 #include "hippy.h"
 
 namespace hippy {
@@ -283,9 +282,10 @@ bool V8Ctx::SetGlobalStrVar(const std::string& name, const char* str) {
   v8::Local<v8::Object> global = context->Global();
   v8::Handle<v8::String> v8_str =
       v8::String::NewFromUtf8(isolate_, str, v8::NewStringType::kNormal)
-          .ToLocalChecked();
-  return global->Set(
-      v8::String::NewFromUtf8(isolate_, name.c_str()).ToLocalChecked(), v8_str);
+          .FromMaybe(v8::Local<v8::String>());
+  return global->Set(v8::String::NewFromUtf8(isolate_, name.c_str())
+                         .FromMaybe(v8::Local<v8::String>()),
+                     v8_str);
 }
 
 bool V8Ctx::SetGlobalObjVar(const std::string& name,
@@ -302,9 +302,9 @@ bool V8Ctx::SetGlobalObjVar(const std::string& name,
       ctx_value->persisent_value_;
   v8::Handle<v8::Value> handle_value =
       v8::Handle<v8::Value>::New(isolate_, persistent_value);
-  return global->Set(
-      v8::String::NewFromUtf8(isolate_, name.c_str()).ToLocalChecked(),
-      handle_value);
+  return global->Set(v8::String::NewFromUtf8(isolate_, name.c_str())
+                         .FromMaybe(v8::Local<v8::String>()),
+                     handle_value);
 }
 
 std::shared_ptr<CtxValue> V8Ctx::GetGlobalStrVar(const std::string& name) {
@@ -313,8 +313,9 @@ std::shared_ptr<CtxValue> V8Ctx::GetGlobalStrVar(const std::string& name) {
   v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   v8::Local<v8::Object> global = context->Global();
-  v8::Handle<v8::Value> value = global->Get(
-      v8::String::NewFromUtf8(isolate_, name.c_str()).ToLocalChecked());
+  v8::Handle<v8::Value> value =
+      global->Get(v8::String::NewFromUtf8(isolate_, name.c_str())
+                      .FromMaybe(v8::Local<v8::String>()));
   return std::make_shared<V8CtxValue>(isolate_, value);
 }
 
@@ -341,15 +342,15 @@ void V8Ctx::RegisterGlobalModule(std::shared_ptr<Scope> scope,
           std::make_unique<FunctionData>(scope, fn.second);
       module_object->Set(v8::String::NewFromUtf8(isolate_, fn.first.c_str(),
                                                  v8::NewStringType::kNormal)
-                             .ToLocalChecked(),
+                             .FromMaybe(v8::Local<v8::String>()),
                          v8::FunctionTemplate::New(
                              isolate_, JsCallbackFunc,
                              v8::External::New(isolate_, (void*)data.get())));
       scope->SaveFunctionData(std::move(data));
     }
 
-    v8::Local<v8::Function> function =
-        module_object->GetFunction(v8_context).ToLocalChecked();
+    v8::Local<v8::Function> function = module_object->GetFunction(v8_context)
+                                           .ToLocalChecked();
 
     v8::Handle<v8::String> classNameKey =
         v8::String::NewFromUtf8(isolate_, cls.first.c_str(),
@@ -405,7 +406,8 @@ std::shared_ptr<CtxValue> V8Ctx::EvaluateJavascript(
   ExternalOneByteStringResourceImpl* source =
       new ExternalOneByteStringResourceImpl(data, len);
   v8::Local<v8::String> v8_string =
-      v8::String::NewExternalOneByte(isolate_, source).ToLocalChecked();
+      v8::String::NewExternalOneByte(isolate_, source)
+          .FromMaybe(v8::Local<v8::String>());
 
   v8::MaybeLocal<v8::Script> v8_maybe_script;
   if (name.length() > 0) {
@@ -422,7 +424,8 @@ std::shared_ptr<CtxValue> V8Ctx::EvaluateJavascript(
     return nullptr;
   }
 
-  v8::Handle<v8::Script> v8_script = v8_maybe_script.ToLocalChecked();
+  v8::Handle<v8::Script> v8_script =
+      v8_maybe_script.FromMaybe(v8::Local<v8::String>());
   v8::MaybeLocal<v8::Value> v8_maybe_value = v8_script->Run(v8_context);
   if (v8_maybe_value.IsEmpty()) {
     HIPPY_LOG(hippy::Error, "EvaluateJavascript Run error");
