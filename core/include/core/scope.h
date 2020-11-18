@@ -28,11 +28,11 @@
 
 #include "core/base/common.h"
 #include "core/base/task.h"
-#include "core/engine.h"
-#include "core/napi/js_native_api_types.h"
-#include "core/napi/js_native_api.h"
-#include "core/task/worker_task_runner.h"
 #include "core/base/uri_loader.h"
+#include "core/engine.h"
+#include "core/napi/js_native_api.h"
+#include "core/napi/js_native_api_types.h"
+#include "core/task/worker_task_runner.h"
 
 class JavaScriptTaskRunner;
 class ModuleBase;
@@ -80,10 +80,14 @@ class Scope {
     return binding_data_;
   }
 
-  void RunJS(const std::string& js, const std::string& name);
+  void RunJS(const std::string& js,
+             const std::string& name,
+             std::string* exception = nullptr);
+
   std::shared_ptr<CtxValue> RunJS(const uint8_t* data,
                                   size_t len,
-                                  const std::string& name);
+                                  const std::string& name,
+                                  std::string* exception = nullptr);
 
   inline std::shared_ptr<JavaScriptTaskRunner> GetTaskRunner() {
     return engine_->GetJSRunner();
@@ -104,9 +108,7 @@ class Scope {
     loader_ = loader;
   }
 
-  inline std::shared_ptr<UriLoader> GetUriLoader() {
-    return loader_;
-  }
+  inline std::shared_ptr<UriLoader> GetUriLoader() { return loader_; }
 
  private:
   friend class Engine;

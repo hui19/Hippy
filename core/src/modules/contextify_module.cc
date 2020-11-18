@@ -59,7 +59,7 @@ void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo& info) {
 
   HIPPY_DLOG(hippy::Debug, "RunInThisContext key = %s", key.c_str());
   auto source_code = hippy::GetNativeSourceCode(key.c_str());
-  std::shared_ptr<CtxValue> ret = context->EvaluateJavascript(
+  std::shared_ptr<CtxValue> ret = context->RunScript(
       source_code.data_, source_code.length_, key.c_str());
   info.GetReturnValue()->Set(ret);
 }

@@ -19,7 +19,7 @@
 
 // Setup for Linux shared library export.
 #ifdef BUILDING_V8_PLATFORM_SHARED
-#define V8_PLATFORM_EXPORT
+#define V8_PLATFORM_EXPORT __attribute__((visibility("default")))
 #else
 #define V8_PLATFORM_EXPORT
 #endif

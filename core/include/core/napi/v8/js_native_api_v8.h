@@ -145,11 +145,6 @@ struct V8Ctx : public Ctx {
   virtual void RegisterNativeBinding(const std::string &name,
                                      hippy::base::RegisterFunction fn,
                                      void *data);
-  virtual std::shared_ptr<CtxValue> EvaluateJavascript(
-      const uint8_t *data,
-      size_t len,
-      const std::string &name,
-      std::shared_ptr<std::string> *exception = nullptr);
 
   virtual std::shared_ptr<CtxValue> CreateNumber(double number);
   virtual std::shared_ptr<CtxValue> CreateBoolean(bool b);
@@ -189,12 +184,25 @@ struct V8Ctx : public Ctx {
       std::shared_ptr<CtxValue> function,
       size_t argument_count,
       const std::shared_ptr<CtxValue> argumets[],
-      std::shared_ptr<std::string> *exception = nullptr);
+      std::string *exception = nullptr);
 
-  virtual bool RunScriptWithCache(const std::string &script,
-                                  const std::string &file_name,
-                                  bool is_use_code_cache,
-                                  std::string &cache);
+  virtual std::shared_ptr<CtxValue> RunScript(
+      const uint8_t *data,
+      size_t len,
+      const std::string &file_name,
+      bool is_use_code_cache = false,
+      std::string *cache = nullptr,
+      std::string *exception = nullptr,
+      Encoding encodeing = Encoding::UNKNOWN_ENCODING);
+
+  virtual std::shared_ptr<CtxValue> RunScript(
+      const std::string &script,
+      const std::string &file_name,
+      bool is_use_code_cache = false,
+      std::string *cache = nullptr,
+      std::string *exception = nullptr,
+      Encoding encodeing = Encoding::UNKNOWN_ENCODING);
+
   virtual std::shared_ptr<CtxValue> GetJsFn(const std::string &name);
 
   v8::Isolate *isolate_;

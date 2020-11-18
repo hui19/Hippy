@@ -99,15 +99,16 @@ v8::Handle<v8::Value> V8Ctx::ParseJson(const char *json) {
   return v8::json_cls::Parse(isolate_, str).ToLocalChecked();
   */
   v8::Handle<v8::Object> global = context->Global();
-  v8::Handle<v8::Value> json_cls =
-      global->Get(v8::String::NewFromUtf8(isolate_, "JSON")
-                      .FromMaybe(v8::Local<v8::String>()));
+  v8::Handle<v8::Value> json_cls = global->Get(
+      v8::String::NewFromUtf8(isolate_, "JSON", v8::NewStringType::kNormal)
+          .FromMaybe(v8::Local<v8::String>()));
   v8::Handle<v8::Value> json_parse_func =
       v8::Handle<v8::Object>::Cast(json_cls)->Get(
-          v8::String::NewFromUtf8(isolate_, "parse")
+          v8::String::NewFromUtf8(isolate_, "parse", v8::NewStringType::kNormal)
               .FromMaybe(v8::Local<v8::String>()));
-  v8::Handle<v8::String> v8_str = v8::String::NewFromUtf8(isolate_, json)
-                                      .FromMaybe(v8::Local<v8::String>());
+  v8::Handle<v8::String> v8_str =
+      v8::String::NewFromUtf8(isolate_, json, v8::NewStringType::kNormal)
+          .FromMaybe(v8::Local<v8::String>());
   v8::Handle<v8::Value> argv[1] = {v8_str};
   return v8::Handle<v8::Function>::Cast(json_parse_func)
       ->Call(json_cls, 1, argv);
@@ -213,8 +214,7 @@ bool V8Ctx::GetValueNumber(std::shared_ptr<CtxValue> value, int32_t *result) {
     return false;
   }
 
-  v8::Local<v8::Int32> number =
-      handle_value->ToInt32(context).ToLocalChecked();
+  v8::Local<v8::Int32> number = handle_value->ToInt32(context).ToLocalChecked();
   if (number.IsEmpty()) {
     return false;
   }
@@ -517,7 +517,7 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
     std::shared_ptr<CtxValue> function,
     size_t argument_count,
     const std::shared_ptr<CtxValue> arguments[],
-    std::shared_ptr<std::string> *exception) {
+    std::string *exception) {
   HIPPY_DLOG(hippy::Debug, "V8Ctx CallFunction begin");
 
   if (!function) {

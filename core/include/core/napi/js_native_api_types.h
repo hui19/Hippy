@@ -45,6 +45,8 @@ using ModuleClass = std::unordered_map<std::string, hippy::napi::JsCallback>;
 // Map: ClassName -> ModuleClass (e.g. "ConsoleModule" -> [ModuleClass])
 using ModuleClassMap = std::unordered_map<std::string, ModuleClass>;
 
+enum Encoding { UNKNOWN_ENCODING, TWO_BYTE_ENCODING, ONE_BYTE_ENCODING };
+
 enum napi_status {
   napi_ok = 0,
   napi_invalid_arg = -100,
@@ -79,7 +81,8 @@ class Ctx {
   virtual bool SetGlobalStrVar(const std::string& name, const char* str) = 0;
   virtual bool SetGlobalObjVar(const std::string& name,
                                std::shared_ptr<CtxValue> obj) = 0;
-  virtual std::shared_ptr<CtxValue> GetGlobalStrVar(const std::string& name) = 0;
+  virtual std::shared_ptr<CtxValue> GetGlobalStrVar(
+      const std::string& name) = 0;
   virtual std::shared_ptr<CtxValue> GetProperty(
       const std::shared_ptr<CtxValue>& object,
       const std::string& name) = 0;
@@ -89,11 +92,6 @@ class Ctx {
   virtual void RegisterNativeBinding(const std::string& name,
                                      hippy::base::RegisterFunction fn,
                                      void* data) = 0;
-  virtual std::shared_ptr<CtxValue> EvaluateJavascript(
-      const uint8_t* data,
-      size_t len,
-      const std::string& name,
-      std::shared_ptr<std::string>* exception = nullptr) = 0;
 
   virtual std::shared_ptr<CtxValue> CreateNumber(double number) = 0;
   virtual std::shared_ptr<CtxValue> CreateBoolean(bool b) = 0;
@@ -111,7 +109,7 @@ class Ctx {
       std::shared_ptr<CtxValue> function,
       size_t argument_count = 0,
       const std::shared_ptr<CtxValue> argumets[] = nullptr,
-      std::shared_ptr<std::string>* exception = nullptr) = 0;
+      std::string* exception = nullptr) = 0;
 
   virtual bool GetValueNumber(std::shared_ptr<CtxValue>, double* result) = 0;
   virtual bool GetValueNumber(std::shared_ptr<CtxValue>, int32_t* result) = 0;
@@ -137,6 +135,22 @@ class Ctx {
 
   virtual bool IsFunction(std::shared_ptr<CtxValue>) = 0;
   virtual std::string CopyFunctionName(std::shared_ptr<CtxValue>) = 0;
+  virtual std::shared_ptr<CtxValue> RunScript(
+      const uint8_t* data,
+      size_t len,
+      const std::string& file_name,
+      bool is_use_code_cache = false,
+      std::string* cache = nullptr,
+      std::string* exception = nullptr,
+      Encoding encodeing = Encoding::UNKNOWN_ENCODING) = 0;
+
+  virtual std::shared_ptr<CtxValue> RunScript(
+      const std::string& script,
+      const std::string& file_name,
+      bool is_use_code_cache = false,
+      std::string* cache = nullptr,
+      std::string* exception = nullptr,
+      Encoding encodeing = Encoding::UNKNOWN_ENCODING) = 0;
   virtual std::shared_ptr<CtxValue> GetJsFn(const std::string& name) = 0;
 };
 

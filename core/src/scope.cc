@@ -32,8 +32,8 @@
 #include "core/engine.h"
 #include "core/modules/module_register.h"
 #include "core/napi/native_source_code.h"
-#include "core/task/javascript_task_runner.h"
 #include "core/task/javascript_task.h"
+#include "core/task/javascript_task_runner.h"
 
 using RegisterMap = hippy::base::RegisterMap;
 using RegisterFunction = hippy::base::RegisterFunction;
@@ -88,14 +88,15 @@ void Scope::Initialized() {
   auto source_code = hippy::GetNativeSourceCode("bootstrap.js");
   HIPPY_DCHECK(source_code.data_ && source_code.length_);
 
-  std::shared_ptr<std::string> exception = std::make_shared<std::string>();
-  std::shared_ptr<CtxValue> function = context_->EvaluateJavascript(
-      source_code.data_, source_code.length_, "bootstrap.js", &exception);
+  std::string exception;
+  std::shared_ptr<CtxValue> function =
+      context_->RunScript(source_code.data_, source_code.length_,
+                          "bootstrap.js", false, nullptr, &exception);
   it = map_->find(hippy::base::kHandleExceptionKey);
-  if (it != map_->end() && !exception->empty()) {
+  if (it != map_->end() && !exception.empty()) {
     RegisterFunction f = it->second;
     if (f) {
-      f((void*)exception->c_str());
+      f((void*)exception.c_str());
     }
   }
 
@@ -105,22 +106,22 @@ void Scope::Initialized() {
   if (!is_func) {
     const char* js = reinterpret_cast<const char*>(source_code.data_);
     HIPPY_LOG(hippy::Error, "bootstrap return not function, js = %s, len = %d",
-        js, source_code.length_);
+              js, source_code.length_);
     return;
   }
 
   std::shared_ptr<CtxValue> internal_binding_fn =
       hippy::napi::GetInternalBindingFn(self);
   std::shared_ptr<CtxValue> argv[] = {internal_binding_fn};
-  exception = std::make_shared<std::string>();
+  exception.empty();
   std::shared_ptr<CtxValue> ret_value =
       context_->CallFunction(function, 1, argv, &exception);
 
   it = map_->find(hippy::base::kHandleExceptionKey);
-  if (it != map_->end() && !exception->empty()) {
+  if (it != map_->end() && !exception.empty()) {
     RegisterFunction f = it->second;
     if (f) {
-      f((void*)exception->c_str());
+      f((void*)exception.c_str());
     }
   }
 
@@ -161,13 +162,14 @@ void Scope::SaveFunctionData(std::unique_ptr<hippy::napi::FunctionData> data) {
   function_data_.push_back(std::move(data));
 }
 
-void Scope::RunJS(const std::string& js, const std::string& name) {
+void Scope::RunJS(const std::string& js,
+                  const std::string& name,
+                  std::string* exception) {
   JavaScriptTask::Function callback = [=] {
     if (!context_) {
       return;
     }
-    const uint8_t* data = reinterpret_cast<const uint8_t*>(js.c_str());
-    context_->EvaluateJavascript(data, js.length(), name);
+    context_->RunScript(js, name, false, nullptr, exception);
   };
 
   std::shared_ptr<JavaScriptTaskRunner> runner = engine_->GetJSRunner();
@@ -182,14 +184,16 @@ void Scope::RunJS(const std::string& js, const std::string& name) {
 
 std::shared_ptr<CtxValue> Scope::RunJS(const uint8_t* data,
                                        size_t len,
-                                       const std::string& name) {
+                                       const std::string& name,
+                                       std::string* exception) {
   std::promise<std::shared_ptr<CtxValue>> promise;
   std::future<std::shared_ptr<CtxValue>> future = promise.get_future();
-  JavaScriptTask::Function cb = hippy::base::MakeCopyable(
-      [data, len, name, context = context_, p = std::move(promise)]() mutable {
+  JavaScriptTask::Function cb =
+      hippy::base::MakeCopyable([data, len, name, context = context_, exception,
+                                 p = std::move(promise)]() mutable {
         std::shared_ptr<CtxValue> rst = nullptr;
         if (context) {
-          rst = context->EvaluateJavascript(data, len, name);
+          rst = context->RunScript(data, len, name, false, nullptr, exception);
         }
         p.set_value(rst);
       });

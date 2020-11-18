@@ -283,7 +283,8 @@ bool V8Ctx::SetGlobalStrVar(const std::string& name, const char* str) {
   v8::Handle<v8::String> v8_str =
       v8::String::NewFromUtf8(isolate_, str, v8::NewStringType::kNormal)
           .FromMaybe(v8::Local<v8::String>());
-  return global->Set(v8::String::NewFromUtf8(isolate_, name.c_str())
+  return global->Set(v8::String::NewFromUtf8(isolate_, name.c_str(),
+                                             v8::NewStringType::kNormal)
                          .FromMaybe(v8::Local<v8::String>()),
                      v8_str);
 }
@@ -302,7 +303,8 @@ bool V8Ctx::SetGlobalObjVar(const std::string& name,
       ctx_value->persisent_value_;
   v8::Handle<v8::Value> handle_value =
       v8::Handle<v8::Value>::New(isolate_, persistent_value);
-  return global->Set(v8::String::NewFromUtf8(isolate_, name.c_str())
+  return global->Set(v8::String::NewFromUtf8(isolate_, name.c_str(),
+                                             v8::NewStringType::kNormal)
                          .FromMaybe(v8::Local<v8::String>()),
                      handle_value);
 }
@@ -314,7 +316,8 @@ std::shared_ptr<CtxValue> V8Ctx::GetGlobalStrVar(const std::string& name) {
   v8::Context::Scope context_scope(context);
   v8::Local<v8::Object> global = context->Global();
   v8::Handle<v8::Value> value =
-      global->Get(v8::String::NewFromUtf8(isolate_, name.c_str())
+      global->Get(v8::String::NewFromUtf8(isolate_, name.c_str(),
+                                          v8::NewStringType::kNormal)
                       .FromMaybe(v8::Local<v8::String>()));
   return std::make_shared<V8CtxValue>(isolate_, value);
 }
@@ -349,8 +352,8 @@ void V8Ctx::RegisterGlobalModule(std::shared_ptr<Scope> scope,
       scope->SaveFunctionData(std::move(data));
     }
 
-    v8::Local<v8::Function> function = module_object->GetFunction(v8_context)
-                                           .ToLocalChecked();
+    v8::Local<v8::Function> function =
+        module_object->GetFunction(v8_context).ToLocalChecked();
 
     v8::Handle<v8::String> classNameKey =
         v8::String::NewFromUtf8(isolate_, cls.first.c_str(),
@@ -385,57 +388,6 @@ void V8Ctx::RegisterNativeBinding(const std::string& name,
       .ToChecked();
 }
 
-std::shared_ptr<CtxValue> V8Ctx::EvaluateJavascript(
-    const uint8_t* data,
-    size_t len,
-    const std::string& name,
-    std::shared_ptr<std::string>* exception) {
-  HIPPY_DLOG(hippy::Debug, "EvaluateJavascript name = %s, len = %d",
-             name.c_str(), len);
-  if (!data || !len) {
-    HIPPY_LOG(hippy::Error,
-              "EvaluateJavascript data or len "
-              "is null");
-    return nullptr;
-  }
-
-  v8::HandleScope handle_scope(isolate_);
-  v8::Local<v8::Context> v8_context = context_persistent_.Get(isolate_);
-  v8::Context::Scope context_scope(v8_context);
-
-  ExternalOneByteStringResourceImpl* source =
-      new ExternalOneByteStringResourceImpl(data, len);
-  v8::Local<v8::String> v8_string =
-      v8::String::NewExternalOneByte(isolate_, source)
-          .FromMaybe(v8::Local<v8::String>());
-
-  v8::MaybeLocal<v8::Script> v8_maybe_script;
-  if (name.length() > 0) {
-    std::string file_name = std::string("hippy-core:///internal_") + name;
-    v8::ScriptOrigin origin(v8::String::NewFromUtf8(isolate_, file_name.c_str(),
-                                                    v8::NewStringType::kNormal)
-                                .FromMaybe(v8::Local<v8::String>()));
-    v8_maybe_script = v8::Script::Compile(v8_context, v8_string, &origin);
-  } else {
-    v8_maybe_script = v8::Script::Compile(v8_context, v8_string);
-  }
-  if (v8_maybe_script.IsEmpty()) {
-    HIPPY_LOG(hippy::Error, "EvaluateJavascript Compile error");
-    return nullptr;
-  }
-
-  v8::Handle<v8::Script> v8_script =
-      v8_maybe_script.FromMaybe(v8::Local<v8::String>());
-  v8::MaybeLocal<v8::Value> v8_maybe_value = v8_script->Run(v8_context);
-  if (v8_maybe_value.IsEmpty()) {
-    HIPPY_LOG(hippy::Error, "EvaluateJavascript Run error");
-    return nullptr;
-  }
-
-  v8::Handle<v8::Value> v8_value = v8_maybe_value.ToLocalChecked();
-  return std::make_shared<V8CtxValue>(isolate_, v8_value);
-}
-
 std::shared_ptr<CtxValue> GetInternalBindingFn(std::shared_ptr<Scope> scope) {
   HIPPY_DLOG(hippy::Debug, "GetInternalBindingFn");
 
@@ -457,70 +409,95 @@ std::shared_ptr<CtxValue> GetInternalBindingFn(std::shared_ptr<Scope> scope) {
   return std::make_shared<V8CtxValue>(isolate, v8_function);
 }
 
-bool V8Ctx::RunScriptWithCache(const std::string& script,
-                               const std::string& file_name,
-                               bool is_use_code_cache,
-                               std::string& cache) {
+std::shared_ptr<CtxValue> V8Ctx::RunScript(
+    const uint8_t* data,
+    size_t len,
+    const std::string& file_name,
+    bool is_use_code_cache,
+    std::string* cache,
+    std::string* exception,
+    Encoding encodeing) {
   HIPPY_DLOG(hippy::Debug,
-             "V8Ctx::RunScriptWithCache file_name = %s, is_use_code_cache = %d",
-             file_name.c_str(), is_use_code_cache);
+             "V8Ctx::RunScript file_name = %s, len = %d, encodeing = %d, "
+             "is_use_code_cache = %d, cache = %d, exception = %d",
+             file_name.c_str(), len, is_use_code_cache, encodeing, cache,
+             exception);
   v8::HandleScope handle_scope(isolate_);
   v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
-  v8::Handle<v8::String> v8_source =
-      v8::String::NewFromUtf8(isolate_, script.c_str(),
-                              v8::NewStringType::kNormal)
-          .FromMaybe(v8::Local<v8::String>());
+  v8::Handle<v8::String> v8_source;
+  switch (encodeing) {
+    case Encoding::ONE_BYTE_ENCODING: {
+      ExternalOneByteStringResourceImpl* source =
+          new ExternalOneByteStringResourceImpl(data, len);
+      v8_source = v8::String::NewExternalOneByte(isolate_, source)
+                      .FromMaybe(v8::Local<v8::String>());
+      break;
+    }
+    case Encoding::TWO_BYTE_ENCODING: {
+      return nullptr;
+    }
+    default: {
+      v8_source = v8::String::NewFromUtf8(isolate_, (const char*)data,
+                                          v8::NewStringType::kNormal)
+                      .FromMaybe(v8::Local<v8::String>());
+      break;
+    }
+  }
   v8::ScriptOrigin origin(v8::String::NewFromUtf8(isolate_, file_name.c_str(),
                                                   v8::NewStringType::kNormal)
                               .FromMaybe(v8::Local<v8::String>()));
   v8::MaybeLocal<v8::Script> v8_script;
-  if (!cache.empty()) {
-    HIPPY_DLOG(hippy::Debug, "code_cache_content not empty");
+  if (cache) {
     v8::ScriptCompiler::CachedData* cached_data =
         new v8::ScriptCompiler::CachedData(
-            reinterpret_cast<const uint8_t*>(&cache[0]), cache.length(),
+            reinterpret_cast<const uint8_t*>(cache), (*cache).length(),
             v8::ScriptCompiler::CachedData::BufferNotOwned);
     v8::ScriptCompiler::Source script_source(v8_source, origin, cached_data);
     v8_script = v8::ScriptCompiler::Compile(
         context, &script_source, v8::ScriptCompiler::kConsumeCodeCache);
+    if (v8_script.IsEmpty()) {
+      return nullptr;
+    }
   } else {
-    HIPPY_DLOG(hippy::Debug, "code_cache_content empty");
     if (is_use_code_cache) {
       v8::ScriptCompiler::Source script_source(v8_source, origin);
       v8_script = v8::ScriptCompiler::Compile(context, &script_source);
-      v8::Local<v8::Script> local_script;
-      if (!v8_script.ToLocal(&local_script)) {
-        return false;
+      if (v8_script.IsEmpty()) {
+        return nullptr;
       }
       const v8::ScriptCompiler::CachedData* cached_data =
-          v8::ScriptCompiler::CreateCodeCache(local_script->GetUnboundScript());
-      cache = std::string((char*)cached_data->data, cached_data->length);
+          v8::ScriptCompiler::CreateCodeCache(
+              v8_script.ToLocalChecked()->GetUnboundScript());
+      *cache = std::string((char*)cached_data->data, cached_data->length);
     } else {
       v8_script = v8::Script::Compile(context, v8_source, &origin);
     }
   }
 
-  v8::MaybeLocal<v8::Value> result;
-  bool flag = false;
-  if (!v8_script.IsEmpty()) {
-    HIPPY_DLOG(hippy::Debug, "v8_script not empty");
-    result = v8_script.ToLocalChecked()->Run(context);
-
-    if (!result.IsEmpty()) {
-      flag = true;
-    }
+  v8::MaybeLocal<v8::Value> v8_maybe_value =
+      v8_script.ToLocalChecked()->Run(context);
+  if (v8_maybe_value.IsEmpty()) {
+    return nullptr;
   }
-  return flag;
+  v8::Handle<v8::Value> v8_value = v8_maybe_value.ToLocalChecked();
+  return std::make_shared<V8CtxValue>(isolate_, v8_value);
+}
+
+std::shared_ptr<CtxValue> V8Ctx::RunScript(const std::string& script,
+                                           const std::string& file_name,
+                                           bool is_use_code_cache,
+                                           std::string* cache,
+                                           std::string* exception,
+                                           Encoding encodeing) {
+  return RunScript((uint8_t*)script.c_str(), script.length(), file_name,
+                   is_use_code_cache, cache, exception, encodeing);
 }
 
 std::shared_ptr<CtxValue> V8Ctx::GetJsFn(const std::string& name) {
   HIPPY_DLOG(hippy::Debug, "GetJsFn name = %s", name.c_str());
   v8::HandleScope handle_scope(isolate_);
   v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
-  /*
-  v8::Local<v8::Context> context =
-      v8::Local<v8::Context>::New(isolate_, context_persistent_);*/
   v8::Context::Scope context_scope(context);
   v8::Local<v8::String> js_name =
       v8::String::NewFromUtf8(isolate_, name.c_str(),

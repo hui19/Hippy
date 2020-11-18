@@ -175,9 +175,9 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
     return false;
   }
 
-  bool flag = std::static_pointer_cast<V8Ctx>(runtime->GetScope()->GetContext())
-                  ->RunScriptWithCache(script_content, file_name,
-                                       is_use_code_cache, code_cache_content);
+  auto ret = std::static_pointer_cast<V8Ctx>(runtime->GetScope()->GetContext())
+                 ->RunScript(script_content, file_name, is_use_code_cache,
+                             &code_cache_content);
   if (is_use_code_cache) {
     if (code_cache_content.length() > 0) {
       std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();
@@ -211,6 +211,7 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
     }
   }
 
+  bool flag = !!ret;
   HIPPY_DLOG(hippy::Debug, "runScript end, flag = %d", flag);
   return flag;
 }
@@ -287,7 +288,7 @@ void HandleUncaughtJsError(v8::Local<v8::Message> message,
   // send error to js callback if exist
   auto source_code = hippy::GetNativeSourceCode("ExceptionHandle.js");
   HIPPY_DCHECK(source_code.data_ && source_code.length_);
-  std::shared_ptr<CtxValue> function = ctx->EvaluateJavascript(
+  std::shared_ptr<CtxValue> function = ctx->RunScript(
       source_code.data_, source_code.length_, "ExceptionHandle.js");
   bool is_func = ctx->IsFunction(function);
   HIPPY_CHECK_WITH_MSG(
@@ -335,9 +336,9 @@ static void CallNative(void* data) {
   std::shared_ptr<hippy::napi::V8Ctx> ctx =
       std::static_pointer_cast<hippy::napi::V8Ctx>(
           runtime->GetScope()->GetContext());
-  v8::Local<v8::Context> v8_context = ctx->context_persistent_.Get(isolate);
-  v8::Context::Scope context_scope(v8_context);
-  if (v8_context.IsEmpty()) {
+  v8::Local<v8::Context> context = ctx->context_persistent_.Get(isolate);
+  v8::Context::Scope context_scope(context);
+  if (context.IsEmpty()) {
     HIPPY_LOG(hippy::Error, "CallNative context empty");
     return;
   }
@@ -383,12 +384,13 @@ static void CallNative(void* data) {
             reinterpret_cast<const jbyte*>(hippy_buffer->data));
       }
     } else {
-      v8::Handle<v8::Object> global = v8_context->Global();
-      v8::Handle<v8::Value> JSON =
-          global->Get(v8::String::NewFromUtf8(isolate, "JSON")
-                          .FromMaybe(v8::Local<v8::String>()));
+      v8::Handle<v8::Object> global = context->Global();
+      v8::Handle<v8::Value> JSON = global->Get(
+          v8::String::NewFromUtf8(isolate, "JSON", v8::NewStringType::kNormal)
+              .FromMaybe(v8::Local<v8::String>()));
       v8::Handle<v8::Value> fun = v8::Handle<v8::Object>::Cast(JSON)->Get(
-          v8::String::NewFromUtf8(isolate, "stringify")
+          v8::String::NewFromUtf8(isolate, "stringify",
+                                  v8::NewStringType::kNormal)
               .FromMaybe(v8::Local<v8::String>()));
       v8::Handle<v8::Value> argv[1] = {info[3]};
       v8::Handle<v8::Value> s =
