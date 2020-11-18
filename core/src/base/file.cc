@@ -60,7 +60,7 @@ std::string HippyFile::ReadFile(const char* file_path, bool is_auto_fill) {
     if (is_auto_fill) {
       data_size += 1;
     }
-    ret.reserve(data_size);
+    ret.resize(data_size);
     int read_size = file.read(&ret[0], size).gcount();
     if (size != read_size) {
       HIPPY_LOG(hippy::Warning,
@@ -68,7 +68,7 @@ std::string HippyFile::ReadFile(const char* file_path, bool is_auto_fill) {
                 size, read_size);
     }
     if (is_auto_fill) {
-      ret[data_size - 1] = '\0';
+      ret.back() = '\0';
     }
     file.close();
     HIPPY_DLOG(hippy::Debug,

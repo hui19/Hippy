@@ -24,11 +24,9 @@
 
 #include "jni/uri.h"
 
-
-std::string AssetLoader::ReadAssetFile(
-    AAssetManager* asset_manager,
-    const std::string& file_path,
-    bool is_auto_fill) {
+std::string AssetLoader::ReadAssetFile(AAssetManager* asset_manager,
+                                       const std::string& file_path,
+                                       bool is_auto_fill) {
   HIPPY_LOG(hippy::Debug, "ReadAssetFile file_path = %s", file_path.c_str());
 
   std::shared_ptr<Uri> uri_obj = std::make_shared<Uri>(file_path);
@@ -57,8 +55,8 @@ std::string AssetLoader::ReadAssetFile(
     }
     AAsset_close(asset);
   }
-  HIPPY_DLOG(hippy::Debug, "file_path = %s, file_data = %s", file_path.c_str(),
-             file_data.data());
+  HIPPY_DLOG(hippy::Debug, "file_path = %s, len = %d,  file_data = %s",
+             file_path.c_str(), file_data.length(), file_data.c_str());
   return file_data;
 }
 
@@ -75,7 +73,6 @@ AssetLoader::AssetLoader(AAssetManager* asset_manager,
                          const std::string& base_path)
     : base_path_(base_path), asset_manager_(asset_manager) {}
 
-std::string AssetLoader::Load(
-    const std::string& uri) {
+std::string AssetLoader::Load(const std::string& uri) {
   return ReadAssetFile(asset_manager_, uri, false);
 }
