@@ -88,16 +88,9 @@ std::shared_ptr<CtxValue> V8Ctx::CreateNull() {
 
 v8::Handle<v8::Value> V8Ctx::ParseJson(const char *json) {
   v8::HandleScope handle_scope(isolate_);
-
   v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
-  /*
-  v8::Handle<v8::String> str =
-      v8::String::NewFromUtf8(isolate_, json, v8::NewStringType::kNormal)
-          .ToLocalChecked();
 
-  return v8::json_cls::Parse(isolate_, str).ToLocalChecked();
-  */
   v8::Handle<v8::Object> global = context->Global();
   v8::Handle<v8::Value> json_cls = global->Get(
       v8::String::NewFromUtf8(isolate_, "JSON", v8::NewStringType::kNormal)
@@ -504,10 +497,10 @@ std::string V8Ctx::CopyFunctionName(std::shared_ptr<CtxValue> function) {
   }
 
   if (handle_value->IsFunction()) {
-    v8::String::Utf8Value functionName(isolate_, handle_value);
-    std::string jsString(*functionName);
+    v8::String::Utf8Value function_name(isolate_, handle_value);
+    std::string js_string(*function_name);
 
-    return jsString;
+    return js_string;
   }
 
   return strdup("function param is not a function");
@@ -526,7 +519,6 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
   }
 
   v8::HandleScope handle_scope(isolate_);
-
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope contextScope(context);
   if (context.IsEmpty() || context->Global().IsEmpty()) {
@@ -534,7 +526,7 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
     return nullptr;
   }
 
-  // v8::TryCatch tryCatch(isolate);
+  v8::TryCatch try_catch(isolate_);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(function);
   const v8::Persistent<v8::Value> &persistent_value =
@@ -548,6 +540,14 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
 
   v8::Function *v8_fn = v8::Function::Cast(*handle_value);
   if (!v8_fn) {
+    if (try_catch.HasCaught()) {
+      HIPPY_DLOG(hippy::Warning, "CallFunction caught error");
+      if (exception) {
+        *exception = GetException(try_catch);
+      } else {
+        try_catch.ReThrow();
+      }
+    }
     HIPPY_LOG(hippy::Error, "CallFunction cast v8_fn error");
     return nullptr;
   }
@@ -566,12 +566,16 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
       context, context->Global(), static_cast<int>(argument_count), args);
 
   if (!maybe_result.IsEmpty()) {
-    HIPPY_DLOG(hippy::Debug, "CallFunction maybe_result is not empty");
-    v8::Local<v8::Value> result = maybe_result.ToLocalChecked();
-    if (!result.IsEmpty()) {
-      HIPPY_DLOG(hippy::Debug, "CallFunction result is not empty");
-      return std::make_shared<V8CtxValue>(isolate_, result);
+    if (try_catch.HasCaught()) {
+      HIPPY_DLOG(hippy::Warning, "CallFunction caught error");
+      if (exception) {
+        *exception = GetException(try_catch);
+      } else {
+        try_catch.ReThrow();
+      }
     }
+    return std::make_shared<V8CtxValue>(isolate_,
+                                        maybe_result.ToLocalChecked());
   }
 
   return nullptr;

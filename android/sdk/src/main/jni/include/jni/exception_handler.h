@@ -37,8 +37,8 @@ class ExceptionHandler {
 
  public:
   static void ReportJsException(std::shared_ptr<Runtime> runtime,
-                                std::stringstream& description_stream,
-                                std::stringstream& stack_stream);
+                                const std::string desc,
+                                const std::string stack);
 
   void JSONException(std::shared_ptr<Runtime> runtime, const char* jsonValue);
 };

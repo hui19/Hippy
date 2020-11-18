@@ -216,7 +216,6 @@ bool RunScript(std::shared_ptr<Runtime> runtime,
   return flag;
 }
 
-// to do json str err
 void HandleUncaughtJsError(v8::Local<v8::Message> message,
                            v8::Local<v8::Value> data) {
   HIPPY_DLOG(hippy::Debug, "HandleUncaughtJsError begin");
@@ -236,56 +235,10 @@ void HandleUncaughtJsError(v8::Local<v8::Message> message,
   std::shared_ptr<hippy::napi::V8Ctx> ctx =
       std::static_pointer_cast<hippy::napi::V8Ctx>(
           runtime->GetScope()->GetContext());
-  v8::Isolate* isolate = ctx->isolate_;
-  v8::HandleScope handle_scope(isolate);
-  v8::Local<v8::Context> context =
-      v8::Local<v8::Context>::New(isolate, ctx->context_persistent_);
-  v8::Context::Scope context_scope(context);
+  std::string desc, stack;
+  ctx->GetMessageInfo(message, desc, stack);
+  ExceptionHandler::ReportJsException(runtime, desc, stack);
 
-  std::stringstream description_stream;
-  std::stringstream stack_stream;
-
-  {
-    v8::String::Utf8Value msg(isolate, message->Get());
-    v8::String::Utf8Value filename(isolate,
-                                   message->GetScriptOrigin().ResourceName());
-    const char* filename_string =
-        *filename ? *filename : "<string conversion failed>";
-    int linenum = message->GetLineNumber(context).FromMaybe(-1);
-    int start = message->GetStartColumn(context).FromMaybe(-1);
-    int end = message->GetEndColumn(context).FromMaybe(-1);
-
-    std::string des_msg = *msg ? *msg : "<string conversion failed>";
-    description_stream << filename_string << ":" << linenum << ": " << start
-                       << "-" << end << ": " << des_msg << " \\n ";
-
-    HIPPY_DLOG(hippy::Debug, "description_stream = %s",
-               description_stream.str().c_str());
-  }
-
-  v8::Local<v8::StackTrace> trace = message->GetStackTrace();
-  if (!trace.IsEmpty()) {
-    int len = trace->GetFrameCount();
-    for (int i = 0; i < len; ++i) {
-      v8::Local<v8::StackFrame> frame = trace->GetFrame(isolate, i);
-      v8::String::Utf8Value script_name(isolate, frame->GetScriptName());
-      v8::String::Utf8Value function_name(isolate, frame->GetFunctionName());
-      std::string stack_script_name =
-          *script_name ? *script_name : "<string conversion failed>";
-      std::string stack_function_name =
-          *function_name ? *function_name : "<string conversion failed>";
-      stack_stream << stack_script_name << ":" << frame->GetLineNumber() << ":"
-                   << frame->GetColumn() << ": " << stack_function_name
-                   << " \\n ";
-
-      HIPPY_DLOG(hippy::Debug, "stack_stream = %s", stack_stream.str().c_str());
-    }
-  }
-
-  ExceptionHandler::ReportJsException(runtime, description_stream,
-                                      stack_stream);
-
-  // send error to js callback if exist
   auto source_code = hippy::GetNativeSourceCode("ExceptionHandle.js");
   HIPPY_DCHECK(source_code.data_ && source_code.length_);
   std::shared_ptr<CtxValue> function = ctx->RunScript(
@@ -298,16 +251,13 @@ void HandleUncaughtJsError(v8::Local<v8::Message> message,
   std::shared_ptr<CtxValue> args[2];
   args[0] = ctx->CreateString("uncaughtException");
   std::string json_str =
-      std::string("{\"message\":\"") + description_stream.str() +
-      std::string("\",\"stack\":\"") + stack_stream.str() + std::string("\"}");
+      "{\"message\":\"" + desc + "\",\"stack\":\"" + stack + std::string("\"}");
   HIPPY_DLOG(hippy::Debug, "json_str = %s", json_str.c_str());
   std::shared_ptr<CtxValue> js_obj = ctx->CreateObject(json_str.c_str());
   if (!js_obj) {
     HIPPY_LOG(hippy::Error,
-              "HandleUncaughtJsError parse json error, description_stream = %s",
-              description_stream.str().c_str());
-    HIPPY_LOG(hippy::Error, "HandleUncaughtJsError stack_stream = %s",
-              stack_stream.str().c_str());
+              "HandleUncaughtJsError parse json error, json_str = %s",
+              json_str.c_str());
     return;
   }
   args[1] = js_obj;

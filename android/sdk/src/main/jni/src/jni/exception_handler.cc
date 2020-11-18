@@ -27,14 +27,14 @@
 #include "jni/jni_utils.h"  // NOLINT(build/include_subdir)
 
 void ExceptionHandler::ReportJsException(std::shared_ptr<Runtime> runtime,
-                                         std::stringstream& description_stream,
-                                         std::stringstream& stack_stream) {
+                                         const std::string desc,
+                                         const std::string stack) {
   HIPPY_DLOG(hippy::Debug, "ReportJsException begin");
 
   JNIEnv* env = JNIEnvironment::AttachCurrentThread();
 
-  jstring jException = env->NewStringUTF(description_stream.str().c_str());
-  jstring jStackTrace = env->NewStringUTF(stack_stream.str().c_str());
+  jstring jException = env->NewStringUTF(desc.c_str());
+  jstring jStackTrace = env->NewStringUTF(stack.c_str());
 
   if (runtime->GetBridge()) {
     env->CallVoidMethod(
@@ -62,7 +62,7 @@ void ExceptionHandler::JSONException(std::shared_ptr<Runtime> runtime,
 
   JNIEnv* env = JNIEnvironment::AttachCurrentThread();
 
-  jstring jException = env->NewStringUTF("Hippy Bridge parse json error_");
+  jstring jException = env->NewStringUTF("Hippy Bridge parse json error");
   jstring jStackTrace = env->NewStringUTF(jsonValue);
 
   // call function

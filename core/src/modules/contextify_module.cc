@@ -138,14 +138,18 @@ void ContextifyModule::LoadUriContent(const CallbackInfo& info) {
         HIPPY_DLOG(hippy::debug, "__HIPPYCURDIR__ cur_dir = %s",
                    cur_dir.c_str());
         ctx->SetGlobalStrVar("__HIPPYCURDIR__", cur_dir.c_str());
-        scope->RunJS(move_code, file_name);
+        std::string exception;
+        scope->RunJS(move_code, file_name, &exception);
         ctx->SetGlobalObjVar("__HIPPYCURDIR__", last_dir_str_obj);
         std::string last_dir_str;
         ctx->GetValueString(last_dir_str_obj, &last_dir_str);
         HIPPY_DLOG(hippy::debug, "restore __HIPPYCURDIR__ = %s",
                    last_dir_str.c_str());
-
-        error = ctx->CreateNull();
+        if (exception.empty()) {
+          error = ctx->CreateNull();
+        } else {
+          error = ctx->CreateJsError(exception);
+        }
       } else {
         error = ctx->CreateJsError(uri + " not found");
       }

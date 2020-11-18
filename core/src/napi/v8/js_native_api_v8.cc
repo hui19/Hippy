@@ -243,6 +243,71 @@ std::shared_ptr<Ctx> V8VM::CreateContext() {
   return std::make_shared<V8Ctx>(isolate_);
 }
 
+void V8Ctx::GetMessageInfo(v8::Local<v8::Message> message,
+                           std::string& desc,
+                           std::string& stack) {
+  v8::HandleScope handle_scope(isolate_);
+  v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+
+  v8::String::Utf8Value msg_str(isolate_, message->Get());
+  v8::String::Utf8Value file_name(isolate_,
+                                  message->GetScriptOrigin().ResourceName());
+  const char* file_name_str =
+      *file_name ? *file_name : "<string conversion failed>";
+  int linenum = message->GetLineNumber(context).FromMaybe(-1);
+  int start = message->GetStartColumn(context).FromMaybe(-1);
+  int end = message->GetEndColumn(context).FromMaybe(-1);
+
+  std::string message_str = *msg_str ? *msg_str : "<string conversion failed>";
+  std::stringstream description;
+  description << file_name_str << ": " << linenum << ": " << start << "-" << end
+              << ": " << message_str << "\\n";
+
+  desc = description.str();
+  HIPPY_DLOG(hippy::Debug, "description = %s", desc.c_str());
+  v8::Local<v8::StackTrace> trace = message->GetStackTrace();
+  if (trace.IsEmpty()) {
+    return;
+  }
+  std::stringstream stack_stream;
+  int len = trace->GetFrameCount();
+  for (int i = 0; i < len; ++i) {
+    v8::Local<v8::StackFrame> frame = trace->GetFrame(isolate_, i);
+    v8::String::Utf8Value script_name(isolate_, frame->GetScriptName());
+    v8::String::Utf8Value function_name(isolate_, frame->GetFunctionName());
+    std::string stack_script_name =
+        *script_name ? *script_name : "<string conversion failed>";
+    std::string stack_function_name =
+        *function_name ? *function_name : "<string conversion failed>";
+    stack_stream << stack_script_name << ": " << frame->GetLineNumber() << ": "
+          << frame->GetColumn() << ": " << stack_function_name << "\\n";
+  }
+  stack = stack_stream.str();
+  HIPPY_DLOG(hippy::Debug, "stack = %s", stack.c_str());
+}
+
+std::string V8Ctx::GetException(const v8::TryCatch& try_catch) {
+  v8::HandleScope handle_scope(isolate_);
+  v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  v8::Local<v8::Value> exception = try_catch.Exception();
+  if (exception.IsEmpty()) {
+    return "";
+  }
+  v8::String::Utf8Value ex(isolate_, exception);
+  const char* exception_str = *ex ? *ex : "<string conversion failed>";
+  HIPPY_DLOG(hippy::Debug, "exception_str = %s", exception_str);
+  v8::Handle<v8::Message> message = try_catch.Message();
+  if (message.IsEmpty()) {
+    return std::string(exception_str);
+  }
+
+  std::string desc, stack;
+  GetMessageInfo(message, desc, stack);
+  return "{\"message\": \"" + desc + "\", \"stack\": \"" + stack + "\"}";
+}
+
 bool V8Ctx::RegisterGlobalInJs() {
   HIPPY_DLOG(hippy::Debug, "RegisterGlobalInJs");
   v8::HandleScope handle_scope(isolate_);
@@ -426,6 +491,7 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(
   v8::Handle<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   v8::Handle<v8::String> v8_source;
+  v8::TryCatch try_catch(isolate_);
   switch (encodeing) {
     case Encoding::ONE_BYTE_ENCODING: {
       ExternalOneByteStringResourceImpl* source =
@@ -457,6 +523,11 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(
     v8_script = v8::ScriptCompiler::Compile(
         context, &script_source, v8::ScriptCompiler::kConsumeCodeCache);
     if (v8_script.IsEmpty()) {
+      if (exception) {
+        *exception = GetException(try_catch);
+      } else {
+        try_catch.ReThrow();
+      }
       return nullptr;
     }
   } else {
@@ -464,6 +535,11 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(
       v8::ScriptCompiler::Source script_source(v8_source, origin);
       v8_script = v8::ScriptCompiler::Compile(context, &script_source);
       if (v8_script.IsEmpty()) {
+        if (exception) {
+          *exception = GetException(try_catch);
+        } else {
+          try_catch.ReThrow();
+        }
         return nullptr;
       }
       const v8::ScriptCompiler::CachedData* cached_data =
@@ -478,7 +554,19 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(
   v8::MaybeLocal<v8::Value> v8_maybe_value =
       v8_script.ToLocalChecked()->Run(context);
   if (v8_maybe_value.IsEmpty()) {
+    if (exception) {
+      *exception = GetException(try_catch);
+    } else {
+      try_catch.ReThrow();
+    }
     return nullptr;
+  }
+  if (try_catch.HasCaught()) {
+    if (exception) {
+      *exception = GetException(try_catch);
+    } else {
+      try_catch.ReThrow();
+    }
   }
   v8::Handle<v8::Value> v8_value = v8_maybe_value.ToLocalChecked();
   return std::make_shared<V8CtxValue>(isolate_, v8_value);

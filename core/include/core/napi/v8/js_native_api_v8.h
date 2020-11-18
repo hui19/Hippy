@@ -205,6 +205,11 @@ struct V8Ctx : public Ctx {
 
   virtual std::shared_ptr<CtxValue> GetJsFn(const std::string &name);
 
+  void GetMessageInfo(v8::Local<v8::Message> message,
+                             std::string &desc,
+                             std::string &stack);
+  std::string GetException(const v8::TryCatch& try_catch);
+
   v8::Isolate *isolate_;
   v8::Persistent<v8::ObjectTemplate> global_persistent_;
   v8::Persistent<v8::Context> context_persistent_;
