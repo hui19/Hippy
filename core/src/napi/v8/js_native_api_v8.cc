@@ -228,6 +228,22 @@ class ExternalOneByteStringResourceImpl
   DISALLOW_COPY_AND_ASSIGN(ExternalOneByteStringResourceImpl);
 };
 
+class ExternalStringResourceImpl : public v8::String::ExternalStringResource {
+ public:
+  ExternalStringResourceImpl(const uint16_t* data, size_t length)
+      : data_(data), length_(length) {}
+  ~ExternalStringResourceImpl() = default;
+  virtual const uint16_t* data() const { return data_; };
+
+  virtual size_t length() const { return length_; }
+
+ private:
+  const uint16_t* data_;
+  size_t length_;
+
+  DISALLOW_COPY_AND_ASSIGN(ExternalStringResourceImpl);
+};
+
 }  // namespace
 
 std::shared_ptr<VM> CreateVM() {
@@ -281,7 +297,7 @@ void V8Ctx::GetMessageInfo(v8::Local<v8::Message> message,
     std::string stack_function_name =
         *function_name ? *function_name : "<string conversion failed>";
     stack_stream << stack_script_name << ": " << frame->GetLineNumber() << ": "
-          << frame->GetColumn() << ": " << stack_function_name << "\\n";
+                 << frame->GetColumn() << ": " << stack_function_name << "\\n";
   }
   stack = stack_stream.str();
   HIPPY_DLOG(hippy::Debug, "stack = %s", stack.c_str());
@@ -474,14 +490,13 @@ std::shared_ptr<CtxValue> GetInternalBindingFn(std::shared_ptr<Scope> scope) {
   return std::make_shared<V8CtxValue>(isolate, v8_function);
 }
 
-std::shared_ptr<CtxValue> V8Ctx::RunScript(
-    const uint8_t* data,
-    size_t len,
-    const std::string& file_name,
-    bool is_use_code_cache,
-    std::string* cache,
-    std::string* exception,
-    Encoding encodeing) {
+std::shared_ptr<CtxValue> V8Ctx::RunScript(const uint8_t* data,
+                                           size_t len,
+                                           const std::string& file_name,
+                                           bool is_use_code_cache,
+                                           std::string* cache,
+                                           std::string* exception,
+                                           Encoding encodeing) {
   HIPPY_DLOG(hippy::Debug,
              "V8Ctx::RunScript file_name = %s, len = %d, encodeing = %d, "
              "is_use_code_cache = %d, cache = %d, exception = %d",
@@ -501,7 +516,15 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(
       break;
     }
     case Encoding::TWO_BYTE_ENCODING: {
-      return nullptr;
+      if (len % 2 != 0) {
+        HIPPY_LOG(hippy::Error, "utf16 error, len = %d", len);
+        return nullptr;
+      }
+      ExternalStringResourceImpl* source =
+          new ExternalStringResourceImpl((uint16_t*)data, len / 2);
+      v8_source = v8::String::NewExternalTwoByte(isolate_, source)
+                      .FromMaybe(v8::Local<v8::String>());
+      break;
     }
     default: {
       v8_source = v8::String::NewFromUtf8(isolate_, (const char*)data,
@@ -509,6 +532,11 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(
                       .FromMaybe(v8::Local<v8::String>());
       break;
     }
+  }
+
+  if (v8_source.IsEmpty()) {
+    HIPPY_LOG(hippy::Warning, "v8_source empty, len = %d", len);
+    return nullptr;
   }
   v8::ScriptOrigin origin(v8::String::NewFromUtf8(isolate_, file_name.c_str(),
                                                   v8::NewStringType::kNormal)

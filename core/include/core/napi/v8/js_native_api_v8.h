@@ -193,7 +193,7 @@ struct V8Ctx : public Ctx {
       bool is_use_code_cache = false,
       std::string *cache = nullptr,
       std::string *exception = nullptr,
-      Encoding encodeing = Encoding::UNKNOWN_ENCODING);
+      Encoding encodeing = Encoding::ONE_BYTE_ENCODING);
 
   virtual std::shared_ptr<CtxValue> RunScript(
       const std::string &script,

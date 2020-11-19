@@ -559,7 +559,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_runScriptFromUri(
     std::shared_ptr<FileLoader> loader =
         std::make_shared<FileLoader>(base_path);
     runtime->GetScope()->SetUriLoader(loader);
-  } else if (uri_schema == "debug") {
+  } else if (uri_schema == "http" || uri_schema == "https") {
     HIPPY_LOG(hippy::Debug, "DebuggerLoader");
     std::shared_ptr<DebuggerLoader> loader = std::make_shared<DebuggerLoader>();
     loader->SetBridge(runtime->GetBridge());
