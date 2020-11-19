@@ -29,7 +29,9 @@ public interface DevServerInterface
 {
 	void reload(DevRemoteDebugProxy remoteDebugManager);
 
-	void loadSubResource(String resPath, DevServerCallBack serverCallBack);
+	String createResourceUrl(String resName);
+
+	void loadRemoteResource(String url, DevServerCallBack serverCallBack);
 
 	void setDevServerCallback(DevServerCallBack devServerCallback);
 

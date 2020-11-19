@@ -28,6 +28,7 @@ import com.tencent.mtt.hippy.bridge.HippyBridgeManagerImpl;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyAssetBundleLoader;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyFileBundleLoader;
+import com.tencent.mtt.hippy.bridge.bundleloader.HippyRemoteBundleLoader;
 import com.tencent.mtt.hippy.bridge.libraryloader.LibraryLoader;
 import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.HippyJsException;
@@ -134,7 +135,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 		this.mPreloadBundleLoader = preloadBundleLoader;
 		this.mAPIProviders = params.providers;
 		this.mDebugMode = params.debugMode;
-		this.mServerBundleName = params.debugMode ? params.debugBundleName : "";;
+		this.mServerBundleName = params.debugMode ? params.debugBundleName : "";
 		this.mStartTimeMonitor = new TimeMonitor(!params.debugMode);
 		this.mEnableHippyBuffer = params.enableBuffer;
 		this.mServerHost = params.debugServerHost;
@@ -169,10 +170,11 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 			mDevSupportManager = new DevSupportManager(mGlobalConfigs, mDebugMode, mServerHost, mServerBundleName);
 			mDevSupportManager.setDevCallback(this);
 
-			if(mDebugMode)
-			{
+			if(mDebugMode) {
 				mDevSupportManager.init(null);
-				return;
+				String url = mDevSupportManager.createResourceUrl(mServerBundleName);
+				mCoreBundleLoader = new HippyRemoteBundleLoader(url);
+				((HippyRemoteBundleLoader)mCoreBundleLoader).setIsDebugMode(true);
 			}
 
 			LogUtils.d(TAG, "start restartEngineInBackground...");
@@ -675,6 +677,11 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 	@Override
 	public void onDevBundleLoadReady(InputStream inputStream) {
 
+	}
+
+	@Override
+	public void onDevBundleReLoad() {
+		restartEngineInBackground();
 	}
 
 	@Override

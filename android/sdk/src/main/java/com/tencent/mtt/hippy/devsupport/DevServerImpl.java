@@ -63,6 +63,8 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface, 
 		mDebugButtonStack = new Stack<>();
 		mHostButtonMap = new HashMap<>();
 		mLiveReloadController = new LiveReloadController(mFetchHelper);
+
+		showProgressDialog();
 	}
 
 	private void showProgressDialog()
@@ -133,11 +135,21 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface, 
 	}
 
 	@Override
-	public void loadSubResource(String resPath, final DevServerCallBack serverCallBack) {
+	public String createResourceUrl(String resName) {
+		String resUrl = mFetchHelper.createBundleURL(mServerConfig.getServerHost(), resName, mServerConfig.enableRemoteDebug(), false, false);
+		return resUrl;
+	}
+
+	@Override
+	public void loadRemoteResource(String url, final DevServerCallBack serverCallBack) {
 		mFetchHelper.fetchBundleFromURL(new BundleFetchCallBack()
 		{
 			@Override
 			public void onSuccess(InputStream inputStream) {
+				if (mProgressDialog != null) {
+					mProgressDialog.dismiss();
+				}
+
 				if (serverCallBack != null) {
 					serverCallBack.onDevBundleLoadReady(inputStream);
 				}
@@ -149,58 +161,26 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface, 
 			}
 
 			@Override
-			public void onFail(Exception exception)
-			{
-				if(mDebugButtonStack.isEmpty())
-				{
-					mServerCallBack.onInitDevError(exception);
+			public void onFail(Exception exception) {
+				if (serverCallBack != null) {
+					serverCallBack.onInitDevError(exception);
 				}
-				else
-				{
+
+				if(mDebugButtonStack.isEmpty()) {
+					mServerCallBack.onInitDevError(exception);
+				} else {
 					handleException(exception);
 				}
 			}
-		}, mServerConfig.enableRemoteDebug(), mServerConfig.getServerHost(), resPath, null);
+		}, url, null);
 	}
 
 	@Override
 	public void reload(DevRemoteDebugProxy remoteDebugManager)
 	{
-		showProgressDialog();
-		mFetchHelper.fetchBundleFromURL(new BundleFetchCallBack()
-		{
-			@Override
-			public void onSuccess(InputStream inputStream) {
-
-			}
-
-			@Override
-			public void onSuccess(File file)
-			{
-				if (mProgressDialog != null)
-				{
-					mProgressDialog.dismiss();
-				}
-
-				if (mServerCallBack != null)
-				{
-					mServerCallBack.onDevBundleLoadReady(file);
-				}
-			}
-
-			@Override
-			public void onFail(Exception exception)
-			{
-				if(mDebugButtonStack.isEmpty())
-				{
-					mServerCallBack.onInitDevError(exception);
-				}
-				else
-				{
-					handleException(exception);
-				}
-			}
-		}, mServerConfig.enableRemoteDebug(), mServerConfig.getServerHost(), mServerConfig.getBundleName(), mServerConfig.getJSBundleTempFile());
+		if (mServerCallBack != null) {
+			mServerCallBack.onDevBundleReLoad();
+		}
 	}
 
 	@Override

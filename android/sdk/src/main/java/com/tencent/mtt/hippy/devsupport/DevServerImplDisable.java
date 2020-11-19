@@ -34,7 +34,10 @@ public class DevServerImplDisable implements DevServerInterface
 	}
 
 	@Override
-	public void loadSubResource(String resPath, DevServerCallBack serverCallBack) {
+	public String createResourceUrl(String resName) {return null;}
+
+	@Override
+	public void loadRemoteResource(String url, DevServerCallBack serverCallBack) {
 
 	}
 

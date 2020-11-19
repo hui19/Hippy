@@ -336,26 +336,11 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 	}
 
 	public byte[] fetchResourceWithUri(String uri) {
-		if (mContext == null || TextUtils.isEmpty(uri)) {
+		if (mContext == null || TextUtils.isEmpty(uri) || !uri.startsWith("http://")) {
 			return null;
 		}
 
-		if (uri.startsWith(URI_SCHEME_DEBUG)) {
-			uri = uri.substring(URI_SCHEME_DEBUG.length());
-		}
-
-		File mainBundleFile = new File(ContextHolder.getAppContext().getFilesDir(), DevServerConfig.JS_BUNDLE_FILE_NAME);
-		if (uri.equals(mainBundleFile.getAbsolutePath())) {
-			byte[] data = FileUtils.readFileToByteArray(uri);
-			return data;
-		}
-
-		String subResDir = ContextHolder.getAppContext().getFilesDir().getAbsolutePath() + "/";
-		if (uri.contains(subResDir)) {
-			uri = uri.substring(subResDir.length());
-		}
-
-		final String resPath = uri;
+		final String resUrl = uri;
 		final ByteArrayOutputStream output = new ByteArrayOutputStream();
 		final CountDownLatch countDownLatch = new CountDownLatch(1);
 		UIThreadUtils.runOnUiThread(new Runnable() {
@@ -367,9 +352,12 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 					return;
 				}
 
-				devManager.loadSubResource(resPath, new DevServerCallBack() {
+				devManager.loadRemoteResource(resUrl, new DevServerCallBack() {
 					@Override
 					public void onDevBundleLoadReady(File bundle) {}
+
+					@Override
+					public void onDevBundleReLoad() {}
 
 					@Override
 					public void onDevBundleLoadReady(InputStream inputStream) {
