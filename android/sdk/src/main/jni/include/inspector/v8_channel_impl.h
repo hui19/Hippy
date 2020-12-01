@@ -27,7 +27,7 @@
 
 #include "jni/jni_utils.h"  // NOLINT(build/include_subdir)
 #include "jni/scoped_java_ref.h"
-#include "third_party/v8/v8-inspector.h"
+#include "v8/v8-inspector.h"
 
 class JNIEnvironment;
 

@@ -35,6 +35,6 @@
 #include "loader/asset_loader.h"
 #include "loader/file_loader.h"
 #include "loader/http_loader.h"
-#include "third_party/v8/v8.h"
+#include "v8/v8.h"
 
 #endif  // HIPPY_HIPPY_H_

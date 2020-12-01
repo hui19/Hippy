@@ -25,7 +25,7 @@
 
 #include <jni.h>
 
-#include "third_party/v8/v8.h"
+#include "v8/v8.h"
 
 struct HippyBuffer;
 

@@ -25,7 +25,7 @@
 
 #include <stdio.h>
 
-#include "third_party/v8/v8.h"
+#include "v8/v8.h"
 
 #ifdef __cplusplus
 extern "C" {

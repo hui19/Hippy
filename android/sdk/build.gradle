@@ -20,6 +20,7 @@ ext {
     ndkDir = properties.getProperty('ndk.dir')
     sdkDir = properties.getProperty('sdk.dir')
 
+    v8Version = "v8_72"
     // Visual Studio Debugging Support
     skipCmakeAndNinja = System.getenv('skipCmakeAndNinja') != null
 }
@@ -93,6 +94,7 @@ task compileCmake(type: Exec) {
             "-DANDROID_NDK=${findNdkFullPath()}",
             "-DANDROID_PLATFORM=android-14",
             "-DCMAKE_BUILD_TYPE=Release",
+            "-DV8_VERSION=${v8Version}",
             "-DCMAKE_TOOLCHAIN_FILE=${findToolChainPath()}",
                 "-G", "Android Gradle - Ninja", file("src/main/jni/").absolutePath
     }
@@ -221,25 +223,25 @@ task address2Line(type: Exec) {
 
 task buildNdkLibs(dependsOn: (ISCI.toBoolean() ? dealNdkLibSymbols : stripSO)) {
     copy {
-        from "src/main/jni/third_party/v8/x86"
+        from "src/main/jni/third_party/${v8Version}/v8/x86"
         into "$buildDir/jnilibs/x86/"
     }
     copy {
-        from "src/main/jni/third_party/v8/x86_64"
+        from "src/main/jni/third_party/${v8Version}/v8/x86_64"
         into "$buildDir/jnilibs/x86_64/"
     }
 
     copy {
-        from "src/main/jni/third_party/v8/arm64-v8a"
+        from "src/main/jni/third_party/${v8Version}/v8/arm64-v8a"
         into "$buildDir/jnilibs/arm64-v8a/"
     }
 
     copy {
-        from "src/main/jni/third_party/v8/armeabi-v7a"
+        from "src/main/jni/third_party/${v8Version}/v8/armeabi-v7a"
         into "$buildDir/jnilibs/armeabi-v7a/"
     }
     copy {
-        from "src/main/jni/third_party/v8/armeabi-v7a"
+        from "src/main/jni/third_party/${v8Version}/v8/armeabi-v7a"
         into "$buildDir/jnilibs/armeabi/"
     }
 }

@@ -78,6 +78,7 @@ file(GLOB_RECURSE JNI_SRC ${PROJECT_SOURCE_DIR}/src/*.cc)
 message("PROJECT_SOURCE_DIR: ${PROJECT_SOURCE_DIR}")
 message("CORE_SRC_DIR: ${CORE_SRC_DIR}")
 message("JNI_SRC: ${JNI_SRC}")
+message("V8_VERSION: ${V8_VERSION}")
 
 message("JS_ENGINE:" ${JS_ENGINE})
 if (${JS_ENGINE} STREQUAL "V8")
@@ -98,13 +99,14 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${CORE_SRC_DIR}/include)
+include_directories(${PROJECT_SOURCE_DIR}/third_party/${V8_VERSION})
 include_directories(${PROJECT_SOURCE_DIR})
 
 add_library(libmttv8 SHARED IMPORTED)
-set_target_properties(libmttv8 PROPERTIES IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/third_party/v8/${ANDROID_ABI}/libmttv8.so)
+set_target_properties(libmttv8 PROPERTIES IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/third_party/${V8_VERSION}/v8/${ANDROID_ABI}/libmttv8.so)
 
 add_library(libmtt_shared SHARED IMPORTED)
-set_target_properties(libmtt_shared PROPERTIES IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/third_party/v8/${ANDROID_ABI}/libmtt_shared.so)
+set_target_properties(libmtt_shared PROPERTIES IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/third_party/${V8_VERSION}/v8/${ANDROID_ABI}/libmtt_shared.so)
 
 add_library(hippybridge SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC})
 target_link_libraries(hippybridge android log libmttv8 libmtt_shared)

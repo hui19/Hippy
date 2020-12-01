@@ -33,8 +33,8 @@
 #include "core/base/logging.h"
 #include "core/base/macros.h"
 #include "core/napi/js_native_api.h"
-#include "third_party/v8/libplatform/libplatform.h"
-#include "third_party/v8/v8.h"
+#include "v8/libplatform/libplatform.h"
+#include "v8/v8.h"
 
 namespace hippy {
 namespace napi {
