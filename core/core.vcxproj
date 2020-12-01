@@ -228,7 +228,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>.\include;..\android\sdk\src\main\jni;..\android\sdk\src\main\jni\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\android\sdk\src\main\jni\third_party\v8_72;.\include;..\android\sdk\src\main\jni;..\android\sdk\src\main\jni\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CppLanguageStandard>c++14</CppLanguageStandard>
       <PreprocessorDefinitions>OS_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>

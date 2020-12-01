@@ -164,10 +164,10 @@
       <PrecompiledHeaderFile>../../../../../core/include/core/core.h</PrecompiledHeaderFile>
       <CppLanguageStandard>c++14</CppLanguageStandard>
       <PreprocessorDefinitions>__ANDROID_API__=$(AndroidAPILevelNumber);OS_ANDROID;DEBUG</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\include;..\..\..\..\..\core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\third_party\v8_72;.;.\include;..\..\..\..\..\core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>third_party\v8\armeabi-v7a\libmtt_shared.so;third_party\v8\armeabi-v7a\libmttv8.so</AdditionalDependencies>
+      <AdditionalDependencies>third_party\v8_72\v8\armeabi-v7a\libmtt_shared.so;third_party\v8_72\v8\armeabi-v7a\libmttv8.so</AdditionalDependencies>
       <OutputFile>$(ProjectDir)..\..\..\build\outputs\armeabi-v7a\$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalOptions>-lm</AdditionalOptions>
     </Link>
