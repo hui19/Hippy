@@ -22,7 +22,9 @@
 
 #include "core/task/worker_task_runner.h"
 
+
 #include "core/base/logging.h"
+#include "core/napi/js_native_api.h"
 
 const uint32_t WorkerTaskRunner::kDefaultTaskPriority = 10000;
 const uint32_t WorkerTaskRunner::kHighPriorityTaskPriority = 5000;
