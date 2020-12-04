@@ -57,6 +57,7 @@ std::unique_ptr<CommonTask> WorkerTaskRunner::GetNext() {
     }
 
     if (terminated_) {
+      hippy::napi::DetachThread();
       cv_.notify_all();
       HIPPY_DLOG(hippy::Debug, "WorkerTaskRunner Terminate");
       return nullptr;
