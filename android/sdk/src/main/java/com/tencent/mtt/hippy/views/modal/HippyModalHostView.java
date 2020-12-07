@@ -158,6 +158,10 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 
 	private void dismiss()
 	{
+		if (isActivityFinishing()) {
+			return;
+		}
+
 		if (mDialog != null)
 		{
 			mDialog.dismiss();
@@ -300,20 +304,29 @@ public class HippyModalHostView extends HippyViewGroup implements HippyInstanceL
 			throwable.printStackTrace();
 		}
 	}
-	protected void showOrUpdate()
-	{
+
+	private boolean isActivityFinishing() {
 		HippyInstanceContext hippyInstanceContext = (HippyInstanceContext)getContext();
 		if (hippyInstanceContext == null){
-			return;
+			 return true;
 		}
 
 		Context context = hippyInstanceContext.getBaseContext();
 		if (context == null || !(context instanceof Activity)) {
-			return;
+			return true;
 		}
 
 		Activity currentActivity = (Activity)context;
 		if (currentActivity.isFinishing()) {
+			return true;
+		}
+
+		return false;
+	}
+
+	protected void showOrUpdate()
+	{
+		if (isActivityFinishing()) {
 			return;
 		}
 
