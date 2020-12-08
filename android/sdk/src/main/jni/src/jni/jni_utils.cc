@@ -39,11 +39,14 @@ size_t SafeGetArrayLength(JNIEnv* env, const jbyteArray& jarray) {
 std::string JniUtils::AppendJavaByteArrayToString(
     JNIEnv* env,
     jbyteArray byte_array) {
-  if (!byte_array)
-    return nullptr;
+  if (!byte_array) {
+    return "";
+  }
+  
   size_t len = SafeGetArrayLength(env, byte_array);
-  if (!len)
-    return nullptr;
+  if (!len) {
+    return "";
+  }
   std::string ret;
   ret.resize(len);
   env->GetByteArrayRegion(byte_array, 0, len,
