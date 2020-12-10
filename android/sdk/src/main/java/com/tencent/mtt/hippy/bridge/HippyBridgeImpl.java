@@ -137,6 +137,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 				public void onFailure(final Throwable cause)
 				{
 					LogUtils.e("hippyCore", "js debug socket connect failed");
+
+                    initJSEngine(groupId);
 				}
 			});
 		}
