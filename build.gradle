@@ -1,0 +1,65 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+  repositories {
+    maven {
+      url "https://mirrors.tencent.com/repository/maven/tencent_public/"
+    }
+    maven {
+      url "https://mirrors.tencent.com/repository/maven/thirdparty/"
+    }
+    maven {
+      url "https://mirrors.tencent.com/repository/maven/thirdparty-snapshots/"
+    }
+    maven {
+      url 'https://mirrors.tencent.com/repository/maven/thirdparty'
+    }
+    maven {
+      url 'https://mirrors.tencent.com/repository/maven/qqbrowser/'
+      credentials {
+        username "niuniuyang"
+        password "be296802b54d11eab1c76c92bf3acd2c"
+      }
+    }
+    google()
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.android.tools.build:gradle:3.5.2'
+    // NOTE: Do not place your application dependencies here; they belong
+    // in the individual module build.gradle files
+    classpath 'com.tencent.raft:gradlesdk:0.3.5.5'
+    classpath 'commons-codec:commons-codec:1.6'
+    classpath 'com.novoda:bintray-release:0.9.2'
+  }
+}
+
+allprojects {
+  repositories {
+    maven {
+      url "https://mirrors.tencent.com/repository/maven/tencent_public/"
+    }
+    maven {
+      url "https://mirrors.tencent.com/repository/maven/thirdparty/"
+    }
+    maven {
+      url "https://mirrors.tencent.com/repository/maven/thirdparty-snapshots/"
+    }
+    maven {
+      url 'https://mirrors.tencent.com/repository/maven/thirdparty'
+    }
+    maven {
+      url 'https://mirrors.tencent.com/repository/maven/qqbrowser/'
+      credentials {
+        username "niuniuyang"
+        password "be296802b54d11eab1c76c92bf3acd2c"
+      }
+    }
+    google()
+    jcenter()
+  }
+}
+
+task clean(type: Delete) {
+  delete rootProject.buildDir
+}
