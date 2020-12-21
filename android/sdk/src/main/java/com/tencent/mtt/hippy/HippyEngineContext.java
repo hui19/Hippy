@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy;
 
 import com.tencent.mtt.hippy.bridge.HippyBridgeManager;
@@ -28,101 +29,101 @@ import com.tencent.mtt.hippy.utils.TimeMonitor;
  * Description：
  * History：
  */
-public interface HippyEngineContext
-{
-	/**
-	 * Get global configs
-	 *
-	 * @return
-	 */
-	public HippyGlobalConfigs getGlobalConfigs();
+public interface HippyEngineContext {
 
-	/**
-	 * Get module manager
-	 *
-	 * @return
-	 */
-	public HippyModuleManager getModuleManager();
+  /**
+   * Get global configs
+   *
+   * @return
+   */
+  public HippyGlobalConfigs getGlobalConfigs();
 
-	/**
-	 * Get java and js bridge manager
-	 *
-	 * @return
-	 */
-	public HippyBridgeManager getBridgeManager();
+  /**
+   * Get module manager
+   *
+   * @return
+   */
+  public HippyModuleManager getModuleManager();
 
-	/**
-	 * Get development mode support manager
-	 *
-	 * @return
-	 */
-	public DevSupportManager getDevSupportManager();
+  /**
+   * Get java and js bridge manager
+   *
+   * @return
+   */
+  public HippyBridgeManager getBridgeManager();
 
-	/**
-	 * Get thread excutor
-	 *
-	 * @return
-	 */
-	public ThreadExecutor getThreadExecutor();
+  /**
+   * Get development mode support manager
+   *
+   * @return
+   */
+  public DevSupportManager getDevSupportManager();
 
-	/**
-	 * Get dom nodes manager
-	 *
-	 * @return
-	 */
-	public DomManager getDomManager();
+  /**
+   * Get thread excutor
+   *
+   * @return
+   */
+  public ThreadExecutor getThreadExecutor();
 
-	/**
-	 * Get ui views manager
-	 *
-	 * @return
-	 */
-	public RenderManager getRenderManager();
+  /**
+   * Get dom nodes manager
+   *
+   * @return
+   */
+  public DomManager getDomManager();
 
-	/**
-	 * Get business instance ID
-	 *
-	 * @param id
-	 * @return
-	 */
-	public HippyRootView getInstance(int id);
+  /**
+   * Get ui views manager
+   *
+   * @return
+   */
+  public RenderManager getRenderManager();
 
-	/**
-	 * Add business instance status change listener
-	 *
-	 * @param listener
-	 */
-	public void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
+  /**
+   * Get business instance ID
+   *
+   * @param id
+   * @return
+   */
+  public HippyRootView getInstance(int id);
 
-	/**
-	 * Remove business instance status change listener
-	 *
-	 * @param listener
-	 */
-	public void removeInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
+  /**
+   * Add business instance status change listener
+   *
+   * @param listener
+   */
+  public void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
 
-	/**
-	 * Add engine lifecycle event listener
-	 *
-	 * @param listener
-	 */
-	public void addEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
+  /**
+   * Remove business instance status change listener
+   *
+   * @param listener
+   */
+  public void removeInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
 
-	/**
-	 * Remove engine lifecycle event listener
-	 *
-	 * @param listener
-	 */
-	public void removeEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
+  /**
+   * Add engine lifecycle event listener
+   *
+   * @param listener
+   */
+  public void addEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
 
-	/**
-	 * Handle exception information
-	 *
-	 * @param throwable
-	 */
-	public void handleException(Throwable throwable);
+  /**
+   * Remove engine lifecycle event listener
+   *
+   * @param listener
+   */
+  public void removeEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
 
-	TimeMonitor getStartTimeMonitor();
+  /**
+   * Handle exception information
+   *
+   * @param throwable
+   */
+  public void handleException(Throwable throwable);
 
-	int getEngineId();
+  TimeMonitor getStartTimeMonitor();
+
+  int getEngineId();
 }

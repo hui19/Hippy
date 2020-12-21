@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter.sharedpreferences;
 
 import android.content.SharedPreferences;
@@ -23,7 +24,7 @@ import android.content.SharedPreferences;
  * History：
  * 1.0 xiandongluo on 2017/11/13
  */
-public interface HippySharedPreferencesAdapter
-{
-    public SharedPreferences getSharedPreferences();
+public interface HippySharedPreferencesAdapter {
+
+  public SharedPreferences getSharedPreferences();
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.devsupport;
 
 import java.io.File;
@@ -25,9 +26,10 @@ import java.io.InputStream;
  */
 
 public interface BundleFetchCallBack {
-    void onSuccess(File file);
 
-    void onSuccess(InputStream inputStream);
+  void onSuccess(File file);
 
-    void onFail(Exception exception);
+  void onSuccess(InputStream inputStream);
+
+  void onFail(Exception exception);
 }

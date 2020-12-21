@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.bridge;
 
 /**
@@ -20,9 +21,9 @@ package com.tencent.mtt.hippy.bridge;
  * Description：
  * History：
  */
-public class HippyJsThreadRunnableParams<T extends Object>
-{
-	public int	instanceId;
+public class HippyJsThreadRunnableParams<T extends Object> {
 
-	public T	param;
+  public int instanceId;
+
+  public T param;
 }

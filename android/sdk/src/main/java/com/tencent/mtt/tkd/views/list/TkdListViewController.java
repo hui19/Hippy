@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.tkd.views.list;
 
 import com.tencent.mtt.hippy.HippyRootView;
@@ -45,23 +46,22 @@ import android.view.ViewGroup;
  */
 
 @HippyController(name = TkdListViewController.CLASS_NAME)
-public class TkdListViewController extends HippyListViewController
-{
-	public static final String CLASS_NAME = "tkdListView";
-  private static final String	SCROLL_TO_POSITION = "scrollToPosition";
+public class TkdListViewController extends HippyListViewController {
 
-	protected View createViewImpl(Context context)
-	{
-		return new TkdListView(context);
-	}
+  public static final String CLASS_NAME = "tkdListView";
+  private static final String SCROLL_TO_POSITION = "scrollToPosition";
+
+  protected View createViewImpl(Context context) {
+    return new TkdListView(context);
+  }
 
   @Override
-  protected View createViewImpl(Context context, HippyMap iniProps)
-  {
+  protected View createViewImpl(Context context, HippyMap iniProps) {
     int orientation = BaseLayoutManager.VERTICAL;
     if (iniProps != null) {
-      if ((iniProps.containsKey("direction") && iniProps.getString("direction").equals("horizontal"))
-        || iniProps.containsKey("horizontal")) {
+      if (
+        (iniProps.containsKey("direction") && iniProps.getString("direction").equals("horizontal"))
+          || iniProps.containsKey("horizontal")) {
         orientation = BaseLayoutManager.HORIZONTAL;
       }
     }
@@ -70,8 +70,7 @@ public class TkdListViewController extends HippyListViewController
   }
 
   @HippyControllerProps(name = "preloadDistance", defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
-  public void setPreloadDistance(HippyListView hippyListView, int preloadDistance)
-  {
+  public void setPreloadDistance(HippyListView hippyListView, int preloadDistance) {
     if (hippyListView instanceof TkdListView) {
       TkdListView listView = (TkdListView) hippyListView;
       listView.setPreloadDistance(preloadDistance);
@@ -79,8 +78,7 @@ public class TkdListViewController extends HippyListViewController
   }
 
   @HippyControllerProps(name = "scrollMinOffset", defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
-  public void setScrollMinOffset(HippyListView hippyListView, int scrollMinOffset)
-  {
+  public void setScrollMinOffset(HippyListView hippyListView, int scrollMinOffset) {
     if (hippyListView instanceof TkdListView) {
       TkdListView listView = (TkdListView) hippyListView;
       listView.setScrollMinOffset(scrollMinOffset);
@@ -88,8 +86,7 @@ public class TkdListViewController extends HippyListViewController
   }
 
   @Override
-  public void dispatchFunction(HippyListView view, String functionName, HippyArray dataArray)
-  {
+  public void dispatchFunction(HippyListView view, String functionName, HippyArray dataArray) {
     super.dispatchFunction(view, functionName, dataArray);
     if (!TextUtils.isEmpty(functionName) && view instanceof TkdListView) {
       if (functionName.equals("loadMoreFinish")) {
@@ -100,10 +97,10 @@ public class TkdListViewController extends HippyListViewController
   }
 
   @Override
-  public void dispatchFunction(HippyListView view, String functionName, HippyArray params, Promise promise)
-  {
+  public void dispatchFunction(HippyListView view, String functionName, HippyArray params,
+    Promise promise) {
     super.dispatchFunction(view, functionName, params, promise);
-    if(view instanceof TkdListView) {
+    if (view instanceof TkdListView) {
       if (TextUtils.equals(SCROLL_TO_POSITION, functionName)) {
         String msg = "";
         int distance = 0;
@@ -111,7 +108,7 @@ public class TkdListViewController extends HippyListViewController
         if (params != null && params.size() > 0) {
           HippyMap paramsMap = params.getMap(0);
           if (paramsMap != null) {
-            distance = (int)PixelUtil.dp2px(paramsMap.getInt("distance"));
+            distance = (int) PixelUtil.dp2px(paramsMap.getInt("distance"));
             duration = paramsMap.getInt("duration");
           }
         } else {
@@ -119,7 +116,7 @@ public class TkdListViewController extends HippyListViewController
         }
 
         if (distance != 0) {
-          ((TkdListView)view).scrollWithDistance(distance, duration, promise);
+          ((TkdListView) view).scrollWithDistance(distance, duration, promise);
         } else {
           msg = "invalid distance parameter!";
         }

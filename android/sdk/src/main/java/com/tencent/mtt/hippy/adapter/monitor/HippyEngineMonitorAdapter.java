@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter.monitor;
 
 import com.tencent.mtt.hippy.HippyRootView;
@@ -25,24 +26,25 @@ import java.util.List;
  * History：
  * 1.0 xiandongluo on 2018/1/23
  */
-public interface HippyEngineMonitorAdapter
-{
+public interface HippyEngineMonitorAdapter {
 
-	int	ENGINE_LOAD_RESULT_SUCCESS	= 0;
-	int	ENGINE_LOAD_RESULT_ERROR	= 1;
-	int	ENGINE_LOAD_RESULE_TIMEOUT	= 2;
+  int ENGINE_LOAD_RESULT_SUCCESS = 0;
+  int ENGINE_LOAD_RESULT_ERROR = 1;
+  int ENGINE_LOAD_RESULE_TIMEOUT = 2;
 
-	void reportEngineLoadStart();
+  void reportEngineLoadStart();
 
-	void reportEngineLoadResult(int code, int loadTime, List<HippyEngineMonitorEvent> loadEvents, Throwable e);
+  void reportEngineLoadResult(int code, int loadTime, List<HippyEngineMonitorEvent> loadEvents,
+    Throwable e);
 
-	void reportModuleLoadComplete(HippyRootView rootView, int loadTime, List<HippyEngineMonitorEvent> loadEvents);
+  void reportModuleLoadComplete(HippyRootView rootView, int loadTime,
+    List<HippyEngineMonitorEvent> loadEvents);
 
-	boolean needReportBridgeANR();
+  boolean needReportBridgeANR();
 
-	void reportBridgeANR(String message);
+  void reportBridgeANR(String message);
 
-	void reportDoCallNatives(String moduleName, String moduleFunc);
+  void reportDoCallNatives(String moduleName, String moduleFunc);
 
-	void reportGestureEventCallStack(String funcName, String msg);
+  void reportGestureEventCallStack(String funcName, String msg);
 }

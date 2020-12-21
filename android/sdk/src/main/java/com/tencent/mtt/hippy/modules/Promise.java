@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.modules;
 
 /**
@@ -20,13 +21,13 @@ package com.tencent.mtt.hippy.modules;
  * Description：
  * History：
  */
-public interface Promise
-{
-    void resolve(Object value);
+public interface Promise {
 
-    void reject(Object error);
-    
-	boolean isCallback();
+  void resolve(Object value);
 
-	String getCallId();
+  void reject(Object error);
+
+  boolean isCallback();
+
+  String getCallId();
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.views.list;
 
 import com.tencent.mtt.hippy.uimanager.RenderNode;
@@ -23,18 +24,16 @@ import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase;
  * Created by leonardgong on 2017/12/15 0015.
  */
 
-public class NodeHolder extends ContentHolder
-{
-	public RenderNode	mBindNode;
-	public boolean		isCreated	= true;
+public class NodeHolder extends ContentHolder {
 
-	@Override
-	public void inTraversals(int traversalPurpose, int position, RecyclerViewBase recyclerView)
-	{
-		super.inTraversals(traversalPurpose, position, recyclerView);
-		if (recyclerView instanceof RecyclerViewBase)
-		{
-			recyclerView.handleInTraversal(traversalPurpose, position, mContentView);
-		}
-	}
+  public RenderNode mBindNode;
+  public boolean isCreated = true;
+
+  @Override
+  public void inTraversals(int traversalPurpose, int position, RecyclerViewBase recyclerView) {
+    super.inTraversals(traversalPurpose, position, recyclerView);
+    if (recyclerView instanceof RecyclerViewBase) {
+      recyclerView.handleInTraversal(traversalPurpose, position, mContentView);
+    }
+  }
 }

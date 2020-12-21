@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.dom;
 
 /**
@@ -22,5 +23,6 @@ package com.tencent.mtt.hippy.dom;
  */
 
 public interface IDomExecutor {
-    public void exec();
+
+  public void exec();
 }

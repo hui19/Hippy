@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter.font;
 
 /**
@@ -22,13 +23,14 @@ package com.tencent.mtt.hippy.adapter.font;
  */
 
 public class DefaultFontScaleAdapter implements HippyFontScaleAdapter {
-    @Override
-    public float getFontScale() {
-        return 1;
-    }
 
-    @Override
-    public CharSequence getEmoticonText(CharSequence text, int fontSize) {
-        return text;
-    }
+  @Override
+  public float getFontScale() {
+    return 1;
+  }
+
+  @Override
+  public CharSequence getEmoticonText(CharSequence text, int fontSize) {
+    return text;
+  }
 }

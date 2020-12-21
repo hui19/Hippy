@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.websocket;
 
 
@@ -22,25 +23,22 @@ package com.tencent.mtt.hippy.websocket;
  * History：
  * 1.0 xiandongluo on 2017/11/30
  */
-public class Header
-{
-    private final String name;
+public class Header {
 
-    private final String value;
+  private final String name;
 
-    public Header(String name, String value)
-    {
-        this.name  = name;
-        this.value = value;
-    }
+  private final String value;
 
-    public String getName()
-    {
-        return name;
-    }
+  public Header(String name, String value) {
+    this.name = name;
+    this.value = value;
+  }
 
-    public String getValue()
-    {
-        return value;
-    }
+  public String getName() {
+    return name;
+  }
+
+  public String getValue() {
+    return value;
+  }
 }

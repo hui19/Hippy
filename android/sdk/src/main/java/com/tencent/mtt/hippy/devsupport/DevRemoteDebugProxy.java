@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.devsupport;
 
 import android.content.Context;
@@ -22,12 +23,12 @@ import android.content.Context;
  * Description：
  * History：
  */
-public interface DevRemoteDebugProxy
-{
-	void destroy();
+public interface DevRemoteDebugProxy {
 
-	interface OnReceiveDataListener
-	{
-		public void onReceiveData(String mesg);
-	}
+  void destroy();
+
+  interface OnReceiveDataListener {
+
+    public void onReceiveData(String mesg);
+  }
 }

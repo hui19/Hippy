@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy;
 
 import com.tencent.mtt.hippy.common.Provider;
@@ -29,11 +30,12 @@ import java.util.Map;
  * Description：
  * History：
  */
-public interface HippyAPIProvider
-{
-    public Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>> getNativeModules(HippyEngineContext context);
+public interface HippyAPIProvider {
 
-    public List<Class<? extends HippyJavaScriptModule>>  getJavaScriptModules();
+  public Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>> getNativeModules(
+    HippyEngineContext context);
 
-    public List<Class<? extends HippyViewController>> getControllers();
+  public List<Class<? extends HippyJavaScriptModule>> getJavaScriptModules();
+
+  public List<Class<? extends HippyViewController>> getControllers();
 }

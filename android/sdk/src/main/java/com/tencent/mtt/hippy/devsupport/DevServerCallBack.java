@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.devsupport;
 
 import java.io.File;
 import java.io.InputStream;
 
-public interface DevServerCallBack
-{
-    //The bundle is loaded successfully callback
-    void onDevBundleLoadReady(File bundle);
+public interface DevServerCallBack {
 
-    void onDevBundleLoadReady(InputStream inputStream);
+  //The bundle is loaded successfully callback
+  void onDevBundleLoadReady(File bundle);
 
-    void onInitDevError(Throwable e);
+  void onDevBundleLoadReady(InputStream inputStream);
 
-    void onDevBundleReLoad();
+  void onInitDevError(Throwable e);
+
+  void onDevBundleReLoad();
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.dom.node;
 
 /**
@@ -21,22 +22,22 @@ package com.tencent.mtt.hippy.dom.node;
  * @version: V1.0
  */
 
-public class TextExtra
-{
-	public Object	mExtra;
-	public float	mLeftPadding;
-	public float	mRightPadding;
-	public float	mBottomPadding;
-	public float	mTopPadding;
+public class TextExtra {
 
-	public TextExtra(Object extra, float mLeftPadding, float mRightPadding, float mBottomPadding, float mTopPadding)
-	{
-		this.mExtra = extra;
-		this.mLeftPadding = mLeftPadding;
-		this.mRightPadding = mRightPadding;
-		this.mBottomPadding = mBottomPadding;
-		this.mTopPadding = mTopPadding;
-	}
+  public Object mExtra;
+  public float mLeftPadding;
+  public float mRightPadding;
+  public float mBottomPadding;
+  public float mTopPadding;
+
+  public TextExtra(Object extra, float mLeftPadding, float mRightPadding, float mBottomPadding,
+    float mTopPadding) {
+    this.mExtra = extra;
+    this.mLeftPadding = mLeftPadding;
+    this.mRightPadding = mRightPadding;
+    this.mBottomPadding = mBottomPadding;
+    this.mTopPadding = mTopPadding;
+  }
 
 
 }

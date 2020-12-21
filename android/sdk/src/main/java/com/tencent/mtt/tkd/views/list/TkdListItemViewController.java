@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.tkd.views.list;
 
 import android.content.Context;
@@ -32,13 +33,12 @@ import com.tencent.mtt.hippy.views.list.HippyListItemViewController;
  */
 
 @HippyController(name = TkdListItemViewController.CLASS_NAME, isLazyLoad = true)
-public class TkdListItemViewController extends HippyListItemViewController
-{
-	public static final String CLASS_NAME = "tkdCell";
+public class TkdListItemViewController extends HippyListItemViewController {
 
-	@Override
-	protected View createViewImpl(Context context)
-	{
-		return new TkdListItemView(context);
-	}
+  public static final String CLASS_NAME = "tkdCell";
+
+  @Override
+  protected View createViewImpl(Context context) {
+    return new TkdListItemView(context);
+  }
 }

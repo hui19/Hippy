@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy;
 
 /**
@@ -20,14 +21,13 @@ package com.tencent.mtt.hippy;
  * Description：
  * History：
  */
-public interface HippyInstanceLifecycleEventListener
-{
+public interface HippyInstanceLifecycleEventListener {
 
-	void onInstanceLoad(int instanceId);
+  void onInstanceLoad(int instanceId);
 
-	void onInstanceResume(int instanceId);
+  void onInstanceResume(int instanceId);
 
-	void onInstancePause(int instanceId);
+  void onInstancePause(int instanceId);
 
-	void onInstanceDestroy(int instanceId);
+  void onInstanceDestroy(int instanceId);
 }

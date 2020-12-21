@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.bridge;
 
 import android.content.res.AssetManager;
@@ -25,29 +26,33 @@ import com.tencent.mtt.hippy.common.HippyArray;
  * History：
  * 1.0 xiandongluo on 2017/11/14
  */
-public interface HippyBridge
-{
-	static final String URI_SCHEME_ASSETS = "asset:";
-	static final String URI_SCHEME_FILE   = "file:";
+public interface HippyBridge {
 
-	public void initJSBridge(String gobalConfig, NativeCallback callback, int groupId);
+  static final String URI_SCHEME_ASSETS = "asset:";
+  static final String URI_SCHEME_FILE = "file:";
 
-	public boolean runScriptFromFile(String filePath, String scriptName, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback);
+  public void initJSBridge(String gobalConfig, NativeCallback callback, int groupId);
 
-	public boolean runScriptFromAssets(String fileName, AssetManager assetManager, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback);
+  public boolean runScriptFromFile(String filePath, String scriptName, boolean canUseCodeCache,
+    String codeCacheTag, NativeCallback callback);
 
-	public boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback);
+  public boolean runScriptFromAssets(String fileName, AssetManager assetManager,
+    boolean canUseCodeCache, String codeCacheTag, NativeCallback callback);
 
-	public void destroy(NativeCallback callback);
+  public boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache,
+    String codeCacheTag, NativeCallback callback);
 
-	public void callFunction(String action, String params, NativeCallback callback);
+  public void destroy(NativeCallback callback);
 
-    public void callFunction(String action, byte[] bytes, int offset, int length, NativeCallback callback);
+  public void callFunction(String action, String params, NativeCallback callback);
 
-	public static interface BridgeCallback
-	{
-		public void callNatives(String moduleName, String moduleFunc, String callId, HippyArray params);
+  public void callFunction(String action, byte[] bytes, int offset, int length,
+    NativeCallback callback);
 
-		public void reportException(String exception, String stackTrace);
-	}
+  public static interface BridgeCallback {
+
+    public void callNatives(String moduleName, String moduleFunc, String callId, HippyArray params);
+
+    public void reportException(String exception, String stackTrace);
+  }
 }

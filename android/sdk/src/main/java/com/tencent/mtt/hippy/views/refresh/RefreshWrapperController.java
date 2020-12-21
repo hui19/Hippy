@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.views.refresh;
 
 import android.content.Context;
@@ -29,45 +30,39 @@ import com.tencent.mtt.hippy.uimanager.HippyGroupController;
  * @version: V1.0
  */
 @HippyController(name = "RefreshWrapper")
-public class RefreshWrapperController extends HippyGroupController<RefreshWrapper>
-{
-	final String	RefreshComplected	= "refreshComplected";
-	final String	StartRefresh		= "startRefresh";
+public class RefreshWrapperController extends HippyGroupController<RefreshWrapper> {
 
-	@Override
-	protected View createViewImpl(Context context)
-	{
-		return new RefreshWrapper(context);
-	}
+  final String RefreshComplected = "refreshComplected";
+  final String StartRefresh = "startRefresh";
 
-	@HippyControllerProps(name = "bounceTime", defaultType = HippyControllerProps.NUMBER, defaultNumber = 300)
-	public void bounceTime(RefreshWrapper wrapper, int time)
-	{
-		wrapper.setTime(time);
-	}
+  @Override
+  protected View createViewImpl(Context context) {
+    return new RefreshWrapper(context);
+  }
 
-	@HippyControllerProps(name = "onScrollEnable", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-	public void setOnScrollEventEnable(RefreshWrapper wrapper, boolean flag)
-	{
-		wrapper.setOnScrollEventEnable(flag);
-	}
-	@HippyControllerProps(name = "scrollEventThrottle", defaultType = HippyControllerProps.NUMBER, defaultNumber = 30.0D)
-	public void setscrollEventThrottle(RefreshWrapper wrapper, int scrollEventThrottle)
-	{
-		wrapper.setScrollEventThrottle(scrollEventThrottle);
-	}
-	@Override
-	public void dispatchFunction(RefreshWrapper view, String functionName, HippyArray var)
-	{
-		super.dispatchFunction(view, functionName, var);
+  @HippyControllerProps(name = "bounceTime", defaultType = HippyControllerProps.NUMBER, defaultNumber = 300)
+  public void bounceTime(RefreshWrapper wrapper, int time) {
+    wrapper.setTime(time);
+  }
 
-		if (RefreshComplected.equals(functionName))
-		{
-			view.refreshComplected();
-		}
-		else if (StartRefresh.equals(functionName))
-		{
-			view.startRefresh();
-		}
-	}
+  @HippyControllerProps(name = "onScrollEnable", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+  public void setOnScrollEventEnable(RefreshWrapper wrapper, boolean flag) {
+    wrapper.setOnScrollEventEnable(flag);
+  }
+
+  @HippyControllerProps(name = "scrollEventThrottle", defaultType = HippyControllerProps.NUMBER, defaultNumber = 30.0D)
+  public void setscrollEventThrottle(RefreshWrapper wrapper, int scrollEventThrottle) {
+    wrapper.setScrollEventThrottle(scrollEventThrottle);
+  }
+
+  @Override
+  public void dispatchFunction(RefreshWrapper view, String functionName, HippyArray var) {
+    super.dispatchFunction(view, functionName, var);
+
+    if (RefreshComplected.equals(functionName)) {
+      view.refreshComplected();
+    } else if (StartRefresh.equals(functionName)) {
+      view.startRefresh();
+    }
+  }
 }

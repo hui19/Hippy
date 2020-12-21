@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy;
 
 import android.content.Context;
@@ -48,351 +49,302 @@ import static android.content.res.Configuration.ORIENTATION_UNDEFINED;
  * Description：
  * History：
  */
-public class HippyRootView extends FrameLayout
-{
-	private static final int			ROOT_VIEW_TAG_INCREMENT	= 10;
+public class HippyRootView extends FrameLayout {
 
-	private static AtomicInteger		ID_COUNTER				= new AtomicInteger(0);
+  private static final int ROOT_VIEW_TAG_INCREMENT = 10;
 
-	OnSizeChangedListener				mSizeChangListener;
+  private static AtomicInteger ID_COUNTER = new AtomicInteger(0);
 
-	private int							mInstanceId				= 0;
+  OnSizeChangedListener mSizeChangListener;
 
-	private HippyEngine.ModuleLoadParams	mLoadParams;
+  private int mInstanceId = 0;
 
-	private HippyEngineContext			mEngineContext;
+  private HippyEngine.ModuleLoadParams mLoadParams;
 
-	private GlobalLayoutListener		mGlobalLayoutListener;
+  private HippyEngineContext mEngineContext;
 
-	private OnResumeAndPauseListener	mOnResumeAndPauseListener;
+  private GlobalLayoutListener mGlobalLayoutListener;
 
-	private OnLoadCompleteListener		mOnLoadCompleteListener;
+  private OnResumeAndPauseListener mOnResumeAndPauseListener;
 
-	private TimeMonitor					mTimeMonitor;
+  private OnLoadCompleteListener mOnLoadCompleteListener;
 
-	protected boolean					mLoadCompleted			= false;
+  private TimeMonitor mTimeMonitor;
 
-	public HippyRootView(HippyEngine.ModuleLoadParams loadParams)
-	{
-		super(loadParams.hippyContext != null ? loadParams.hippyContext : new HippyInstanceContext(loadParams.context, loadParams));
+  protected boolean mLoadCompleted = false;
 
-		mLoadParams = loadParams;
-		mInstanceId = ID_COUNTER.addAndGet(ROOT_VIEW_TAG_INCREMENT);
+  public HippyRootView(HippyEngine.ModuleLoadParams loadParams) {
+    super(loadParams.hippyContext != null ? loadParams.hippyContext
+      : new HippyInstanceContext(loadParams.context, loadParams));
 
-		setId(mInstanceId);
-		//setTag(NodeProps.ROOT_NODE);
+    mLoadParams = loadParams;
+    mInstanceId = ID_COUNTER.addAndGet(ROOT_VIEW_TAG_INCREMENT);
+
+    setId(mInstanceId);
+    //setTag(NodeProps.ROOT_NODE);
     HippyMap tagMap = HippyTag.createTagMap(NodeProps.ROOT_NODE, null);
     setTag(tagMap);
-		getViewTreeObserver().addOnGlobalLayoutListener(getGlobalLayoutListener());
-		setOnSystemUiVisibilityChangeListener(getGlobalLayoutListener());
-	}
+    getViewTreeObserver().addOnGlobalLayoutListener(getGlobalLayoutListener());
+    setOnSystemUiVisibilityChangeListener(getGlobalLayoutListener());
+  }
 
-	public void attachEngineManager(HippyEngine hippyEngineManager)
-	{
-		HippyInstanceContext hippyInstanceContext = (HippyInstanceContext) getContext();
-		hippyInstanceContext.attachEngineManager(hippyEngineManager);
+  public void attachEngineManager(HippyEngine hippyEngineManager) {
+    HippyInstanceContext hippyInstanceContext = (HippyInstanceContext) getContext();
+    hippyInstanceContext.attachEngineManager(hippyEngineManager);
 
-	}
+  }
 
-	// HippyRootView上添加View了，说明jsbundle正常工作了
-	@Override
-	public void onViewAdded(View child)
-	{
-		// 若HippyRootView所依赖的Context不是Activity，则调试模式下的那个按钮会先添加到HippyRootView上，从而触发此处的onViewAdded
-		if (!mLoadCompleted && !(child instanceof DevFloatButton))
-		{
-			mLoadCompleted = true;
-			if (mTimeMonitor != null)
-			{
-				mTimeMonitor.end();
-				if (mOnLoadCompleteListener != null)
-				{
-					mOnLoadCompleteListener.onLoadComplete(mTimeMonitor.getTotalTime(), mTimeMonitor.getEvents());
-				}
-				mEngineContext.getGlobalConfigs().getEngineMonitorAdapter()
-						.reportModuleLoadComplete(this, mTimeMonitor.getTotalTime(), mTimeMonitor.getEvents());
-			}
-		}
-	}
+  // HippyRootView上添加View了，说明jsbundle正常工作了
+  @Override
+  public void onViewAdded(View child) {
+    // 若HippyRootView所依赖的Context不是Activity，则调试模式下的那个按钮会先添加到HippyRootView上，从而触发此处的onViewAdded
+    if (!mLoadCompleted && !(child instanceof DevFloatButton)) {
+      mLoadCompleted = true;
+      if (mTimeMonitor != null) {
+        mTimeMonitor.end();
+        if (mOnLoadCompleteListener != null) {
+          mOnLoadCompleteListener
+            .onLoadComplete(mTimeMonitor.getTotalTime(), mTimeMonitor.getEvents());
+        }
+        mEngineContext.getGlobalConfigs().getEngineMonitorAdapter()
+          .reportModuleLoadComplete(this, mTimeMonitor.getTotalTime(), mTimeMonitor.getEvents());
+      }
+    }
+  }
 
-	public String getName()
-	{
-		return mLoadParams.componentName;
-	}
+  public String getName() {
+    return mLoadParams.componentName;
+  }
 
-	public int getId()
-	{
-		return mInstanceId;
-	}
+  public int getId() {
+    return mInstanceId;
+  }
 
-	public Context getHost()
-	{
-		return mLoadParams.context;
-	}
+  public Context getHost() {
+    return mLoadParams.context;
+  }
 
-	public HippyMap getLaunchParams()
-	{
-		return mLoadParams.jsParams;
-	}
+  public HippyMap getLaunchParams() {
+    return mLoadParams.jsParams;
+  }
 
-	public HippyEngineContext getEngineContext()
-	{
-		return mEngineContext;
-	}
+  public HippyEngineContext getEngineContext() {
+    return mEngineContext;
+  }
 
-	public void setOnSizeChangedListener(OnSizeChangedListener listener)
-	{
-		this.mSizeChangListener = listener;
-	}
+  public void setOnSizeChangedListener(OnSizeChangedListener listener) {
+    this.mSizeChangListener = listener;
+  }
 
-	public void setOnResumeAndPauseListener(OnResumeAndPauseListener listener)
-	{
-		this.mOnResumeAndPauseListener = listener;
-	}
+  public void setOnResumeAndPauseListener(OnResumeAndPauseListener listener) {
+    this.mOnResumeAndPauseListener = listener;
+  }
 
-	public void setOnLoadCompleteListener(OnLoadCompleteListener listener)
-	{
-		this.mOnLoadCompleteListener = listener;
-	}
+  public void setOnLoadCompleteListener(OnLoadCompleteListener listener) {
+    this.mOnLoadCompleteListener = listener;
+  }
 
-	@Override
-	protected void onLayout(boolean changed, int left, int top, int right, int bottom)
-	{
-		// No-op since UIManagerModule handles actually laying out children.
-	}
+  @Override
+  protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+    // No-op since UIManagerModule handles actually laying out children.
+  }
 
-	@Override
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
-	{
-		setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.getSize(heightMeasureSpec));
-		//		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-	}
+  @Override
+  protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec),
+      MeasureSpec.getSize(heightMeasureSpec));
+    //		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+  }
 
-	@Override
-	protected void onSizeChanged(int w, int h, int oldw, int oldh)
-	{
-		super.onSizeChanged(w, h, oldw, oldh);
+  @Override
+  protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+    super.onSizeChanged(w, h, oldw, oldh);
 
-		if (w != oldw || h != oldh)
-		{
-			getGlobalLayoutListener().checkUpdateDimension(w, h, false, false);
-			if (mEngineContext != null)
-			{
-				HippyModuleManager manager = mEngineContext.getModuleManager();
-				if (manager != null)
-				{
-					HippyMap hippyMap = new HippyMap();
-					hippyMap.pushDouble("width", PixelUtil.px2dp(w));
-					hippyMap.pushDouble("height", PixelUtil.px2dp(h));
-					hippyMap.pushDouble("oldWidth", PixelUtil.px2dp(oldw));
-					hippyMap.pushDouble("oldHeight", PixelUtil.px2dp(oldh));
-					manager.getJavaScriptModule(EventDispatcher.class).receiveNativeEvent("onSizeChanged", hippyMap);
-				}
-			}
-			if (mSizeChangListener != null)
-			{
-				mSizeChangListener.onSizeChanged(this, w, h, oldw, oldh);
-			}
-		}
-	}
+    if (w != oldw || h != oldh) {
+      getGlobalLayoutListener().checkUpdateDimension(w, h, false, false);
+      if (mEngineContext != null) {
+        HippyModuleManager manager = mEngineContext.getModuleManager();
+        if (manager != null) {
+          HippyMap hippyMap = new HippyMap();
+          hippyMap.pushDouble("width", PixelUtil.px2dp(w));
+          hippyMap.pushDouble("height", PixelUtil.px2dp(h));
+          hippyMap.pushDouble("oldWidth", PixelUtil.px2dp(oldw));
+          hippyMap.pushDouble("oldHeight", PixelUtil.px2dp(oldh));
+          manager.getJavaScriptModule(EventDispatcher.class)
+            .receiveNativeEvent("onSizeChanged", hippyMap);
+        }
+      }
+      if (mSizeChangListener != null) {
+        mSizeChangListener.onSizeChanged(this, w, h, oldw, oldh);
+      }
+    }
+  }
 
-	public void attachToEngine(HippyEngineContext context)
-	{
-		mEngineContext = context;
-		((HippyInstanceContext) getContext()).setEngineContext(context);
-		getGlobalLayoutListener().checkUpdateDimension(false, false);
-	}
+  public void attachToEngine(HippyEngineContext context) {
+    mEngineContext = context;
+    ((HippyInstanceContext) getContext()).setEngineContext(context);
+    getGlobalLayoutListener().checkUpdateDimension(false, false);
+  }
 
-	public void onResume()
-	{
-		if (mOnResumeAndPauseListener != null)
-		{
-			mOnResumeAndPauseListener.onInstanceResume(getId());
-		}
-	}
+  public void onResume() {
+    if (mOnResumeAndPauseListener != null) {
+      mOnResumeAndPauseListener.onInstanceResume(getId());
+    }
+  }
 
-	public void onPause()
-	{
-		if (mOnResumeAndPauseListener != null)
-		{
-			mOnResumeAndPauseListener.onInstancePause(getId());
-		}
-	}
+  public void onPause() {
+    if (mOnResumeAndPauseListener != null) {
+      mOnResumeAndPauseListener.onInstancePause(getId());
+    }
+  }
 
-	@Override
-	protected void onAttachedToWindow()
-	{
-		super.onAttachedToWindow();
-		try
-		{
-			getViewTreeObserver().removeGlobalOnLayoutListener(getGlobalLayoutListener());
+  @Override
+  protected void onAttachedToWindow() {
+    super.onAttachedToWindow();
+    try {
+      getViewTreeObserver().removeGlobalOnLayoutListener(getGlobalLayoutListener());
 
-			//java.lang.ArrayIndexOutOfBoundsException
-		}
-		catch (Throwable e)
-		{
-			e.printStackTrace();
-		}
-		getViewTreeObserver().addOnGlobalLayoutListener(getGlobalLayoutListener());
-	}
+      //java.lang.ArrayIndexOutOfBoundsException
+    } catch (Throwable e) {
+      e.printStackTrace();
+    }
+    getViewTreeObserver().addOnGlobalLayoutListener(getGlobalLayoutListener());
+  }
 
-	@Override
-	protected void onDetachedFromWindow()
-	{
-		super.onDetachedFromWindow();
-		try
-		{
-			getViewTreeObserver().removeGlobalOnLayoutListener(getGlobalLayoutListener());
-		}
-		catch (Throwable e)
-		{
-			e.printStackTrace();
-		}
-	}
+  @Override
+  protected void onDetachedFromWindow() {
+    super.onDetachedFromWindow();
+    try {
+      getViewTreeObserver().removeGlobalOnLayoutListener(getGlobalLayoutListener());
+    } catch (Throwable e) {
+      e.printStackTrace();
+    }
+  }
 
-	void destroy()
-	{
-		if (getContext() instanceof HippyInstanceContext)
-		{
-			((HippyInstanceContext) getContext()).notifyInstanceDestroy();
-		}
-	}
+  void destroy() {
+    if (getContext() instanceof HippyInstanceContext) {
+      ((HippyInstanceContext) getContext()).notifyInstanceDestroy();
+    }
+  }
 
-	private GlobalLayoutListener getGlobalLayoutListener()
-	{
-		if (mGlobalLayoutListener == null)
-		{
-			mGlobalLayoutListener = new GlobalLayoutListener();
-		}
-		return mGlobalLayoutListener;
-	}
+  private GlobalLayoutListener getGlobalLayoutListener() {
+    if (mGlobalLayoutListener == null) {
+      mGlobalLayoutListener = new GlobalLayoutListener();
+    }
+    return mGlobalLayoutListener;
+  }
 
-	public TimeMonitor getTimeMonitor()
-	{
-		return mTimeMonitor;
-	}
+  public TimeMonitor getTimeMonitor() {
+    return mTimeMonitor;
+  }
 
-	public void setTimeMonitor(TimeMonitor timeMonitor)
-	{
-		this.mTimeMonitor = timeMonitor;
-	}
+  public void setTimeMonitor(TimeMonitor timeMonitor) {
+    this.mTimeMonitor = timeMonitor;
+  }
 
-	public interface OnSizeChangedListener
-	{
-		void onSizeChanged(HippyRootView rootView, int width, int height, int oldWidth, int oldHeight);
-	}
+  public interface OnSizeChangedListener {
 
-	public interface OnResumeAndPauseListener
-	{
-		void onInstanceResume(int id);
+    void onSizeChanged(HippyRootView rootView, int width, int height, int oldWidth, int oldHeight);
+  }
 
-		void onInstancePause(int id);
-	}
+  public interface OnResumeAndPauseListener {
 
-	public interface OnLoadCompleteListener
-	{
-		void onLoadComplete(int loadTime, List<HippyEngineMonitorEvent> loadEvents);
-	}
+    void onInstanceResume(int id);
 
-	private class GlobalLayoutListener implements ViewTreeObserver.OnGlobalLayoutListener, OnSystemUiVisibilityChangeListener
-	{
+    void onInstancePause(int id);
+  }
 
-		private int	mOrientation	= ORIENTATION_UNDEFINED;
+  public interface OnLoadCompleteListener {
 
-		@Override
-		public void onSystemUiVisibilityChange(int visibility)
-		{
-			if ((visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0)
-			{
-				checkUpdateDimension(false, true);
-			}
-			else
-			{
-				checkUpdateDimension(true, true);
-			}
-		}
+    void onLoadComplete(int loadTime, List<HippyEngineMonitorEvent> loadEvents);
+  }
 
-		@Override
-		public void onGlobalLayout()
-		{
-			if (getContext() != null)
-			{
-				int orientation = getContext().getResources().getConfiguration().orientation;
-				if (orientation != mOrientation)
-				{
-					mOrientation = orientation;
-					sendOrientationChangeEvent(mOrientation);
-					checkUpdateDimension(false, false);
-				}
-			}
-		}
+  private class GlobalLayoutListener implements ViewTreeObserver.OnGlobalLayoutListener,
+    OnSystemUiVisibilityChangeListener {
 
-		private void sendOrientationChangeEvent(int orientation)
-		{
-			// TODO should send orienation change here
-		}
+    private int mOrientation = ORIENTATION_UNDEFINED;
 
-		private void checkUpdateDimension(boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged)
-		{
-			checkUpdateDimension(-1, -1, false, false);
-		}
+    @Override
+    public void onSystemUiVisibilityChange(int visibility) {
+      if ((visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0) {
+        checkUpdateDimension(false, true);
+      } else {
+        checkUpdateDimension(true, true);
+      }
+    }
 
-		private void checkUpdateDimension(int windowWidth, int windowHeight, boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged)
-		{
-			if (mEngineContext == null)
-			{
-				return;
-			}
-			DisplayMetrics windowDisplayMetrics = getContext().getResources().getDisplayMetrics();
-			DisplayMetrics screenDisplayMetrics = new DisplayMetrics();
-			screenDisplayMetrics.setTo(windowDisplayMetrics);
-			WindowManager windowManager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
-			Display defaultDisplay = windowManager.getDefaultDisplay();
-			try
-			{
-				if (Build.VERSION.SDK_INT >= 17)
-				{
-					defaultDisplay.getRealMetrics(screenDisplayMetrics);
-				}
-				else
-				{
-					Method mGetRawH = Display.class.getMethod("getRawHeight");
-					Method mGetRawW = Display.class.getMethod("getRawWidth");
+    @Override
+    public void onGlobalLayout() {
+      if (getContext() != null) {
+        int orientation = getContext().getResources().getConfiguration().orientation;
+        if (orientation != mOrientation) {
+          mOrientation = orientation;
+          sendOrientationChangeEvent(mOrientation);
+          checkUpdateDimension(false, false);
+        }
+      }
+    }
 
-					Object width = mGetRawW.invoke(defaultDisplay);
-					screenDisplayMetrics.widthPixels = width != null ? (Integer) width : 0;
+    private void sendOrientationChangeEvent(int orientation) {
+      // TODO should send orienation change here
+    }
 
-					Object height = mGetRawH.invoke(defaultDisplay);
-					screenDisplayMetrics.heightPixels = height != null ? (Integer) height : 0;
-				}
+    private void checkUpdateDimension(boolean shouldUseScreenDisplay,
+      boolean systemUiVisibilityChanged) {
+      checkUpdateDimension(-1, -1, false, false);
+    }
 
-			}
-			catch (Throwable throwable)
-			{
-				throwable.printStackTrace();
-			}
+    private void checkUpdateDimension(int windowWidth, int windowHeight,
+      boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged) {
+      if (mEngineContext == null) {
+        return;
+      }
+      DisplayMetrics windowDisplayMetrics = getContext().getResources().getDisplayMetrics();
+      DisplayMetrics screenDisplayMetrics = new DisplayMetrics();
+      screenDisplayMetrics.setTo(windowDisplayMetrics);
+      WindowManager windowManager = (WindowManager) getContext()
+        .getSystemService(Context.WINDOW_SERVICE);
+      Display defaultDisplay = windowManager.getDefaultDisplay();
+      try {
+        if (Build.VERSION.SDK_INT >= 17) {
+          defaultDisplay.getRealMetrics(screenDisplayMetrics);
+        } else {
+          Method mGetRawH = Display.class.getMethod("getRawHeight");
+          Method mGetRawW = Display.class.getMethod("getRawWidth");
 
-			HippyMap dimensionMap = DimensionsUtil.getDimensions(windowWidth, windowHeight, mEngineContext.getGlobalConfigs().getContext(), shouldUseScreenDisplay);
-			int dimensionW = 0;
-			int dimensionH = 0;
-			if (dimensionMap != null) {
-				HippyMap windowMap = dimensionMap.getMap("windowPhysicalPixels");
-				dimensionW = windowMap.getInt("width");
-				dimensionH = windowMap.getInt("height");
-			}
-			// 如果windowHeight是无效值，则允许客户端定制
-			if ((windowHeight < 0 || dimensionW == dimensionH) && mEngineContext.getGlobalConfigs() != null)
-			{
-				HippyDeviceAdapter deviceAdapter = mEngineContext.getGlobalConfigs().getDeviceAdapter();
-				if (deviceAdapter != null)
-				{
-					deviceAdapter.reviseDimensionIfNeed(getContext(), dimensionMap, shouldUseScreenDisplay, systemUiVisibilityChanged);
-				}
-			}
-			if (mEngineContext.getModuleManager() != null)
-			{
-				mEngineContext.getModuleManager().getJavaScriptModule(Dimensions.class).set(dimensionMap);
-			}
-		}
-	}
+          Object width = mGetRawW.invoke(defaultDisplay);
+          screenDisplayMetrics.widthPixels = width != null ? (Integer) width : 0;
+
+          Object height = mGetRawH.invoke(defaultDisplay);
+          screenDisplayMetrics.heightPixels = height != null ? (Integer) height : 0;
+        }
+
+      } catch (Throwable throwable) {
+        throwable.printStackTrace();
+      }
+
+      HippyMap dimensionMap = DimensionsUtil
+        .getDimensions(windowWidth, windowHeight, mEngineContext.getGlobalConfigs().getContext(),
+          shouldUseScreenDisplay);
+      int dimensionW = 0;
+      int dimensionH = 0;
+      if (dimensionMap != null) {
+        HippyMap windowMap = dimensionMap.getMap("windowPhysicalPixels");
+        dimensionW = windowMap.getInt("width");
+        dimensionH = windowMap.getInt("height");
+      }
+      // 如果windowHeight是无效值，则允许客户端定制
+      if ((windowHeight < 0 || dimensionW == dimensionH)
+        && mEngineContext.getGlobalConfigs() != null) {
+        HippyDeviceAdapter deviceAdapter = mEngineContext.getGlobalConfigs().getDeviceAdapter();
+        if (deviceAdapter != null) {
+          deviceAdapter.reviseDimensionIfNeed(getContext(), dimensionMap, shouldUseScreenDisplay,
+            systemUiVisibilityChanged);
+        }
+      }
+      if (mEngineContext.getModuleManager() != null) {
+        mEngineContext.getModuleManager().getJavaScriptModule(Dimensions.class).set(dimensionMap);
+      }
+    }
+  }
 }

@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.common;
 
 import android.text.TextUtils;
 import android.view.View;
 
-public class HippyTag
-{
-  private final static String TAG_CLASS_NAME                  = "className";
-  public final static String TAG_PROPS_WILL_APPEAR            = "onWillAppear";
-  public final static String TAG_PROPS_DID_APPEAR             = "onDidAppear";
-  public final static String TAG_PROPS_DID_DISAPPEAR          = "onDidDisappear";
-  private final static String TAG_EXPOSURE_STATE              = "exposureState";
-  public final static int TAG_EXPOSURE_STATE_WILL_APPEAR      = 0;
-  public final static int TAG_EXPOSURE_STATE_DID_APPEAR       = 1;
-  public final static int TAG_EXPOSURE_STATE_DID_DISAPPEAR    = 2;
+public class HippyTag {
+
+  private final static String TAG_CLASS_NAME = "className";
+  public final static String TAG_PROPS_WILL_APPEAR = "onWillAppear";
+  public final static String TAG_PROPS_DID_APPEAR = "onDidAppear";
+  public final static String TAG_PROPS_DID_DISAPPEAR = "onDidDisappear";
+  private final static String TAG_EXPOSURE_STATE = "exposureState";
+  public final static int TAG_EXPOSURE_STATE_WILL_APPEAR = 0;
+  public final static int TAG_EXPOSURE_STATE_DID_APPEAR = 1;
+  public final static int TAG_EXPOSURE_STATE_DID_DISAPPEAR = 2;
 
   public static HippyMap createTagMap(String className, HippyMap iniProps) {
     HippyMap tagMap = new HippyMap();
@@ -54,7 +55,7 @@ public class HippyTag
     if (view != null && key != null) {
       Object tagObj = view.getTag();
       if (tagObj != null && tagObj instanceof HippyMap) {
-        HippyMap tagMap = (HippyMap)tagObj;
+        HippyMap tagMap = (HippyMap) tagObj;
         if (tagMap.containsKey(key)) {
           return tagMap.getInt(key);
         }
@@ -68,7 +69,7 @@ public class HippyTag
     if (view != null && key != null) {
       Object tagObj = view.getTag();
       if (tagObj != null && tagObj instanceof HippyMap) {
-        HippyMap tagMap = (HippyMap)tagObj;
+        HippyMap tagMap = (HippyMap) tagObj;
         tagMap.pushInt(key, value);
       }
     }
@@ -78,7 +79,7 @@ public class HippyTag
     if (view != null && key != null) {
       Object tagObj = view.getTag();
       if (tagObj != null && tagObj instanceof HippyMap) {
-        HippyMap tagMap = (HippyMap)tagObj;
+        HippyMap tagMap = (HippyMap) tagObj;
         if (tagMap.containsKey(key)) {
           return tagMap.getString(key);
         }
@@ -92,7 +93,7 @@ public class HippyTag
     if (view != null && key != null) {
       Object tagObj = view.getTag();
       if (tagObj != null && tagObj instanceof HippyMap) {
-        HippyMap tagMap = (HippyMap)tagObj;
+        HippyMap tagMap = (HippyMap) tagObj;
         tagMap.pushString(key, (value == null ? "" : value));
       }
     }
@@ -114,7 +115,7 @@ public class HippyTag
     if (view != null && key != null) {
       Object tagObj = view.getTag();
       if (tagObj != null && tagObj instanceof HippyMap) {
-        HippyMap tagMap = (HippyMap)tagObj;
+        HippyMap tagMap = (HippyMap) tagObj;
         return tagMap.containsKey(key);
       }
     }

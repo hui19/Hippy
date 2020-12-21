@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.uimanager;
 
 /**
@@ -21,14 +22,15 @@ package com.tencent.mtt.hippy.uimanager;
  * @version: V1.0
  */
 
-public class ControllerHolder
-{
-	public HippyViewController	hippyViewController;
-	public boolean				isLazy;
-	public ControllerHolder(HippyViewController hippyViewController, boolean isLazy) {
-		this.hippyViewController = hippyViewController;
-		this.isLazy = isLazy;
-	}
+public class ControllerHolder {
+
+  public HippyViewController hippyViewController;
+  public boolean isLazy;
+
+  public ControllerHolder(HippyViewController hippyViewController, boolean isLazy) {
+    this.hippyViewController = hippyViewController;
+    this.isLazy = isLazy;
+  }
 
 
 }

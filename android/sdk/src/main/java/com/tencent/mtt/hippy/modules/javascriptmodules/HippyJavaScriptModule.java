@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.modules.javascriptmodules;
 
 /**
@@ -20,6 +21,6 @@ package com.tencent.mtt.hippy.modules.javascriptmodules;
  * Description：
  * History：
  */
-public interface HippyJavaScriptModule
-{
+public interface HippyJavaScriptModule {
+
 }

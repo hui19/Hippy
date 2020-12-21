@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.uimanager;
 
 
@@ -21,9 +22,9 @@ package com.tencent.mtt.hippy.uimanager;
  * Description：
  * History：
  */
-public interface HippyViewBase
-{
-	 NativeGestureDispatcher getGestureDispatcher();
+public interface HippyViewBase {
 
-	 void setGestureDispatcher(NativeGestureDispatcher dispatcher);
+  NativeGestureDispatcher getGestureDispatcher();
+
+  void setGestureDispatcher(NativeGestureDispatcher dispatcher);
 }

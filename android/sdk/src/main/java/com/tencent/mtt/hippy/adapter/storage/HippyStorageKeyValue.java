@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter.storage;
 
 /**
@@ -20,8 +21,8 @@ package com.tencent.mtt.hippy.adapter.storage;
  * Description：
  * History：
  */
-public class HippyStorageKeyValue
-{
-	public String	key;
-	public String	value;
+public class HippyStorageKeyValue {
+
+  public String key;
+  public String value;
 }

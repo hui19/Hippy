@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.common;
 
 import android.os.Build;
@@ -25,52 +26,42 @@ import android.os.HandlerThread;
  * @version: V1.0
  */
 
-public class HippyHandlerThread extends HandlerThread
-{
-	Handler	mHandler;
+public class HippyHandlerThread extends HandlerThread {
 
-	public HippyHandlerThread(String name)
-	{
-		super(name);
-		setPriority(Thread.MAX_PRIORITY);
-		start();
-		mHandler = new Handler(getLooper());
-	}
+  Handler mHandler;
 
-	public boolean isThreadAlive()
-	{
-		return (mHandler != null && getLooper() != null && isAlive());
-	}
+  public HippyHandlerThread(String name) {
+    super(name);
+    setPriority(Thread.MAX_PRIORITY);
+    start();
+    mHandler = new Handler(getLooper());
+  }
 
-	@Override
-	public boolean quit()
-	{
-		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2)
-		{
-			return super.quitSafely();
-		}
-		else
-		{
-			mHandler.post(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					HippyHandlerThread.super.quit();
-				}
-			});
-		}
-		return true;
-	}
+  public boolean isThreadAlive() {
+    return (mHandler != null && getLooper() != null && isAlive());
+  }
 
-	public Handler getHandler()
-	{
-		return mHandler;
-	}
+  @Override
+  public boolean quit() {
+    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2) {
+      return super.quitSafely();
+    } else {
+      mHandler.post(new Runnable() {
+        @Override
+        public void run() {
+          HippyHandlerThread.super.quit();
+        }
+      });
+    }
+    return true;
+  }
 
-	public void runOnQueue(Runnable runnable)
-	{
-		mHandler.post(runnable);
-	}
+  public Handler getHandler() {
+    return mHandler;
+  }
+
+  public void runOnQueue(Runnable runnable) {
+    mHandler.post(runnable);
+  }
 
 }

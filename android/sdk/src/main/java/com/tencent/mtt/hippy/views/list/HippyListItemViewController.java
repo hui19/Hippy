@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.views.list;
 
 import android.content.Context;
@@ -31,18 +32,18 @@ import com.tencent.mtt.hippy.uimanager.RenderNode;
  */
 
 @HippyController(name = HippyListItemViewController.CLASS_NAME, isLazyLoad = true)
-public class HippyListItemViewController extends HippyViewController<HippyListItemView>
-{
-	public static final String CLASS_NAME = "ListViewItem";
+public class HippyListItemViewController extends HippyViewController<HippyListItemView> {
 
-	@Override
-	protected View createViewImpl(Context context)
-	{
-		return new HippyListItemView(context);
-	}
+  public static final String CLASS_NAME = "ListViewItem";
 
-	@Override
-	public RenderNode createRenderNode(int id,  HippyMap props, String className, HippyRootView hippyRootView, ControllerManager controllerManager, boolean lazy) {
-		return new ListItemRenderNode(id,  props, className, hippyRootView, controllerManager, lazy);
-	}
+  @Override
+  protected View createViewImpl(Context context) {
+    return new HippyListItemView(context);
+  }
+
+  @Override
+  public RenderNode createRenderNode(int id, HippyMap props, String className,
+    HippyRootView hippyRootView, ControllerManager controllerManager, boolean lazy) {
+    return new ListItemRenderNode(id, props, className, hippyRootView, controllerManager, lazy);
+  }
 }

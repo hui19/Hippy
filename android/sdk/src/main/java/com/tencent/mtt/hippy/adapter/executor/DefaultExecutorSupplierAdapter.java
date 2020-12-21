@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter.executor;
 
 import java.util.concurrent.Executor;
@@ -24,57 +25,47 @@ import java.util.concurrent.Executors;
  * Description：
  * History：
  */
-public class DefaultExecutorSupplierAdapter implements HippyExecutorSupplierAdapter
-{
-	private volatile ExecutorService 	mDBExecutor;
+public class DefaultExecutorSupplierAdapter implements HippyExecutorSupplierAdapter {
 
-	private volatile ExecutorService	mBackgroundTaskExecutor;
+  private volatile ExecutorService mDBExecutor;
 
-	@Override
-	public Executor getDBExecutor()
-	{
-		if (mDBExecutor == null)
-		{
-			synchronized (DefaultExecutorSupplierAdapter.class)
-			{
-				if (mDBExecutor == null)
-				{
-					mDBExecutor = Executors.newSingleThreadExecutor();
-				}
-			}
-		}
-		return mDBExecutor;
-	}
+  private volatile ExecutorService mBackgroundTaskExecutor;
 
-	@Override
-	public Executor getBackgroundTaskExecutor()
-	{
-		if (mBackgroundTaskExecutor == null)
-		{
-			synchronized (DefaultExecutorSupplierAdapter.class)
-			{
-				if (mBackgroundTaskExecutor == null)
-				{
-					mBackgroundTaskExecutor = Executors.newSingleThreadExecutor();
-				}
-			}
-		}
-		return mBackgroundTaskExecutor;
-	}
+  @Override
+  public Executor getDBExecutor() {
+    if (mDBExecutor == null) {
+      synchronized (DefaultExecutorSupplierAdapter.class) {
+        if (mDBExecutor == null) {
+          mDBExecutor = Executors.newSingleThreadExecutor();
+        }
+      }
+    }
+    return mDBExecutor;
+  }
 
-	public void destroyIfNeed()
-	{
-		synchronized (DefaultExecutorSupplierAdapter.class)
-		{
-			if (mDBExecutor != null && !mDBExecutor.isShutdown()) {
-				mDBExecutor.shutdown();
-				mDBExecutor = null;
-			}
+  @Override
+  public Executor getBackgroundTaskExecutor() {
+    if (mBackgroundTaskExecutor == null) {
+      synchronized (DefaultExecutorSupplierAdapter.class) {
+        if (mBackgroundTaskExecutor == null) {
+          mBackgroundTaskExecutor = Executors.newSingleThreadExecutor();
+        }
+      }
+    }
+    return mBackgroundTaskExecutor;
+  }
 
-			if (mBackgroundTaskExecutor != null && !mBackgroundTaskExecutor.isShutdown()) {
-				mBackgroundTaskExecutor.shutdown();
-				mBackgroundTaskExecutor = null;
-			}
-		}
-	}
+  public void destroyIfNeed() {
+    synchronized (DefaultExecutorSupplierAdapter.class) {
+      if (mDBExecutor != null && !mDBExecutor.isShutdown()) {
+        mDBExecutor.shutdown();
+        mDBExecutor = null;
+      }
+
+      if (mBackgroundTaskExecutor != null && !mBackgroundTaskExecutor.isShutdown()) {
+        mBackgroundTaskExecutor.shutdown();
+        mBackgroundTaskExecutor = null;
+      }
+    }
+  }
 }

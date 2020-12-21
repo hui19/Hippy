@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter.soloader;
 
 /**
@@ -22,5 +23,5 @@ package com.tencent.mtt.hippy.adapter.soloader;
  */
 public interface HippySoLoaderAdapter {
 
-     String loadSoPath(String soName);
+  String loadSoPath(String soName);
 }

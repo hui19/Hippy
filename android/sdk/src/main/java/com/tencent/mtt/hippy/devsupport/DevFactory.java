@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.devsupport;
 
 import com.tencent.mtt.hippy.HippyGlobalConfigs;
@@ -23,17 +24,14 @@ import com.tencent.mtt.hippy.HippyGlobalConfigs;
  * @version: V1.0
  */
 
-public class DevFactory
-{
-	public static DevServerInterface create(HippyGlobalConfigs configs, boolean enableDev, String serverHost, String bundleName)
-	{
-		if (enableDev)
-		{
-			return new DevServerImpl(configs, serverHost, bundleName);
-		}
-		else
-		{
-			return new DevServerImplDisable();
-		}
-	}
+public class DevFactory {
+
+  public static DevServerInterface create(HippyGlobalConfigs configs, boolean enableDev,
+    String serverHost, String bundleName) {
+    if (enableDev) {
+      return new DevServerImpl(configs, serverHost, bundleName);
+    } else {
+      return new DevServerImplDisable();
+    }
+  }
 }

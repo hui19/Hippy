@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.modules.nativemodules.exception;
 
 import com.tencent.mtt.hippy.HippyEngineContext;
@@ -26,30 +27,26 @@ import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
  * @date: 2017/11/20 21:35
  * @version: V1.0
  */
-@HippyNativeModule(name= ExceptionModule.HIPPY_CLASS)
-public class ExceptionModule extends HippyNativeModuleBase
-{
-	public final static String	HIPPY_CLASS	= "ExceptionModule";
+@HippyNativeModule(name = ExceptionModule.HIPPY_CLASS)
+public class ExceptionModule extends HippyNativeModuleBase {
 
-	public ExceptionModule(HippyEngineContext context) {
-		super(context);
-	}
+  public final static String HIPPY_CLASS = "ExceptionModule";
 
-	@HippyMethod(name="handleException")
-	public void handleException(String title, String details, int exceptionId)
-	{
-		if (mContext != null )
-		{
-			mContext.handleException(new HippyJsException(title, details));
-		}
-	}
+  public ExceptionModule(HippyEngineContext context) {
+    super(context);
+  }
 
-	@HippyMethod(name="handleBackgroundTracing")
-	public void handleBackgroundTracing(String details)
-	{
-		if (mContext != null && mContext.getGlobalConfigs() != null )
-		{
-			mContext.getGlobalConfigs().getExceptionHandler().handleBackgroundTracing(details);
-		}
-	}
+  @HippyMethod(name = "handleException")
+  public void handleException(String title, String details, int exceptionId) {
+    if (mContext != null) {
+      mContext.handleException(new HippyJsException(title, details));
+    }
+  }
+
+  @HippyMethod(name = "handleBackgroundTracing")
+  public void handleBackgroundTracing(String details) {
+    if (mContext != null && mContext.getGlobalConfigs() != null) {
+      mContext.getGlobalConfigs().getExceptionHandler().handleBackgroundTracing(details);
+    }
+  }
 }

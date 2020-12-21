@@ -13,66 +13,56 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.utils;
 
 /**
  * 1.0 xiandongluo on 2018/2/6
  */
-public class MD5Utils
-{
-	public static String getMD5(String string)
-	{
-		String s = null;
-		if (string == null)
-		{
-			return null;
-		}
-		try
-		{
-			byte[] source = string.getBytes();
-			java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
-			md.update(source);
-			return byteToHexString(md.digest());
-		}
-		catch (Exception e)
-		{
-		}
-		return s;
-	}
+public class MD5Utils {
 
-	public static String getMD5(byte[] src)
-	{
-		try
-		{
-			java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
-			md.update(src);
-			return byteToHexString(md.digest());
-		}
-		catch (Exception e)
-		{
-		}
-		return null;
-	}
+  public static String getMD5(String string) {
+    String s = null;
+    if (string == null) {
+      return null;
+    }
+    try {
+      byte[] source = string.getBytes();
+      java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
+      md.update(source);
+      return byteToHexString(md.digest());
+    } catch (Exception e) {
+    }
+    return s;
+  }
 
-	/**
-	 * Convert byte data to hexadecimal strings
-	 */
-	public static String byteToHexString(byte[] bytes)
-	{
-		if (bytes == null || bytes.length <= 0)
-			return null;
+  public static String getMD5(byte[] src) {
+    try {
+      java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
+      md.update(src);
+      return byteToHexString(md.digest());
+    } catch (Exception e) {
+    }
+    return null;
+  }
 
-		StringBuffer buf = new StringBuffer(bytes.length * 2);
+  /**
+   * Convert byte data to hexadecimal strings
+   */
+  public static String byteToHexString(byte[] bytes) {
+    if (bytes == null || bytes.length <= 0) {
+      return null;
+    }
 
-		for (int i = 0; i < bytes.length; i++)
-		{
-			if (((int) bytes[i] & 0xff) < 0x10)
-			{
-				buf.append("0");
-			}
-			buf.append(Long.toString((int) bytes[i] & 0xff, 16));
-		}
-		return buf.toString();
-	}
+    StringBuffer buf = new StringBuffer(bytes.length * 2);
+
+    for (int i = 0; i < bytes.length; i++) {
+      if (((int) bytes[i] & 0xff) < 0x10) {
+        buf.append("0");
+      }
+      buf.append(Long.toString((int) bytes[i] & 0xff, 16));
+    }
+    return buf.toString();
+  }
 
 }

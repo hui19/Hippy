@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.bridge.bundleloader;
 
 import static com.tencent.mtt.hippy.bridge.HippyBridge.URI_SCHEME_FILE;
@@ -26,84 +27,77 @@ import com.tencent.mtt.hippy.bridge.NativeCallback;
  * Description：
  * History：
  */
-public class HippyFileBundleLoader implements HippyBundleLoader
-{
-	private static final String FILE_STR = "file://";
+public class HippyFileBundleLoader implements HippyBundleLoader {
 
-	String			mFilePath;
+  private static final String FILE_STR = "file://";
 
-	boolean         mIsDebugMode = false;
+  String mFilePath;
 
-	private boolean	mCanUseCodeCache;
+  boolean mIsDebugMode = false;
 
-	private String	mCodeCacheTag;
+  private boolean mCanUseCodeCache;
 
-	public HippyFileBundleLoader(String filePath)
-	{
-		this(filePath, false, "");
-	}
+  private String mCodeCacheTag;
 
-	public HippyFileBundleLoader(String filePath, boolean canUseCodeCache, String codeCacheTag)
-	{
-		this.mFilePath = filePath;
-		this.mCanUseCodeCache = canUseCodeCache;
-		this.mCodeCacheTag = codeCacheTag;
-	}
+  public HippyFileBundleLoader(String filePath) {
+    this(filePath, false, "");
+  }
 
-	public void setCodeCache(boolean canUseCodeCache, String codeCacheTag)
-	{
-		this.mCanUseCodeCache = canUseCodeCache;
-		this.mCodeCacheTag = codeCacheTag;
-	}
+  public HippyFileBundleLoader(String filePath, boolean canUseCodeCache, String codeCacheTag) {
+    this.mFilePath = filePath;
+    this.mCanUseCodeCache = canUseCodeCache;
+    this.mCodeCacheTag = codeCacheTag;
+  }
 
-	public void setIsDebugMode(boolean debugMode) {
-		mIsDebugMode = debugMode;
-	}
+  public void setCodeCache(boolean canUseCodeCache, String codeCacheTag) {
+    this.mCanUseCodeCache = canUseCodeCache;
+    this.mCodeCacheTag = codeCacheTag;
+  }
 
-	@Override
-	public boolean load(HippyBridge bridge, NativeCallback callback)
-	{
-		if (TextUtils.isEmpty(mFilePath)) {
-			return false;
-		}
+  public void setIsDebugMode(boolean debugMode) {
+    mIsDebugMode = debugMode;
+  }
 
-		String uri = (!mFilePath.startsWith(URI_SCHEME_FILE)) ? (URI_SCHEME_FILE + mFilePath) : mFilePath;
-		return bridge.runScriptFromUri(uri, null, mCanUseCodeCache, mCodeCacheTag, callback);
-		//return bridge.runScriptFromFile(mFilePath, mFilePath,mCanUseCodeCache,mCodeCacheTag, callback);
-	}
+  @Override
+  public boolean load(HippyBridge bridge, NativeCallback callback) {
+    if (TextUtils.isEmpty(mFilePath)) {
+      return false;
+    }
 
-	@Override
-	public String getPath()
-	{
-		if (mFilePath != null && !mFilePath.startsWith(FILE_STR))
-			return FILE_STR + mFilePath;
-		else
-			return mFilePath;
-	}
+    String uri =
+      (!mFilePath.startsWith(URI_SCHEME_FILE)) ? (URI_SCHEME_FILE + mFilePath) : mFilePath;
+    return bridge.runScriptFromUri(uri, null, mCanUseCodeCache, mCodeCacheTag, callback);
+    //return bridge.runScriptFromFile(mFilePath, mFilePath,mCanUseCodeCache,mCodeCacheTag, callback);
+  }
 
-	@Override
-	public String getRawPath()
-	{
-		return mFilePath;
-	}
+  @Override
+  public String getPath() {
+    if (mFilePath != null && !mFilePath.startsWith(FILE_STR)) {
+      return FILE_STR + mFilePath;
+    } else {
+      return mFilePath;
+    }
+  }
 
-	@Override
-	public String getBundleUniKey()
-	{
-		return getPath();
-	}
+  @Override
+  public String getRawPath() {
+    return mFilePath;
+  }
 
-	@Override
-	public boolean canUseCodeCache()
-	{
-		return mCanUseCodeCache;
-	}
+  @Override
+  public String getBundleUniKey() {
+    return getPath();
+  }
 
-	@Override
-	public String getCodeCacheTag()
-	{
-		return mCodeCacheTag;
-	}
+  @Override
+  public boolean canUseCodeCache() {
+    return mCanUseCodeCache;
+  }
+
+  @Override
+  public String getCodeCacheTag() {
+    return mCodeCacheTag;
+  }
 
 
 }

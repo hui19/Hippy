@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.utils;
 
 import android.os.Handler;
@@ -21,26 +22,22 @@ import android.os.Looper;
 /**
  * 1.0 xiandongluo on 2017/11/13
  */
-public class UIThreadUtils
-{
+public class UIThreadUtils {
 
-	private static Handler sMainHandler = new Handler(Looper.getMainLooper());;
+  private static Handler sMainHandler = new Handler(Looper.getMainLooper());
+  ;
 
-	public static void assertOnUiThread()
-	{
-		if (Looper.getMainLooper().getThread() != Thread.currentThread())
-		{
-			throw new RuntimeException("must run on ui thread!");
-		}
-	}
+  public static void assertOnUiThread() {
+    if (Looper.getMainLooper().getThread() != Thread.currentThread()) {
+      throw new RuntimeException("must run on ui thread!");
+    }
+  }
 
-	public static boolean isOnUiThread()
-	{
-		return Looper.getMainLooper().getThread() == Thread.currentThread();
-	}
+  public static boolean isOnUiThread() {
+    return Looper.getMainLooper().getThread() == Thread.currentThread();
+  }
 
-	public static void runOnUiThread(Runnable runnable)
-	{
-		sMainHandler.post(runnable);
-	}
+  public static void runOnUiThread(Runnable runnable) {
+    sMainHandler.post(runnable);
+  }
 }

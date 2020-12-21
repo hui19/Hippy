@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.modules;
 
 
@@ -25,13 +26,13 @@ import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
  * Description：
  * History：
  */
-public interface HippyModuleManager
-{
-	 void callNatives(HippyCallNativeParams params);
+public interface HippyModuleManager {
 
-	 void destroy();
+  void callNatives(HippyCallNativeParams params);
 
-	 <T extends HippyJavaScriptModule> T getJavaScriptModule(Class<T> cls);
+  void destroy();
 
-	 <T extends HippyNativeModuleBase> T getNativeModule(Class<T> cls);
+  <T extends HippyJavaScriptModule> T getJavaScriptModule(Class<T> cls);
+
+  <T extends HippyNativeModuleBase> T getNativeModule(Class<T> cls);
 }

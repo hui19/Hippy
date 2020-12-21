@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.devsupport;
 
 /**
@@ -23,7 +24,8 @@ package com.tencent.mtt.hippy.devsupport;
  */
 
 public class DevServerException extends RuntimeException {
-    public DevServerException(String message) {
-        super(message);
-    }
+
+  public DevServerException(String message) {
+    super(message);
+  }
 }

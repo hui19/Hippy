@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.dom.node;
 
 import android.text.TextPaint;
@@ -24,38 +25,31 @@ import android.text.style.MetricAffectingSpan;
  * @version: V1.0
  */
 
-public class HippyStyleSpan extends MetricAffectingSpan
-{
+public class HippyStyleSpan extends MetricAffectingSpan {
 
-	private final int			mStyle;
-	private final int			mWeight;
-	private final String		mFontFamily;
+  private final int mStyle;
+  private final int mWeight;
+  private final String mFontFamily;
 
-	public HippyStyleSpan(int fontStyle, int fontWeight, String fontFamily)
-	{
-		mStyle = fontStyle;
-		mWeight = fontWeight;
-		mFontFamily = fontFamily;
-	}
+  public HippyStyleSpan(int fontStyle, int fontWeight, String fontFamily) {
+    mStyle = fontStyle;
+    mWeight = fontWeight;
+    mFontFamily = fontFamily;
+  }
 
-	@Override
-	public void updateDrawState(TextPaint ds)
-	{
-		TypeFaceUtil.apply(ds, mStyle, mWeight, mFontFamily);
-	}
+  @Override
+  public void updateDrawState(TextPaint ds) {
+    TypeFaceUtil.apply(ds, mStyle, mWeight, mFontFamily);
+  }
 
-	@Override
-	public void updateMeasureState(TextPaint paint)
-	{
-		TypeFaceUtil.apply(paint, mStyle, mWeight, mFontFamily);
-	}
+  @Override
+  public void updateMeasureState(TextPaint paint) {
+    TypeFaceUtil.apply(paint, mStyle, mWeight, mFontFamily);
+  }
 
-	public int getStyle()
-	{
-		return (mStyle == TextNode.UNSET ? 0 : mStyle);
-	}
-
-
+  public int getStyle() {
+    return (mStyle == TextNode.UNSET ? 0 : mStyle);
+  }
 
 
 }

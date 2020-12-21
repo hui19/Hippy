@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter.sharedpreferences;
 
 import android.content.Context;
@@ -26,14 +27,15 @@ import android.content.SharedPreferences;
  */
 public class DefaultSharedPreferencesAdapter implements HippySharedPreferencesAdapter {
 
-    private  Context mContext;
-    public DefaultSharedPreferencesAdapter(Context context){
-        this.mContext = context;
-    }
+  private Context mContext;
 
-    @Override
-    public SharedPreferences getSharedPreferences() {
-        return mContext.getSharedPreferences("hippy_sdk_configs",Context.MODE_PRIVATE);
-    }
+  public DefaultSharedPreferencesAdapter(Context context) {
+    this.mContext = context;
+  }
+
+  @Override
+  public SharedPreferences getSharedPreferences() {
+    return mContext.getSharedPreferences("hippy_sdk_configs", Context.MODE_PRIVATE);
+  }
 
 }

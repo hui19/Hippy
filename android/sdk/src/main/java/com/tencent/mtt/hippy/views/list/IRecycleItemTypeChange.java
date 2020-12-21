@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.views.list;
 
 import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
@@ -21,7 +22,7 @@ import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
  * Created by leonardgong on 2018/1/3 0003.
  */
 
-public interface IRecycleItemTypeChange
-{
-	void onRecycleItemTypeChanged(int oldType, int newType, ListItemRenderNode listItemNode);
+public interface IRecycleItemTypeChange {
+
+  void onRecycleItemTypeChanged(int oldType, int newType, ListItemRenderNode listItemNode);
 }

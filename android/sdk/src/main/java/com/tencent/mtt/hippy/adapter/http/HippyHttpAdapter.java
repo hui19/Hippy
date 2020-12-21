@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter.http;
 
 /**
@@ -20,37 +21,35 @@ package com.tencent.mtt.hippy.adapter.http;
  * Description：
  * History：
  */
-public interface HippyHttpAdapter
-{
+public interface HippyHttpAdapter {
 
-	void sendRequest(HippyHttpRequest request, HttpTaskCallback callback);
+  void sendRequest(HippyHttpRequest request, HttpTaskCallback callback);
 
-    void destroyIfNeed();
+  void destroyIfNeed();
 
-    interface HttpTaskCallback
-	{
+  interface HttpTaskCallback {
 
-		/**
-		 * Task success notice
-		 *
-		 * @param request
-		 * @param response
-		 *            HttpURLConnection return code：mttResponse.getStatusCode()；
-		 *            read data：MttInputStream inputStream =
-		 *            response.getInputStream()，inputStream do not need
-		 *            to close，framework will close;
-		 *            get header：String header = response.getHeaderField(name);
-		 *            30X get the jump address：response.getLocation();
-		 */
-		public void onTaskSuccess(HippyHttpRequest request, HippyHttpResponse response) throws Exception;
+    /**
+     * Task success notice
+     *
+     * @param request
+     * @param response HttpURLConnection return code：mttResponse.getStatusCode()；
+     *   read data：MttInputStream inputStream =
+     *   response.getInputStream()，inputStream do not need
+     *   to close，framework will close;
+     *   get header：String header = response.getHeaderField(name);
+     *   30X get the jump address：response.getLocation();
+     */
+    public void onTaskSuccess(HippyHttpRequest request, HippyHttpResponse response)
+      throws Exception;
 
-		/**
-		 * Task fail notice
-		 *
-		 * @param request
-		 * @param error
-		 */
-		public void onTaskFailed(HippyHttpRequest request, Throwable error);
+    /**
+     * Task fail notice
+     *
+     * @param request
+     * @param error
+     */
+    public void onTaskFailed(HippyHttpRequest request, Throwable error);
 
-	}
+  }
 }

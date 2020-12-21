@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.bridge.bundleloader;
 
 import com.tencent.mtt.hippy.bridge.HippyBridge;
@@ -23,17 +24,17 @@ import com.tencent.mtt.hippy.bridge.NativeCallback;
  * Description：
  * History：
  */
-public interface HippyBundleLoader
-{
-    boolean load(HippyBridge bridge, NativeCallback callback);
+public interface HippyBundleLoader {
 
-    String getPath();
+  boolean load(HippyBridge bridge, NativeCallback callback);
 
-    public String getRawPath();
+  String getPath();
 
-    String getBundleUniKey();
+  public String getRawPath();
 
-    boolean canUseCodeCache();
+  String getBundleUniKey();
 
-    String  getCodeCacheTag();
+  boolean canUseCodeCache();
+
+  String getCodeCacheTag();
 }

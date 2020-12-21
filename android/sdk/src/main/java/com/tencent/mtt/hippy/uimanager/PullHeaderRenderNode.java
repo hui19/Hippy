@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.uimanager;
 
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.common.HippyMap;
 
-public class PullHeaderRenderNode extends ListItemRenderNode
-{
-	public PullHeaderRenderNode(int mId, HippyMap mPropsToUpdate, String className, HippyRootView mRootView, ControllerManager componentManager,
-			boolean isLazyLoad)
-	{
-		super(mId, mPropsToUpdate, className, mRootView, componentManager, isLazyLoad);
-	}
+public class PullHeaderRenderNode extends ListItemRenderNode {
+
+  public PullHeaderRenderNode(int mId, HippyMap mPropsToUpdate, String className,
+    HippyRootView mRootView, ControllerManager componentManager,
+    boolean isLazyLoad) {
+    super(mId, mPropsToUpdate, className, mRootView, componentManager, isLazyLoad);
+  }
 }

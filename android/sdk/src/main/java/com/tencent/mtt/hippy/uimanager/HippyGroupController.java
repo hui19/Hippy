@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.uimanager;
 
 import android.view.ViewGroup;
@@ -24,25 +25,26 @@ import com.tencent.mtt.hippy.dom.node.NodeProps;
  * Created by leonardgong on 2017/11/29 0029.
  */
 
-public abstract class HippyGroupController<T extends ViewGroup & HippyViewBase> extends HippyViewController<T>
-{
-	/** touch/click intercept **/
-	@HippyControllerProps(name = NodeProps.ON_INTERCEPT_TOUCH_EVENT, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-	public void setInterceptTouch(T viewGroup, boolean flag)
-	{
-		if (!handleGestureBySelf())
-		{
-			setGestureType(viewGroup, NodeProps.ON_INTERCEPT_TOUCH_EVENT, flag);
-		}
-	}
+public abstract class HippyGroupController<T extends ViewGroup & HippyViewBase> extends
+  HippyViewController<T> {
 
-	/** touch/click intercept **/
-	@HippyControllerProps(name = NodeProps.ON_INTERCEPT_PULL_UP_EVENT, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-	public void setInterceptPullUp(T viewGroup, boolean flag)
-	{
-		if (!handleGestureBySelf())
-		{
-			setGestureType(viewGroup, NodeProps.ON_INTERCEPT_PULL_UP_EVENT, flag);
-		}
-	}
+  /**
+   * touch/click intercept
+   **/
+  @HippyControllerProps(name = NodeProps.ON_INTERCEPT_TOUCH_EVENT, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+  public void setInterceptTouch(T viewGroup, boolean flag) {
+    if (!handleGestureBySelf()) {
+      setGestureType(viewGroup, NodeProps.ON_INTERCEPT_TOUCH_EVENT, flag);
+    }
+  }
+
+  /**
+   * touch/click intercept
+   **/
+  @HippyControllerProps(name = NodeProps.ON_INTERCEPT_PULL_UP_EVENT, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+  public void setInterceptPullUp(T viewGroup, boolean flag) {
+    if (!handleGestureBySelf()) {
+      setGestureType(viewGroup, NodeProps.ON_INTERCEPT_PULL_UP_EVENT, flag);
+    }
+  }
 }

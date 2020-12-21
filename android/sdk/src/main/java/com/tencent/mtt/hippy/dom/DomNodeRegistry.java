@@ -27,53 +27,53 @@ import com.tencent.mtt.hippy.dom.node.DomNode;
  * @version: V1.0
  */
 
-public class DomNodeRegistry
-{
-	private final SparseArray<DomNode>	mNodeTags;
-	private SparseBooleanArray		mRootTags;
+public class DomNodeRegistry {
 
-	public DomNodeRegistry()
-	{
-		mNodeTags = new SparseArray<DomNode>();
-		mRootTags = new SparseBooleanArray();
-	}
+  private final SparseArray<DomNode> mNodeTags;
+  private SparseBooleanArray mRootTags;
 
-    public synchronized void removeNode(int tag) {
-        mNodeTags.remove(tag);
-    }
-    public synchronized  void addRootNode(DomNode node)
-    {
-        int tag =  node.getId();
-        mNodeTags.put(tag,node);
-        mRootTags.put(tag,true);
-    }
-    public synchronized void removeRootNode(int tag) {
-        mNodeTags.remove(tag);
-        mRootTags.delete(tag);
-    }
+  public DomNodeRegistry() {
+    mNodeTags = new SparseArray<DomNode>();
+    mRootTags = new SparseBooleanArray();
+  }
 
-    public synchronized void addNode(DomNode node) {
-        mNodeTags.put(node.getId(), node);
-    }
+  public synchronized void removeNode(int tag) {
+    mNodeTags.remove(tag);
+  }
 
-    public synchronized DomNode getNode(int tag) {
-        return mNodeTags.get(tag);
-    }
+  public synchronized void addRootNode(DomNode node) {
+    int tag = node.getId();
+    mNodeTags.put(tag, node);
+    mRootTags.put(tag, true);
+  }
 
-    public synchronized boolean isRootNode(int tag) {
-        return mRootTags.get(tag);
-    }
+  public synchronized void removeRootNode(int tag) {
+    mNodeTags.remove(tag);
+    mRootTags.delete(tag);
+  }
 
-    public synchronized int getRootNodeCount() {
-        return mRootTags.size();
-    }
+  public synchronized void addNode(DomNode node) {
+    mNodeTags.put(node.getId(), node);
+  }
 
-    public synchronized int getRootTag(int index) {
-        return mRootTags.keyAt(index);
-    }
+  public synchronized DomNode getNode(int tag) {
+    return mNodeTags.get(tag);
+  }
 
-    public synchronized void clear() {
-        mNodeTags.clear();
-        mRootTags.clear();
-    }
+  public synchronized boolean isRootNode(int tag) {
+    return mRootTags.get(tag);
+  }
+
+  public synchronized int getRootNodeCount() {
+    return mRootTags.size();
+  }
+
+  public synchronized int getRootTag(int index) {
+    return mRootTags.keyAt(index);
+  }
+
+  public synchronized void clear() {
+    mNodeTags.clear();
+    mRootTags.clear();
+  }
 }

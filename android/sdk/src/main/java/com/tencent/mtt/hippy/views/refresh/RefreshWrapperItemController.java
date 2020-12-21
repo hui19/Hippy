@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.views.refresh;
 
 import android.content.Context;
@@ -29,15 +30,16 @@ import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
  */
 @HippyController(name = "RefreshWrapperItemView")
 public class RefreshWrapperItemController extends HippyViewGroupController {
-    @Override
-    protected View createViewImpl(Context context) {
-        return new RefreshWrapperItemView(context);
-    }
 
-    @Override
-    public void updateLayout(int id, int x, int y, int width, int height, ControllerRegistry componentHolder)
-    {
-        y = y -height;
-        super.updateLayout(id, x, y, width, height, componentHolder);
-    }
+  @Override
+  protected View createViewImpl(Context context) {
+    return new RefreshWrapperItemView(context);
+  }
+
+  @Override
+  public void updateLayout(int id, int x, int y, int width, int height,
+    ControllerRegistry componentHolder) {
+    y = y - height;
+    super.updateLayout(id, x, y, width, height, componentHolder);
+  }
 }

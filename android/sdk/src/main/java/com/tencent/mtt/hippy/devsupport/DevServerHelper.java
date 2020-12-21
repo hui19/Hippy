@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.devsupport;
 
 
@@ -25,176 +26,146 @@ import com.tencent.mtt.hippy.modules.nativemodules.HippySettableFuture;
 import java.io.*;
 import java.util.Locale;
 
-public class DevServerHelper
-{
-	private static final String	BUNDLE_URL_FORMAT						= "http://%s/%s?platform=android&dev=%s&hot=%s&minify=%s";
-	private static final String	LAUNCH_JS_DEVTOOLS_COMMAND_URL_FORMAT	= "http://%s/launch-js-devtools";
-	private static final String	WEBSOCKET_PROXY_URL_FORMAT				= "ws://%s/debugger-proxy?role=client";
-	private static final String	WEBSOCKET_LIVERELOAD_URL_FORMAT			= "ws://%s/debugger-live-reload";
-	private static final String	ONCHANGE_ENDPOINT_URL_FORMAT			= "http://%s/onchange";
+public class DevServerHelper {
 
-	private HippyGlobalConfigs	mGlobalConfigs;
-	private String				mServerHost;
+  private static final String BUNDLE_URL_FORMAT = "http://%s/%s?platform=android&dev=%s&hot=%s&minify=%s";
+  private static final String LAUNCH_JS_DEVTOOLS_COMMAND_URL_FORMAT = "http://%s/launch-js-devtools";
+  private static final String WEBSOCKET_PROXY_URL_FORMAT = "ws://%s/debugger-proxy?role=client";
+  private static final String WEBSOCKET_LIVERELOAD_URL_FORMAT = "ws://%s/debugger-live-reload";
+  private static final String ONCHANGE_ENDPOINT_URL_FORMAT = "http://%s/onchange";
 
-	public DevServerHelper(HippyGlobalConfigs configs, String serverHost)
-	{
-		mGlobalConfigs = configs;
-		mServerHost = serverHost;
-	}
+  private HippyGlobalConfigs mGlobalConfigs;
+  private String mServerHost;
 
-	public String createBundleURL(String host, String bundleName, boolean devMode, boolean hmr, boolean jsMinify)
-	{
-		return String.format(Locale.US, BUNDLE_URL_FORMAT, host, bundleName, devMode, hmr, jsMinify);
-	}
+  public DevServerHelper(HippyGlobalConfigs configs, String serverHost) {
+    mGlobalConfigs = configs;
+    mServerHost = serverHost;
+  }
 
-	private String createOnChangeEndpointUrl()
-	{
-		return String.format(Locale.US, ONCHANGE_ENDPOINT_URL_FORMAT, mServerHost);
-	}
+  public String createBundleURL(String host, String bundleName, boolean devMode, boolean hmr,
+    boolean jsMinify) {
+    return String.format(Locale.US, BUNDLE_URL_FORMAT, host, bundleName, devMode, hmr, jsMinify);
+  }
 
-	public String getWebSocketProxyURL()
-	{
-		return String.format(Locale.US, WEBSOCKET_PROXY_URL_FORMAT, mServerHost);
-	}
+  private String createOnChangeEndpointUrl() {
+    return String.format(Locale.US, ONCHANGE_ENDPOINT_URL_FORMAT, mServerHost);
+  }
 
-	public String getLiveReloadURL()
-	{
-		return String.format(Locale.US, WEBSOCKET_LIVERELOAD_URL_FORMAT, mServerHost);
-	}
+  public String getWebSocketProxyURL() {
+    return String.format(Locale.US, WEBSOCKET_PROXY_URL_FORMAT, mServerHost);
+  }
 
-	private String createLaunchJSDevToolsCommandUrl()
-	{
-		return String.format(Locale.US, LAUNCH_JS_DEVTOOLS_COMMAND_URL_FORMAT, mServerHost);
-	}
+  public String getLiveReloadURL() {
+    return String.format(Locale.US, WEBSOCKET_LIVERELOAD_URL_FORMAT, mServerHost);
+  }
 
-	public String getJSBundleURLForRemoteDebugging(String serverHost, String bundleName, boolean devmode)
-	{
-		return createBundleURL(serverHost, bundleName, devmode, false, false);
-	}
+  private String createLaunchJSDevToolsCommandUrl() {
+    return String.format(Locale.US, LAUNCH_JS_DEVTOOLS_COMMAND_URL_FORMAT, mServerHost);
+  }
 
-	public boolean launchDebugTools()
-	{
-		final HippySettableFuture<Boolean> future = new HippySettableFuture();
-		HippyHttpRequest request = new HippyHttpRequest();
-		request.setUrl(createLaunchJSDevToolsCommandUrl());
-		mGlobalConfigs.getHttpAdapter().sendRequest(request, new HippyHttpAdapter.HttpTaskCallback()
-		{
-			@Override
-			public void onTaskSuccess(HippyHttpRequest request, HippyHttpResponse response) throws Exception
-			{
-				future.set(response.getStatusCode() == 200);
-			}
+  public String getJSBundleURLForRemoteDebugging(String serverHost, String bundleName,
+    boolean devmode) {
+    return createBundleURL(serverHost, bundleName, devmode, false, false);
+  }
 
-			@Override
-			public void onTaskFailed(HippyHttpRequest request, Throwable error)
-			{
-				future.set(false);
-			}
-		});
+  public boolean launchDebugTools() {
+    final HippySettableFuture<Boolean> future = new HippySettableFuture();
+    HippyHttpRequest request = new HippyHttpRequest();
+    request.setUrl(createLaunchJSDevToolsCommandUrl());
+    mGlobalConfigs.getHttpAdapter().sendRequest(request, new HippyHttpAdapter.HttpTaskCallback() {
+      @Override
+      public void onTaskSuccess(HippyHttpRequest request, HippyHttpResponse response)
+        throws Exception {
+        future.set(response.getStatusCode() == 200);
+      }
 
-		try
-		{
-			return future.get();
-		}
-		catch (Throwable e)
-		{
-			return false;
-		}
-	}
+      @Override
+      public void onTaskFailed(HippyHttpRequest request, Throwable error) {
+        future.set(false);
+      }
+    });
 
-	public void fetchBundleFromURL(final BundleFetchCallBack bundleFetchCallBack, final String url, final File outputFile)
-	{
-		HippyHttpRequest request = new HippyHttpRequest();
-		request.setUrl(url);
-		mGlobalConfigs.getHttpAdapter().sendRequest(request, new HippyHttpAdapter.HttpTaskCallback()
-		{
-			@Override
-			public void onTaskSuccess(HippyHttpRequest request, HippyHttpResponse response) throws Exception
-			{
-				if (bundleFetchCallBack == null)
-				{
-					return;
-				}
-				if (response.getStatusCode() == 200 && response.getInputStream() != null)
-				{
-					if (outputFile == null) {
-						bundleFetchCallBack.onSuccess(response.getInputStream());
-						return;
-					}
+    try {
+      return future.get();
+    } catch (Throwable e) {
+      return false;
+    }
+  }
 
-					FileOutputStream fileOutputStream = null;
-					try
-					{
-						if (outputFile.exists())
-						{
-							outputFile.delete();
-						}
-						outputFile.createNewFile();
+  public void fetchBundleFromURL(final BundleFetchCallBack bundleFetchCallBack, final String url,
+    final File outputFile) {
+    HippyHttpRequest request = new HippyHttpRequest();
+    request.setUrl(url);
+    mGlobalConfigs.getHttpAdapter().sendRequest(request, new HippyHttpAdapter.HttpTaskCallback() {
+      @Override
+      public void onTaskSuccess(HippyHttpRequest request, HippyHttpResponse response)
+        throws Exception {
+        if (bundleFetchCallBack == null) {
+          return;
+        }
+        if (response.getStatusCode() == 200 && response.getInputStream() != null) {
+          if (outputFile == null) {
+            bundleFetchCallBack.onSuccess(response.getInputStream());
+            return;
+          }
 
-						fileOutputStream = new FileOutputStream(outputFile);
+          FileOutputStream fileOutputStream = null;
+          try {
+            if (outputFile.exists()) {
+              outputFile.delete();
+            }
+            outputFile.createNewFile();
 
-						byte[] b = new byte[2048];
-						int size = 0;
-						while ((size = response.getInputStream().read(b)) > 0)
-						{
-							fileOutputStream.write(b, 0, size);
-						}
-						fileOutputStream.flush();
-						if (bundleFetchCallBack != null)
-						{
-							bundleFetchCallBack.onSuccess(outputFile);
-						}
-					}
-					catch (Throwable e)
-					{
-						e.printStackTrace();
-					}
-					finally
-					{
-						if (fileOutputStream != null)
-						{
-							try
-							{
-								fileOutputStream.close();
-							}
-							catch (IOException e)
-							{
-							}
-						}
-					}
-				}
-				else
-				{
-					String message = "unknown";
-					if (response.getErrorStream() != null)
-					{
-						StringBuffer sb = new StringBuffer();
-						String readLine = null;
-						BufferedReader bfReader = new BufferedReader(new InputStreamReader(response.getErrorStream(), "UTF-8"));
-						while ((readLine = bfReader.readLine()) != null)
-						{
-							sb.append(readLine);
-							sb.append("\r\n");
-						}
-						message = sb.toString();
-					}
-					if (bundleFetchCallBack != null)
-					{
-						bundleFetchCallBack.onFail(new DevServerException("Could not connect to development server." + "URL: " + url
-								+ "  try to :adb reverse tcp:38989 tcp:38989 , message : " + message));
-					}
-				}
-			}
+            fileOutputStream = new FileOutputStream(outputFile);
 
-			@Override
-			public void onTaskFailed(HippyHttpRequest request, Throwable error)
-			{
-				if (bundleFetchCallBack != null)
-				{
-					bundleFetchCallBack.onFail(new DevServerException("Could not connect to development server." + "URL: " + url
-							+ "  try to :adb reverse tcp:38989 tcp:38989 , message : " + error.getMessage()));
-				}
-			}
-		});
-	}
+            byte[] b = new byte[2048];
+            int size = 0;
+            while ((size = response.getInputStream().read(b)) > 0) {
+              fileOutputStream.write(b, 0, size);
+            }
+            fileOutputStream.flush();
+            if (bundleFetchCallBack != null) {
+              bundleFetchCallBack.onSuccess(outputFile);
+            }
+          } catch (Throwable e) {
+            e.printStackTrace();
+          } finally {
+            if (fileOutputStream != null) {
+              try {
+                fileOutputStream.close();
+              } catch (IOException e) {
+              }
+            }
+          }
+        } else {
+          String message = "unknown";
+          if (response.getErrorStream() != null) {
+            StringBuffer sb = new StringBuffer();
+            String readLine = null;
+            BufferedReader bfReader = new BufferedReader(
+              new InputStreamReader(response.getErrorStream(), "UTF-8"));
+            while ((readLine = bfReader.readLine()) != null) {
+              sb.append(readLine);
+              sb.append("\r\n");
+            }
+            message = sb.toString();
+          }
+          if (bundleFetchCallBack != null) {
+            bundleFetchCallBack.onFail(
+              new DevServerException("Could not connect to development server." + "URL: " + url
+                + "  try to :adb reverse tcp:38989 tcp:38989 , message : " + message));
+          }
+        }
+      }
+
+      @Override
+      public void onTaskFailed(HippyHttpRequest request, Throwable error) {
+        if (bundleFetchCallBack != null) {
+          bundleFetchCallBack.onFail(
+            new DevServerException("Could not connect to development server." + "URL: " + url
+              + "  try to :adb reverse tcp:38989 tcp:38989 , message : " + error.getMessage()));
+        }
+      }
+    });
+  }
 }

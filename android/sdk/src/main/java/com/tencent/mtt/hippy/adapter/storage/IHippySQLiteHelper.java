@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter.storage;
 
 import android.database.sqlite.SQLiteDatabase;
@@ -23,14 +24,14 @@ import android.database.sqlite.SQLiteDatabase;
  * History：
  * 1.0 xiandongluo on 2018/1/18
  */
-public interface IHippySQLiteHelper
-{
-	String	COLUMN_KEY		= "key";
-	String	COLUMN_VALUE	= "value";
+public interface IHippySQLiteHelper {
 
-	SQLiteDatabase getDatabase();
+  String COLUMN_KEY = "key";
+  String COLUMN_VALUE = "value";
 
-	String getTableName();
+  SQLiteDatabase getDatabase();
 
-	void onDestroy();
+  String getTableName();
+
+  void onDestroy();
 }

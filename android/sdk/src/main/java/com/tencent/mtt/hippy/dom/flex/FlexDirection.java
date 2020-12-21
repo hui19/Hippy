@@ -13,18 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.dom.flex;
 
 public enum FlexDirection {
   INHERIT,
   LTR,
   RTL;
+
   public static FlexDirection fromInt(int value) {
-	    switch (value) {
-	      case 0: return INHERIT;
-	      case 1: return LTR;
-	      case 2: return RTL;
-	      default: throw new IllegalArgumentException("Unknown enum value: " + value);
-	    }
-	  }
+    switch (value) {
+      case 0:
+        return INHERIT;
+      case 1:
+        return LTR;
+      case 2:
+        return RTL;
+      default:
+        throw new IllegalArgumentException("Unknown enum value: " + value);
+    }
+  }
 }

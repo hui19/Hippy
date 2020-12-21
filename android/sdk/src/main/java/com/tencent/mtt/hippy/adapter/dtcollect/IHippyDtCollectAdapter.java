@@ -13,34 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter.dtcollect;
 
-public interface IHippyDtCollectAdapter
-{
-    void setPageId(Object object, String pageId);
+public interface IHippyDtCollectAdapter {
 
-    void setPageContentId(Object object, String pgContentId);
+  void setPageId(Object object, String pageId);
 
-    void setPageParams(Object object, String params);
+  void setPageContentId(Object object, String pgContentId);
 
-    void setElementId(Object object, String elementId);
+  void setPageParams(Object object, String params);
 
-    void setElementParams(Object object, String params);
+  void setElementId(Object object, String elementId);
 
-    void setReportPolicy(Object object, String policy);
+  void setElementParams(Object object, String params);
 
-    void setElementBizLeafIdentifier(Object object, String elementBizLeafId);
+  void setReportPolicy(Object object, String policy);
 
-    void setElementInteractPolicy(Object view, String param);
+  void setElementBizLeafIdentifier(Object object, String elementBizLeafId);
 
-    void setElementExposePolicy(Object view, String param);
+  void setElementInteractPolicy(Object view, String param);
 
-    void setElementEndExposePolicy(Object view, String param);
+  void setElementExposePolicy(Object view, String param);
 
-    void reportClickEvent(Object object);
+  void setElementEndExposePolicy(Object view, String param);
 
-    //page主动曝光
-    void pageExposeure(Object object);
-    //Elemet主动曝光
-    void elementExposeure(Object object);
+  void reportClickEvent(Object object);
+
+  //page主动曝光
+  void pageExposeure(Object object);
+
+  //Elemet主动曝光
+  void elementExposeure(Object object);
 }

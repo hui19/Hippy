@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.devsupport;
 
 import android.app.ProgressDialog;
@@ -26,60 +27,52 @@ import com.tencent.mtt.hippy.modules.nativemodules.HippySettableFuture;
  * Description：
  * History：
  */
-public class DevRemoteDebugManager implements DevRemoteDebugProxy
-{
+public class DevRemoteDebugManager implements DevRemoteDebugProxy {
 
-	DevServerHelper				mFetchHelper;
+  DevServerHelper mFetchHelper;
 
-	ProgressDialog				mProgressDialog;
+  ProgressDialog mProgressDialog;
 
-	RemoteDebugExceptionHandler	mRemoteDebugExceptionHandler;
+  RemoteDebugExceptionHandler mRemoteDebugExceptionHandler;
 
-	Context						mContext;
+  Context mContext;
 
-	public DevRemoteDebugManager(Context context, DevServerHelper fetchHelper, RemoteDebugExceptionHandler handler)
-	{
-		this.mContext = context;
-		this.mFetchHelper = fetchHelper;
-		this.mRemoteDebugExceptionHandler = handler;
-	}
+  public DevRemoteDebugManager(Context context, DevServerHelper fetchHelper,
+    RemoteDebugExceptionHandler handler) {
+    this.mContext = context;
+    this.mFetchHelper = fetchHelper;
+    this.mRemoteDebugExceptionHandler = handler;
+  }
 
 
-	private void showProgressDialog(Context context)
-	{
-		if(context == null)
-		{
-			return;
-		}
+  private void showProgressDialog(Context context) {
+    if (context == null) {
+      return;
+    }
 
-		if (mProgressDialog == null)
-		{
-			mProgressDialog = new ProgressDialog(context);
-			mProgressDialog.setCancelable(true);
-			mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		}
-		mProgressDialog.show();
-	}
+    if (mProgressDialog == null) {
+      mProgressDialog = new ProgressDialog(context);
+      mProgressDialog.setCancelable(true);
+      mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+    }
+    mProgressDialog.show();
+  }
 
-	@Override
-	public void destroy()
-	{
-		if (mProgressDialog != null)
-		{
-			mProgressDialog.dismiss();
-		}
-	}
+  @Override
+  public void destroy() {
+    if (mProgressDialog != null) {
+      mProgressDialog.dismiss();
+    }
+  }
 
-	public void handleException(Throwable t)
-	{
-		if (mRemoteDebugExceptionHandler != null)
-		{
-			mRemoteDebugExceptionHandler.onHandleRemoteDebugException(t);
-		}
-	}
+  public void handleException(Throwable t) {
+    if (mRemoteDebugExceptionHandler != null) {
+      mRemoteDebugExceptionHandler.onHandleRemoteDebugException(t);
+    }
+  }
 
-	public interface RemoteDebugExceptionHandler
-	{
-		public void onHandleRemoteDebugException(Throwable t);
-	}
+  public interface RemoteDebugExceptionHandler {
+
+    public void onHandleRemoteDebugException(Throwable t);
+  }
 }

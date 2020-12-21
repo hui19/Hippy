@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter;
 
 /**
@@ -20,26 +21,22 @@ package com.tencent.mtt.hippy.adapter;
  * @date: 2018/7/9 10:36
  * @version: V1.0
  */
-public class DefaultLogAdapter implements HippyLogAdapter
-{
+public class DefaultLogAdapter implements HippyLogAdapter {
 
-	@Override
-	public void log(String tag, String msg)
-	{
+  @Override
+  public void log(String tag, String msg) {
 
-	}
+  }
 
-	@Override
-	public void init(int rootId, String module)
-	{
+  @Override
+  public void init(int rootId, String module) {
 
-	}
+  }
 
-	@Override
-	public void upload(callBack callBack)
-	{
-		callBack.onSuccess();
-	}
+  @Override
+  public void upload(callBack callBack) {
+    callBack.onSuccess();
+  }
 
 
 }

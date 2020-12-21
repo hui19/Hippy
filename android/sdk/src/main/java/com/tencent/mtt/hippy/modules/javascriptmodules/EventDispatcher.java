@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.modules.javascriptmodules;
 
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -22,11 +23,11 @@ import com.tencent.mtt.hippy.common.HippyMap;
  * Description：
  * History：
  */
-public interface EventDispatcher extends HippyJavaScriptModule
-{
-	public void receiveNativeGesture(HippyMap param);
+public interface EventDispatcher extends HippyJavaScriptModule {
 
-	public void receiveUIComponentEvent(int tagId, String eventName, Object param);
+  public void receiveNativeGesture(HippyMap param);
 
-	public void receiveNativeEvent(String eventName, Object param);
+  public void receiveUIComponentEvent(int tagId, String eventName, Object param);
+
+  public void receiveNativeEvent(String eventName, Object param);
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.views.viewpager.event;
 
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -24,25 +25,23 @@ import android.view.View;
  * Created by huskyzhyu on 2017/12/15.
  */
 
-public class HippyPageScrollEvent extends HippyViewEvent
-{
-	public static final String EVENT_NAME	= "onPageScroll";
+public class HippyPageScrollEvent extends HippyViewEvent {
 
-	private View mTarget;
+  public static final String EVENT_NAME = "onPageScroll";
 
-	public HippyPageScrollEvent(View target)
-	{
-		super(EVENT_NAME);
-		mTarget = target;
-	}
+  private View mTarget;
 
-	public void send(int position, float offset)
-	{
-		HippyMap map = new HippyMap();
-		map.pushInt("position", position);
-		map.pushDouble("offset", offset);
-		super.send(mTarget, map);
-	}
+  public HippyPageScrollEvent(View target) {
+    super(EVENT_NAME);
+    mTarget = target;
+  }
+
+  public void send(int position, float offset) {
+    HippyMap map = new HippyMap();
+    map.pushInt("position", position);
+    map.pushDouble("offset", offset);
+    super.send(mTarget, map);
+  }
 
 
 }

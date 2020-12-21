@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.utils;
 
 import android.content.Context;
@@ -29,139 +30,109 @@ import java.io.FileInputStream;
  * @version: V1.0
  */
 
-public class FileUtils
-{
+public class FileUtils {
 
-	public static String readFile(String filePath)
-	{
-		String fileContent = "";
-		File file = new File(filePath);
-		if (!file.exists())
-		{
-			return fileContent;
-		}
-		else
-		{
-			FileInputStream fileReader = null;
-			ByteArrayOutputStream byteArrayOutputStream = null;
-			try
-			{
-				byteArrayOutputStream = new ByteArrayOutputStream();
-				fileReader = new FileInputStream(file);
-				byte buffer[] = new byte[4096];
-				int len = -1;
-				while ((len = fileReader.read(buffer, 0, buffer.length)) != -1)
-				{
-					byteArrayOutputStream.write(buffer, 0, len);
-				}
-				fileContent = byteArrayOutputStream.toString();
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-			}
-			finally
-			{
-				if (fileReader != null)
-				{
-					try
-					{
-						fileReader.close();
-					}
-					catch (Throwable e)
-					{
-						e.printStackTrace();
-					}
-				}
+  public static String readFile(String filePath) {
+    String fileContent = "";
+    File file = new File(filePath);
+    if (!file.exists()) {
+      return fileContent;
+    } else {
+      FileInputStream fileReader = null;
+      ByteArrayOutputStream byteArrayOutputStream = null;
+      try {
+        byteArrayOutputStream = new ByteArrayOutputStream();
+        fileReader = new FileInputStream(file);
+        byte buffer[] = new byte[4096];
+        int len = -1;
+        while ((len = fileReader.read(buffer, 0, buffer.length)) != -1) {
+          byteArrayOutputStream.write(buffer, 0, len);
+        }
+        fileContent = byteArrayOutputStream.toString();
+      } catch (Exception e) {
+        e.printStackTrace();
+      } finally {
+        if (fileReader != null) {
+          try {
+            fileReader.close();
+          } catch (Throwable e) {
+            e.printStackTrace();
+          }
+        }
 
-				if (byteArrayOutputStream != null)
-				{
-					try
-					{
-						byteArrayOutputStream.close();
-					}
-					catch (Throwable e)
-					{
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-		return fileContent;
-	}
+        if (byteArrayOutputStream != null) {
+          try {
+            byteArrayOutputStream.close();
+          } catch (Throwable e) {
+            e.printStackTrace();
+          }
+        }
+      }
+    }
+    return fileContent;
+  }
 
-	public static byte[] readFileToByteArray(String filePath)
-	{
-		byte[] data = null;
-		File file = new File(filePath);
-		if (!file.exists())
-		{
-			return data;
-		}
-		else
-		{
-			try
-			{
-				ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-				FileInputStream fileReader = new FileInputStream(file);
-				try
-				{
-					byte buffer[] = new byte[4096];
-					int len = -1;
-					while ((len = fileReader.read(buffer, 0, buffer.length)) != -1)
-					{
-						byteArrayOutputStream.write(buffer, 0, len);
-					}
-				}
-				catch (Throwable e)
-				{
+  public static byte[] readFileToByteArray(String filePath) {
+    byte[] data = null;
+    File file = new File(filePath);
+    if (!file.exists()) {
+      return data;
+    } else {
+      try {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        FileInputStream fileReader = new FileInputStream(file);
+        try {
+          byte buffer[] = new byte[4096];
+          int len = -1;
+          while ((len = fileReader.read(buffer, 0, buffer.length)) != -1) {
+            byteArrayOutputStream.write(buffer, 0, len);
+          }
+        } catch (Throwable e) {
 
-				}
+        }
 
-				fileReader.close();
-				data = byteArrayOutputStream.toByteArray();
-				byteArrayOutputStream.close();
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-			}
-		}
-		return data;
-	}
+        fileReader.close();
+        data = byteArrayOutputStream.toByteArray();
+        byteArrayOutputStream.close();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+    return data;
+  }
 
-	public static long getModifiedTime(String filePath)
-	{
-		if (TextUtils.isEmpty(filePath))
-		{
-			return 0;
-		}
-		File file = new File(filePath);
-		if (!file.exists())
-		{
-			return 0;
-		}
-		return file.lastModified();
-	}
+  public static long getModifiedTime(String filePath) {
+    if (TextUtils.isEmpty(filePath)) {
+      return 0;
+    }
+    File file = new File(filePath);
+    if (!file.exists()) {
+      return 0;
+    }
+    return file.lastModified();
+  }
 
-	public static File getHippyFile(Context context)
-	{
-		File baseFile = context.getApplicationContext() != null ? context.getApplicationContext().getFilesDir() : context.getFilesDir();
-		if (baseFile == null)
-			return null;
+  public static File getHippyFile(Context context) {
+    File baseFile =
+      context.getApplicationContext() != null ? context.getApplicationContext().getFilesDir()
+        : context.getFilesDir();
+    if (baseFile == null) {
+      return null;
+    }
 
-		return createDir(baseFile, "hippy");
-	}
+    return createDir(baseFile, "hippy");
+  }
 
-	public static File createDir(File parent, String dirName)
-	{
-		if (parent == null || dirName == null || dirName.length() == 0)
-			return null;
+  public static File createDir(File parent, String dirName) {
+    if (parent == null || dirName == null || dirName.length() == 0) {
+      return null;
+    }
 
-		File childDir = new File(parent, dirName);
-		if (!childDir.exists())
-			childDir.mkdirs();
+    File childDir = new File(parent, dirName);
+    if (!childDir.exists()) {
+      childDir.mkdirs();
+    }
 
-		return childDir;
-	}
+    return childDir;
+  }
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.annotation;
 
 import java.lang.annotation.Retention;
@@ -28,20 +29,19 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Retention(RUNTIME)
 @Target(TYPE)
-public @interface HippyNativeModule
-{
-	public enum Thread
-	{
-		BRIDGE,
-		MAIN,
-		DOM
-	}
+public @interface HippyNativeModule {
 
-	String name();
+  public enum Thread {
+    BRIDGE,
+    MAIN,
+    DOM
+  }
 
-	String [] names() default {};
+  String name();
 
-	Thread thread() default Thread.BRIDGE;
+  String[] names() default {};
 
-	boolean init() default false;
+  Thread thread() default Thread.BRIDGE;
+
+  boolean init() default false;
 }

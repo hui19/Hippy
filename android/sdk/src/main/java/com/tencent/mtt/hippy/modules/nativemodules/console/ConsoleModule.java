@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.modules.nativemodules.console;
 
 import android.util.Log;
@@ -29,35 +30,30 @@ import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
  * 2019/3/5 前端输出log给终端看，通过console类。不需要调用LogUtils来控制。由前端自己控制log信息。
  * 否则sdk使用者会经常找你打debug包的。
  */
-@HippyNativeModule(name= "ConsoleModule")
-public class ConsoleModule extends HippyNativeModuleBase
-{
-	public ConsoleModule(HippyEngineContext context)
-	{
-		super(context);
-	}
+@HippyNativeModule(name = "ConsoleModule")
+public class ConsoleModule extends HippyNativeModuleBase {
 
-    @HippyMethod(name="log")
-	public void log(String message)
-    {
-        Log.d("hippy_console",message);
-    }
+  public ConsoleModule(HippyEngineContext context) {
+    super(context);
+  }
 
-    @HippyMethod(name="warn")
-    public void warn(String message)
-    {
-		Log.w("hippy_console",message);
-    }
+  @HippyMethod(name = "log")
+  public void log(String message) {
+    Log.d("hippy_console", message);
+  }
 
-    @HippyMethod(name="info")
-    public void info(String message)
-    {
-		Log.i("hippy_console",message);
-    }
+  @HippyMethod(name = "warn")
+  public void warn(String message) {
+    Log.w("hippy_console", message);
+  }
 
-    @HippyMethod(name="error")
-    public void error(String message)
-    {
-		Log.e("hippy_console",message);
-    }
+  @HippyMethod(name = "info")
+  public void info(String message) {
+    Log.i("hippy_console", message);
+  }
+
+  @HippyMethod(name = "error")
+  public void error(String message) {
+    Log.e("hippy_console", message);
+  }
 }

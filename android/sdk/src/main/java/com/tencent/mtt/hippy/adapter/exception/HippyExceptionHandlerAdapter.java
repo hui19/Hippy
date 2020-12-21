@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter.exception;
 
 import com.tencent.mtt.hippy.common.HippyJsException;
@@ -23,11 +24,11 @@ import com.tencent.mtt.hippy.common.HippyJsException;
  * @version: V1.0
  */
 
-public interface HippyExceptionHandlerAdapter
-{
-	void handleJsException(HippyJsException exception);
+public interface HippyExceptionHandlerAdapter {
 
-	void handleNativeException(Exception exception,boolean haveCaught);
+  void handleJsException(HippyJsException exception);
 
-	void handleBackgroundTracing(String details);
+  void handleNativeException(Exception exception, boolean haveCaught);
+
+  void handleBackgroundTracing(String details);
 }

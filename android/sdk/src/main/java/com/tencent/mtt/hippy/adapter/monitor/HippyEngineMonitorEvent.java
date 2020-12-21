@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter.monitor;
 
 /**
@@ -21,18 +22,18 @@ package com.tencent.mtt.hippy.adapter.monitor;
  * History：
  * 1.0 xiandongluo on 2018/1/25
  */
-public class HippyEngineMonitorEvent
-{
-	public static String	ENGINE_LOAD_EVENT_INIT_INSTANCE			= "initInstance";
-	public static String	ENGINE_LOAD_EVENT_INIT_BRIDGE			= "initBridge";
-	public static String	ENGINE_LOAD_EVENT_LOAD_COMMONJS			= "loadCommonJS";
-	public static String	ENGINE_LOAD_EVENT_NOTIFY_ENGINE_INITED	= "notifyEngineInited";
-	public static String	MODULE_LOAD_EVENT_WAIT_ENGINE			= "waitEngine";
-	public static String	MODULE_LOAD_EVENT_WAIT_LOAD_BUNDLE		= "waitLoadBundle";
-	public static String	MODULE_LOAD_EVENT_LOAD_BUNDLE			= "loadBundle";
-	public static String	MODULE_LOAD_EVENT_RUN_BUNDLE			= "runBundle";
-	public static String	MODULE_LOAD_EVENT_CREATE_VIEW			= "createView";
-	public String			eventName;
-	public long				startTime;
-	public long				endTime;
+public class HippyEngineMonitorEvent {
+
+  public static String ENGINE_LOAD_EVENT_INIT_INSTANCE = "initInstance";
+  public static String ENGINE_LOAD_EVENT_INIT_BRIDGE = "initBridge";
+  public static String ENGINE_LOAD_EVENT_LOAD_COMMONJS = "loadCommonJS";
+  public static String ENGINE_LOAD_EVENT_NOTIFY_ENGINE_INITED = "notifyEngineInited";
+  public static String MODULE_LOAD_EVENT_WAIT_ENGINE = "waitEngine";
+  public static String MODULE_LOAD_EVENT_WAIT_LOAD_BUNDLE = "waitLoadBundle";
+  public static String MODULE_LOAD_EVENT_LOAD_BUNDLE = "loadBundle";
+  public static String MODULE_LOAD_EVENT_RUN_BUNDLE = "runBundle";
+  public static String MODULE_LOAD_EVENT_CREATE_VIEW = "createView";
+  public String eventName;
+  public long startTime;
+  public long endTime;
 }

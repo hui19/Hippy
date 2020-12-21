@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.dom.node;
 
 import android.graphics.Bitmap;
@@ -36,12 +37,12 @@ import com.tencent.mtt.hippy.utils.UrlUtils;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 
-public class HippyImageSpan extends ImageSpan
-{
+public class HippyImageSpan extends ImageSpan {
+
   public final static int STATE_UNLOAD = 0;
   public final static int STATE_LOADING = 1;
   public final static int STATE_LOADED = 2;
-  
+
   private int mLeft;
   private int mTop;
   private int mWidth;
@@ -51,7 +52,7 @@ public class HippyImageSpan extends ImageSpan
   private int mImageLoadState = 0;
   private int mVerticalAlignment;
   private HippyImageLoader mImageAdapter;
-  
+
   private Movie mGifMovie = null;
   private int mRepeatCount = -1;
   private int mShowCount = 0;
@@ -60,18 +61,18 @@ public class HippyImageSpan extends ImageSpan
   private float mGifScaleX = 1;
   private float mGifScaleY = 1;
   private boolean mGifMatrixComputed = false;
-  private int		mGifProgress				= 0;
-  private long	mGifLastPlayTime			= -1;
-  
+  private int mGifProgress = 0;
+  private long mGifLastPlayTime = -1;
+
   public HippyImageSpan(Drawable d, String source, ImageNode node, HippyImageLoader imageAdapter) {
     super(d, source, node.getVerticalAlignment());
 
-    mImageNodeWeakRefrence = new WeakReference<ImageNode> (node);
+    mImageNodeWeakRefrence = new WeakReference<ImageNode>(node);
     mImageAdapter = imageAdapter;
-  
+
     setUrl(source);
   }
-  
+
   private void updateBoundsAttribute() {
     if (mImageNodeWeakRefrence != null) {
       ImageNode node = mImageNodeWeakRefrence.get();
@@ -82,7 +83,7 @@ public class HippyImageSpan extends ImageSpan
         float x = node.getPosition(FlexSpacing.LEFT);
         int left = (x == Float.NaN) ? 0 : Math.round(x);
         int top = (y == Float.NaN) ? 0 : Math.round(y);
-      
+
         mLeft = left;
         mTop = top;
         mWidth = width;
@@ -91,26 +92,25 @@ public class HippyImageSpan extends ImageSpan
       }
     }
   }
-  
-  protected boolean shouldUseFetchImageMode(String url)
-  {
+
+  protected boolean shouldUseFetchImageMode(String url) {
     return UrlUtils.isWebUrl(url) || UrlUtils.isFileUrl(url);
   }
-  
+
   private void loadImageWithUrl(String url) {
     if (TextUtils.isEmpty(mUrl) || !mUrl.equals(url)) {
       mUrl = url;
       mImageLoadState = STATE_UNLOAD;
-  
+
       updateBoundsAttribute();
-  
+
       if (mImageAdapter != null) {
         if (shouldUseFetchImageMode(mUrl)) {
           final HippyMap props = new HippyMap();
           props.pushBoolean(NodeProps.CUSTOM_PROP_ISGIF, false);
           props.pushInt(NodeProps.WIDTH, mWidth);
           props.pushInt(NodeProps.HEIGHT, mHeight);
-  
+
           doFetchImage(mUrl, props, mImageAdapter);
         } else {
           HippyDrawable hippyDrawable = mImageAdapter.getImage(mUrl, null);
@@ -119,7 +119,7 @@ public class HippyImageSpan extends ImageSpan
       }
     }
   }
-  
+
   public void setUrl(final String url) {
     if (UIThreadUtils.isOnUiThread()) {
       loadImageWithUrl(url);
@@ -132,58 +132,55 @@ public class HippyImageSpan extends ImageSpan
       });
     }
   }
-  
+
   private boolean drawGIF(Canvas canvas, float left, float top, int width, int height) {
-    if (mGifMovie == null)
+    if (mGifMovie == null) {
       return false;
-    
+    }
+
     int duration = mGifMovie.duration();
     if (duration == 0) {
       duration = 1000;
     }
-    
+
     long now = System.currentTimeMillis();
-  
-    if (mGifLastPlayTime != -1)
-    {
+
+    if (mGifLastPlayTime != -1) {
       mGifProgress += now - mGifLastPlayTime;
-    
-      if (mGifProgress > duration)
-      {
+
+      if (mGifProgress > duration) {
         mGifProgress = 0;
       }
       mGifLastPlayTime = now;
-    }
-    else
-    {
+    } else {
       mGifLastPlayTime = now;
     }
-  
+
     mGifScaleX = width / (float) mGifMovie.width();
     mGifScaleY = height / (float) mGifMovie.height();
-    float x = (mGifScaleX != 0) ? left/mGifScaleX : left;
-    float y = (mGifScaleY != 0) ? top/mGifScaleY : top;
-    
+    float x = (mGifScaleX != 0) ? left / mGifScaleX : left;
+    float y = (mGifScaleY != 0) ? top / mGifScaleY : top;
+
     mGifMovie.setTime(mGifProgress);
     canvas.save();
     canvas.scale(mGifScaleX, mGifScaleY);
     mGifMovie.draw(canvas, x, y);
     canvas.restore();
     postInvalidateDelayed(40);
-    
+
     return false;
   }
-  
+
   @Override
   public void draw(Canvas canvas, CharSequence text,
-                   int start, int end, float x,
-                   int top, int y, int bottom, Paint paint) {
+    int start, int end, float x,
+    int top, int y, int bottom, Paint paint) {
     int transY = top;
     Paint.FontMetricsInt fm = paint.getFontMetricsInt();
     if (mGifMovie != null) {
       int width = (mWidth == 0) ? mGifMovie.width() : mWidth;
       int height = (mHeight == 0) ? mGifMovie.height() : mHeight;
-      
+
       transY = (y + fm.descent + y + fm.ascent) / 2 - height / 2;
       drawGIF(canvas, x + mLeft, transY + mTop, width, height);
     } else if (mVerticalAlignment == ImageSpan.ALIGN_BASELINE) {
@@ -191,7 +188,7 @@ public class HippyImageSpan extends ImageSpan
 
       transY = (y + fm.descent + y + fm.ascent) / 2
         - b.getBounds().bottom / 2;
-  
+
       canvas.save();
       canvas.translate(x + mLeft, transY + mTop);
       b.draw(canvas);
@@ -200,25 +197,25 @@ public class HippyImageSpan extends ImageSpan
       super.draw(canvas, text, start, end, x, top, y, bottom, paint);
     }
   }
-  
+
   private void postInvalidateDelayed(long delayMilliseconds) {
     if (mImageNodeWeakRefrence != null) {
       ImageNode node = mImageNodeWeakRefrence.get();
       if (node != null) {
         DomNode parent = node.getParent();
         if (parent != null && parent instanceof TextNode) {
-          ((TextNode)parent).postInvalidateDelayed(delayMilliseconds);
+          ((TextNode) parent).postInvalidateDelayed(delayMilliseconds);
         }
       }
     }
   }
-  
+
   private void shouldReplaceDrawable(HippyDrawable hippyDrawable) {
     if (hippyDrawable != null) {
       Bitmap bitmap = hippyDrawable.getBitmap();
       if (bitmap != null) {
         BitmapDrawable drawable = new BitmapDrawable(bitmap);
-      
+
         int w = (mWidth == 0) ? drawable.getIntrinsicWidth() : mWidth;
         int h = (mHeight == 0) ? drawable.getIntrinsicHeight() : mHeight;
         drawable.setBounds(0, 0, w, h);
@@ -228,7 +225,7 @@ public class HippyImageSpan extends ImageSpan
           mDrawableField = ImageSpan.class.getDeclaredField("mDrawable");
           mDrawableField.setAccessible(true);
           mDrawableField.set(HippyImageSpan.this, drawable);
-        
+
           mDrawableRefField = DynamicDrawableSpan.class.getDeclaredField("mDrawableRef");
           mDrawableRefField.setAccessible(true);
           mDrawableRefField.set(HippyImageSpan.this, null);
@@ -237,33 +234,30 @@ public class HippyImageSpan extends ImageSpan
         } catch (NoSuchFieldException e) {
           e.printStackTrace();
         }
-      } else if(hippyDrawable.isAnimated()) {
+      } else if (hippyDrawable.isAnimated()) {
         mGifMovie = hippyDrawable.getGIF();
       }
-  
+
       postInvalidateDelayed(0);
       mImageLoadState = STATE_LOADED;
     }
   }
-  
+
   private void doFetchImage(String url, HippyMap props, HippyImageLoader imageAdapter) {
     mImageLoadState = STATE_LOADING;
-    
-    imageAdapter.fetchImage(url, new HippyImageLoader.Callback()
-    {
+
+    imageAdapter.fetchImage(url, new HippyImageLoader.Callback() {
       @Override
-      public void onRequestStart(HippyDrawable hippyDrawable)
-      {
+      public void onRequestStart(HippyDrawable hippyDrawable) {
       }
-    
+
       @Override
       public void onRequestSuccess(HippyDrawable hippyDrawable) {
         shouldReplaceDrawable(hippyDrawable);
       }
-    
+
       @Override
-      public void onRequestFail(Throwable throwable, String source)
-      {
+      public void onRequestFail(Throwable throwable, String source) {
         mImageLoadState = STATE_UNLOAD;
       }
     }, props);

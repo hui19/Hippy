@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.annotation;
 
 import java.lang.annotation.ElementType;
@@ -28,26 +29,26 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Retention(RUNTIME)
 @Target(ElementType.METHOD)
-public @interface HippyControllerProps
-{
-	String	NUMBER	= "number";
-	String	BOOLEAN	= "boolean";
-	String	STRING	= "string";
-	String	DEFAULT	= "";
-	String	ARRAY	= "array";
-	String	MAP		= "map";
+public @interface HippyControllerProps {
 
-	String name() default "name";
+  String NUMBER = "number";
+  String BOOLEAN = "boolean";
+  String STRING = "string";
+  String DEFAULT = "";
+  String ARRAY = "array";
+  String MAP = "map";
 
-	/*
-	 * defaultType Number boolean string else default is do not check
-	 */
-	String defaultType() default DEFAULT;
+  String name() default "name";
 
-	double defaultNumber() default 0.0;
+  /*
+   * defaultType Number boolean string else default is do not check
+   */
+  String defaultType() default DEFAULT;
 
-	boolean defaultBoolean() default false;
+  double defaultNumber() default 0.0;
 
-	String defaultString() default DEFAULT;
+  boolean defaultBoolean() default false;
+
+  String defaultString() default DEFAULT;
 
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.uimanager;
 
 import android.os.Handler;
@@ -29,206 +30,168 @@ import com.tencent.mtt.hippy.dom.node.NodeProps;
  * Description：
  * History：
  */
-public class NativeGestureProcessor
-{
+public class NativeGestureProcessor {
 
-	static final int			PRESS_IN		= 1;
-	static final int			PRESS_OUT		= 2;
-	private static final int	TAP_TIMEOUT		= ViewConfiguration.getTapTimeout();
-	private static final int	TOUCH_SLOP		= ViewConfiguration.getTouchSlop();
+  static final int PRESS_IN = 1;
+  static final int PRESS_OUT = 2;
+  private static final int TAP_TIMEOUT = ViewConfiguration.getTapTimeout();
+  private static final int TOUCH_SLOP = ViewConfiguration.getTouchSlop();
 
-	boolean						mNoPressIn		= false;
-	Callback					mCallback;
-	private Handler				mHandler;
+  boolean mNoPressIn = false;
+  Callback mCallback;
+  private Handler mHandler;
 
-	private float				mLastPressInX	= 0;
-	private float				mLastPressInY	= 0;
+  private float mLastPressInX = 0;
+  private float mLastPressInY = 0;
 
-	public NativeGestureProcessor(Callback callback)
-	{
-		this.mCallback = callback;
-	}
+  public NativeGestureProcessor(Callback callback) {
+    this.mCallback = callback;
+  }
 
-	public Handler getGestureHandler()
-	{
-		if (mHandler == null)
-		{
-			mHandler = new GestureHandler(this);
-		}
-		return mHandler;
-	}
+  public Handler getGestureHandler() {
+    if (mHandler == null) {
+      mHandler = new GestureHandler(this);
+    }
+    return mHandler;
+  }
 
-	private Callback getCallback()
-	{
-		return mCallback;
-	}
+  private Callback getCallback() {
+    return mCallback;
+  }
 
-	public boolean onTouchEvent(MotionEvent event)
-	{
-		int action = event.getAction() & MotionEvent.ACTION_MASK;
-		boolean handle = false;
-		switch (action)
-		{
-			case MotionEvent.ACTION_DOWN:
-			{
-				if (mCallback.needHandle(NodeProps.ON_PRESS_IN))
-				{
-					mNoPressIn = false;
-					mLastPressInX = event.getX();
-					mLastPressInY = event.getY();
-					getGestureHandler().sendEmptyMessageDelayed(PRESS_IN, TAP_TIMEOUT);
-					handle = true;
-				}
-				else
-				{
-					mNoPressIn = true;
-				}
+  public boolean onTouchEvent(MotionEvent event) {
+    int action = event.getAction() & MotionEvent.ACTION_MASK;
+    boolean handle = false;
+    switch (action) {
+      case MotionEvent.ACTION_DOWN: {
+        if (mCallback.needHandle(NodeProps.ON_PRESS_IN)) {
+          mNoPressIn = false;
+          mLastPressInX = event.getX();
+          mLastPressInY = event.getY();
+          getGestureHandler().sendEmptyMessageDelayed(PRESS_IN, TAP_TIMEOUT);
+          handle = true;
+        } else {
+          mNoPressIn = true;
+        }
 
-				if (mCallback.needHandle(NodeProps.ON_TOUCH_DOWN))
-				{
-					mCallback.handle(NodeProps.ON_TOUCH_DOWN, event.getX(), event.getY());
-					handle = true;
-				}
+        if (mCallback.needHandle(NodeProps.ON_TOUCH_DOWN)) {
+          mCallback.handle(NodeProps.ON_TOUCH_DOWN, event.getX(), event.getY());
+          handle = true;
+        }
 
-				if (!handle &&  mCallback.needHandle(NodeProps.ON_TOUCH_MOVE))
-				{
-					handle = true;
-				}
+        if (!handle && mCallback.needHandle(NodeProps.ON_TOUCH_MOVE)) {
+          handle = true;
+        }
 
-				if (!handle && mCallback.needHandle(NodeProps.ON_TOUCH_END))
-				{
-					handle = true;
-				}
+        if (!handle && mCallback.needHandle(NodeProps.ON_TOUCH_END)) {
+          handle = true;
+        }
 
-				if (!handle && mCallback.needHandle(NodeProps.ON_TOUCH_CANCEL))
-				{
-					handle = true;
-				}
-				break;
-			}
-			case MotionEvent.ACTION_MOVE:
-			{
-				if (mCallback.needHandle(NodeProps.ON_TOUCH_MOVE))
-				{
-					mCallback.handle(NodeProps.ON_TOUCH_MOVE, event.getX(), event.getY());
-					handle = true;
-				}
+        if (!handle && mCallback.needHandle(NodeProps.ON_TOUCH_CANCEL)) {
+          handle = true;
+        }
+        break;
+      }
+      case MotionEvent.ACTION_MOVE: {
+        if (mCallback.needHandle(NodeProps.ON_TOUCH_MOVE)) {
+          mCallback.handle(NodeProps.ON_TOUCH_MOVE, event.getX(), event.getY());
+          handle = true;
+        }
 
-				if (!handle && mCallback.needHandle(NodeProps.ON_TOUCH_END))
-				{
-					handle = true;
-				}
+        if (!handle && mCallback.needHandle(NodeProps.ON_TOUCH_END)) {
+          handle = true;
+        }
 
-				if (!handle && mCallback.needHandle(NodeProps.ON_TOUCH_CANCEL))
-				{
-					handle = true;
-				}
+        if (!handle && mCallback.needHandle(NodeProps.ON_TOUCH_CANCEL)) {
+          handle = true;
+        }
 
-				if (!mNoPressIn)
-				{
-					float distX = Math.abs(event.getX() - mLastPressInX);
-					float distY = Math.abs(event.getY() - mLastPressInY);
-					if (distX > TOUCH_SLOP || distY > TOUCH_SLOP)
-					{
-						getGestureHandler().removeMessages(PRESS_IN);
-						mNoPressIn = true;
-					}
-				}
+        if (!mNoPressIn) {
+          float distX = Math.abs(event.getX() - mLastPressInX);
+          float distY = Math.abs(event.getY() - mLastPressInY);
+          if (distX > TOUCH_SLOP || distY > TOUCH_SLOP) {
+            getGestureHandler().removeMessages(PRESS_IN);
+            mNoPressIn = true;
+          }
+        }
 
-				break;
-			}
-			case MotionEvent.ACTION_UP:
-			{
-				if (mCallback.needHandle(NodeProps.ON_TOUCH_END))
-				{
-					mCallback.handle(NodeProps.ON_TOUCH_END, event.getX(), event.getY());
-					handle = true;
-				}
+        break;
+      }
+      case MotionEvent.ACTION_UP: {
+        if (mCallback.needHandle(NodeProps.ON_TOUCH_END)) {
+          mCallback.handle(NodeProps.ON_TOUCH_END, event.getX(), event.getY());
+          handle = true;
+        }
 
-				if (mNoPressIn && mCallback.needHandle(NodeProps.ON_PRESS_OUT))
-				{
-					mCallback.handle(NodeProps.ON_PRESS_OUT, event.getX(), event.getY());
-					handle = true;
-				}
-				else if (!mNoPressIn && mCallback.needHandle(NodeProps.ON_PRESS_OUT))
-				{
-					getGestureHandler().sendEmptyMessageDelayed(PRESS_OUT, TAP_TIMEOUT);
-					handle = true;
-				}
+        if (mNoPressIn && mCallback.needHandle(NodeProps.ON_PRESS_OUT)) {
+          mCallback.handle(NodeProps.ON_PRESS_OUT, event.getX(), event.getY());
+          handle = true;
+        } else if (!mNoPressIn && mCallback.needHandle(NodeProps.ON_PRESS_OUT)) {
+          getGestureHandler().sendEmptyMessageDelayed(PRESS_OUT, TAP_TIMEOUT);
+          handle = true;
+        }
 
-				break;
-			}
-			case MotionEvent.ACTION_CANCEL:
-			case MotionEvent.ACTION_OUTSIDE:
-			{
-				if (mCallback.needHandle(NodeProps.ON_TOUCH_CANCEL))
-				{
-					mCallback.handle(NodeProps.ON_TOUCH_CANCEL, event.getX(), event.getY());
-					handle = true;
-				}
+        break;
+      }
+      case MotionEvent.ACTION_CANCEL:
+      case MotionEvent.ACTION_OUTSIDE: {
+        if (mCallback.needHandle(NodeProps.ON_TOUCH_CANCEL)) {
+          mCallback.handle(NodeProps.ON_TOUCH_CANCEL, event.getX(), event.getY());
+          handle = true;
+        }
 
-				if (mNoPressIn && mCallback.needHandle(NodeProps.ON_PRESS_OUT))
-				{
-					mCallback.handle(NodeProps.ON_PRESS_OUT, event.getX(), event.getY());
-					handle = true;
-				}
-				else if (!mNoPressIn && mCallback.needHandle(NodeProps.ON_PRESS_OUT))
-				{
-					if (getGestureHandler().hasMessages(PRESS_IN))
-					{
-						getGestureHandler().removeMessages(PRESS_IN);
-						break;
-					}
-					getGestureHandler().sendEmptyMessageDelayed(PRESS_OUT, TAP_TIMEOUT);
-					handle = true;
-				}
-				break;
-			}
-		}
-		return handle;
-	}
+        if (mNoPressIn && mCallback.needHandle(NodeProps.ON_PRESS_OUT)) {
+          mCallback.handle(NodeProps.ON_PRESS_OUT, event.getX(), event.getY());
+          handle = true;
+        } else if (!mNoPressIn && mCallback.needHandle(NodeProps.ON_PRESS_OUT)) {
+          if (getGestureHandler().hasMessages(PRESS_IN)) {
+            getGestureHandler().removeMessages(PRESS_IN);
+            break;
+          }
+          getGestureHandler().sendEmptyMessageDelayed(PRESS_OUT, TAP_TIMEOUT);
+          handle = true;
+        }
+        break;
+      }
+    }
+    return handle;
+  }
 
-	private void setNoPressIn(boolean noPressIn)
-	{
-		mNoPressIn = noPressIn;
-	}
+  private void setNoPressIn(boolean noPressIn) {
+    mNoPressIn = noPressIn;
+  }
 
-	public interface Callback
-	{
-		boolean needHandle(String type);
+  public interface Callback {
 
-		void handle(String type, float x, float y);
-	}
+    boolean needHandle(String type);
 
-	private static class GestureHandler extends android.os.Handler
-	{
-		private NativeGestureProcessor	mDispatcher;
-		private NativeGestureProcessor.Callback mCallback;
+    void handle(String type, float x, float y);
+  }
 
-		public GestureHandler(NativeGestureProcessor dispatcher)
-		{
-			super(Looper.getMainLooper());
-			mDispatcher = dispatcher;
-			mCallback = mDispatcher.getCallback();
-		}
+  private static class GestureHandler extends android.os.Handler {
 
-		@Override
-		public void handleMessage(Message msg)
-		{
-			switch (msg.what)
-			{
-				case PRESS_IN:
-				{
-					mCallback.handle(NodeProps.ON_PRESS_IN, -1, -1);
-					mDispatcher.setNoPressIn(true);
-					break;
-				}
-				case PRESS_OUT:
-				{
-					mCallback.handle(NodeProps.ON_PRESS_OUT, -1, -1);
-					break;
-				}
-			}
-		}
-	}
+    private NativeGestureProcessor mDispatcher;
+    private NativeGestureProcessor.Callback mCallback;
+
+    public GestureHandler(NativeGestureProcessor dispatcher) {
+      super(Looper.getMainLooper());
+      mDispatcher = dispatcher;
+      mCallback = mDispatcher.getCallback();
+    }
+
+    @Override
+    public void handleMessage(Message msg) {
+      switch (msg.what) {
+        case PRESS_IN: {
+          mCallback.handle(NodeProps.ON_PRESS_IN, -1, -1);
+          mDispatcher.setNoPressIn(true);
+          break;
+        }
+        case PRESS_OUT: {
+          mCallback.handle(NodeProps.ON_PRESS_OUT, -1, -1);
+          break;
+        }
+      }
+    }
+  }
 }

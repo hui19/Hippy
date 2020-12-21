@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.devsupport;
 
 import android.app.Activity;
@@ -25,19 +26,19 @@ import com.tencent.mtt.hippy.HippyRootView;
  * @version: V1.0
  */
 
-public interface DevServerInterface
-{
-	void reload(DevRemoteDebugProxy remoteDebugManager);
+public interface DevServerInterface {
 
-	String createResourceUrl(String resName);
+  void reload(DevRemoteDebugProxy remoteDebugManager);
 
-	void loadRemoteResource(String url, DevServerCallBack serverCallBack);
+  String createResourceUrl(String resName);
 
-	void setDevServerCallback(DevServerCallBack devServerCallback);
+  void loadRemoteResource(String url, DevServerCallBack serverCallBack);
 
-	void attachToHost(HippyRootView view);
+  void setDevServerCallback(DevServerCallBack devServerCallback);
 
-	void detachFromHost(HippyRootView view);
+  void attachToHost(HippyRootView view);
 
-	void handleException(Throwable throwable);
+  void detachFromHost(HippyRootView view);
+
+  void handleException(Throwable throwable);
 }

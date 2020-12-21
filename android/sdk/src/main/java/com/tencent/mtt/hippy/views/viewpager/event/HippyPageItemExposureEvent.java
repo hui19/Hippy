@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.views.viewpager.event;
 
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -24,22 +25,20 @@ import android.view.View;
  * Created by huskyzhyu on 2017/12/15.
  */
 
-public class HippyPageItemExposureEvent extends HippyViewEvent
-{
-  public static final String EVENT_PAGER_ITEM_WILL_APPEAR	       = "onWillAppear";
-  public static final String EVENT_PAGER_ITEM_DID_APPEAR	       = "onDidAppear";
-  public static final String EVENT_PAGER_ITEM_WILL_DISAPPEAR	   = "onWillDisAppear";
-  public static final String EVENT_PAGER_ITEM_DID_DISAPPEAR	     = "onDidDisAppear";
+public class HippyPageItemExposureEvent extends HippyViewEvent {
 
-	public HippyPageItemExposureEvent(String eventName)
-	{
-		super(eventName);
-	}
+  public static final String EVENT_PAGER_ITEM_WILL_APPEAR = "onWillAppear";
+  public static final String EVENT_PAGER_ITEM_DID_APPEAR = "onDidAppear";
+  public static final String EVENT_PAGER_ITEM_WILL_DISAPPEAR = "onWillDisAppear";
+  public static final String EVENT_PAGER_ITEM_DID_DISAPPEAR = "onDidDisAppear";
 
-	public void send(View view, int position)
-	{
-		HippyMap map = new HippyMap();
-		map.pushInt("position", position);
-		super.send(view, map);
-	}
+  public HippyPageItemExposureEvent(String eventName) {
+    super(eventName);
+  }
+
+  public void send(View view, int position) {
+    HippyMap map = new HippyMap();
+    map.pushInt("position", position);
+    super.send(view, map);
+  }
 }

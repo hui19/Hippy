@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.views.viewpager;
 
 import com.tencent.mtt.hippy.annotation.HippyController;
@@ -25,22 +26,20 @@ import android.view.View;
  * Created by ceasoncai on 2017/12/15.
  */
 @HippyController(name = HippyViewPagerItemController.CLASS_NAME)
-public class HippyViewPagerItemController extends HippyViewController<HippyViewPagerItem>
-{
-	public static final String CLASS_NAME	= "ViewPagerItem";
+public class HippyViewPagerItemController extends HippyViewController<HippyViewPagerItem> {
 
-	private static final String TAG			= "ViewPagerItem";
+  public static final String CLASS_NAME = "ViewPagerItem";
 
-	@Override
-	protected View createViewImpl(Context context)
-	{
-		return new HippyViewPagerItem(context);
-	}
+  private static final String TAG = "ViewPagerItem";
 
-	@Override
-	protected boolean shouldInterceptLayout(View view, int x, int y, int width, int height)
-	{
-		return true;
-	}
+  @Override
+  protected View createViewImpl(Context context) {
+    return new HippyViewPagerItem(context);
+  }
+
+  @Override
+  protected boolean shouldInterceptLayout(View view, int x, int y, int width, int height) {
+    return true;
+  }
 
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy;
 
 import com.tencent.mtt.hippy.bridge.HippyBridgeManagerImpl;
@@ -23,73 +24,60 @@ import com.tencent.mtt.hippy.common.ThreadExecutor;
  * FileName: HippyNormalEngineManager
  * Description：
  */
-public final class HippyNormalEngineManager extends HippyEngineManagerImpl
-{
-	private volatile ThreadExecutor mThreadExecutor;
+public final class HippyNormalEngineManager extends HippyEngineManagerImpl {
 
-	private Object					mLock	= new Object();
+  private volatile ThreadExecutor mThreadExecutor;
 
-	HippyNormalEngineManager(EngineInitParams params, HippyBundleLoader preloadBundleLoader)
-	{
-		super(params, preloadBundleLoader);
-	}
+  private Object mLock = new Object();
 
-	@Override
-	public void destroyEngine()
-	{
-		super.destroyEngine();
-		//last destroy thread excetor
+  HippyNormalEngineManager(EngineInitParams params, HippyBundleLoader preloadBundleLoader) {
+    super(params, preloadBundleLoader);
+  }
 
-		synchronized (mLock)
-		{
-			if (mThreadExecutor != null)
-			{
-				mThreadExecutor.destroy();
-				mThreadExecutor = null;
-			}
-		}
+  @Override
+  public void destroyEngine() {
+    super.destroyEngine();
+    //last destroy thread excetor
 
-	}
+    synchronized (mLock) {
+      if (mThreadExecutor != null) {
+        mThreadExecutor.destroy();
+        mThreadExecutor = null;
+      }
+    }
 
-	@Override
-	public ThreadExecutor getThreadExecutor()
-	{
-		if (mThreadExecutor == null)
-		{
-			synchronized (mLock)
-			{
-				if (mThreadExecutor == null)
-				{
-					mThreadExecutor = new ThreadExecutor(-1);
-					mThreadExecutor.setUncaughtExceptionHandler(this);
-				}
-			}
-		}
-		return mThreadExecutor;
-	}
+  }
 
-	@Override
-	public int getBridgeType()
-	{
-		return HippyBridgeManagerImpl.BRIDGE_TYPE_NORMAL;
-	}
+  @Override
+  public ThreadExecutor getThreadExecutor() {
+    if (mThreadExecutor == null) {
+      synchronized (mLock) {
+        if (mThreadExecutor == null) {
+          mThreadExecutor = new ThreadExecutor(-1);
+          mThreadExecutor.setUncaughtExceptionHandler(this);
+        }
+      }
+    }
+    return mThreadExecutor;
+  }
 
-	@Override
-	public void handleThreadUncaughtException(Thread t, Throwable e, Integer groupId)
-	{
-		super.handleThreadUncaughtException(t, e, groupId);
-		if (mDebugMode && mDevSupportManager != null)
-		{
-			synchronized (mLock)
-			{
-				if (mThreadExecutor != null)
-				{
-					mThreadExecutor.destroy();
-					mThreadExecutor = null;
-				}
+  @Override
+  public int getBridgeType() {
+    return HippyBridgeManagerImpl.BRIDGE_TYPE_NORMAL;
+  }
 
-			}
+  @Override
+  public void handleThreadUncaughtException(Thread t, Throwable e, Integer groupId) {
+    super.handleThreadUncaughtException(t, e, groupId);
+    if (mDebugMode && mDevSupportManager != null) {
+      synchronized (mLock) {
+        if (mThreadExecutor != null) {
+          mThreadExecutor.destroy();
+          mThreadExecutor = null;
+        }
 
-		}
-	}
+      }
+
+    }
+  }
 }

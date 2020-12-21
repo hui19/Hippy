@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter.device;
 
 import android.content.Context;
@@ -25,7 +26,8 @@ import com.tencent.mtt.hippy.common.HippyMap;
  * @version: V1.0
  */
 
-public interface HippyDeviceAdapter
-{
-	void reviseDimensionIfNeed(Context context, HippyMap dimensionMap, boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged);
+public interface HippyDeviceAdapter {
+
+  void reviseDimensionIfNeed(Context context, HippyMap dimensionMap, boolean shouldUseScreenDisplay,
+    boolean systemUiVisibilityChanged);
 }

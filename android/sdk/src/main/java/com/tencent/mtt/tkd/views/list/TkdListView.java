@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.tkd.views.list;
 
 import com.tencent.mtt.hippy.HippyEngineContext;
@@ -44,30 +45,30 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
-public class TkdListView extends HippyListView implements RecyclerView.OnListScrollListener
-{
-  public static final String	EVENT_TYPE_DRAG_END		= "onDragEnd";
-  public static final String	EVENT_TYPE_SCROLL_END		= "onScrollEnd";
+public class TkdListView extends HippyListView implements RecyclerView.OnListScrollListener {
 
-  private int mPreloadDistance     = 0;
-  protected int	mScrollMinOffset	 = 0;
-  private boolean mIsLoading       = false;
-  private Promise mPromise         = null;
+  public static final String EVENT_TYPE_DRAG_END = "onDragEnd";
+  public static final String EVENT_TYPE_SCROLL_END = "onScrollEnd";
 
-	public TkdListView(Context context) {
-		super(context);
-		addOnListScrollListener(this);
-	}
+  private int mPreloadDistance = 0;
+  protected int mScrollMinOffset = 0;
+  private boolean mIsLoading = false;
+  private Promise mPromise = null;
+
+  public TkdListView(Context context) {
+    super(context);
+    addOnListScrollListener(this);
+  }
 
   public TkdListView(Context context, int orientation) {
     super(context, orientation);
     addOnListScrollListener(this);
   }
 
-	protected HippyListAdapter createAdapter(RecyclerView hippyRecyclerView, HippyEngineContext hippyEngineContext)
-	{
-		return new TkdListViewAdapter(hippyRecyclerView, hippyEngineContext);
-	}
+  protected HippyListAdapter createAdapter(RecyclerView hippyRecyclerView,
+    HippyEngineContext hippyEngineContext) {
+    return new TkdListViewAdapter(hippyRecyclerView, hippyEngineContext);
+  }
 
   public void onStartDrag() {
 
@@ -96,16 +97,17 @@ public class TkdListView extends HippyListView implements RecyclerView.OnListScr
   }
 
   protected void sendExposureEvent(View view, String eventName) {
-	  super.sendExposureEvent(view, eventName);
-	  if (HippyTag.isContainTheSpecKey(view, eventName)) {
+    super.sendExposureEvent(view, eventName);
+    if (HippyTag.isContainTheSpecKey(view, eventName)) {
       new HippyViewEvent(eventName).send(view, null);
     }
   }
 
   protected void checkExposureView(View view, int visibleStart, int visibleEnd,
-                                 int parentStart, int parentEnd) {
-	  if (view == null || view instanceof HippyPullHeaderView || view instanceof HippyPullFooterView) {
-	    return;
+    int parentStart, int parentEnd) {
+    if (view == null || view instanceof HippyPullHeaderView
+      || view instanceof HippyPullFooterView) {
+      return;
     }
 
     int myStart = (mLayout.canScrollHorizontally()) ? view.getLeft() : view.getTop();
@@ -113,8 +115,8 @@ public class TkdListView extends HippyListView implements RecyclerView.OnListScr
     myStart += parentStart;
     myEnd += parentStart;
 
-	  if(view instanceof ViewGroup) {
-      ViewGroup parent = (ViewGroup)view;
+    if (view instanceof ViewGroup) {
+      ViewGroup parent = (ViewGroup) view;
       int count = parent.getChildCount();
       for (int i = 0; i < count; i++) {
         View child = parent.getChildAt(i);
@@ -123,23 +125,22 @@ public class TkdListView extends HippyListView implements RecyclerView.OnListScr
     }
 
     int state = HippyTag.getExposureState(view);
-	  if (state == -1) {
+    if (state == -1) {
       state = HippyTag.TAG_EXPOSURE_STATE_DID_DISAPPEAR;
     }
     TkdListItemView cell = null;
     if (view instanceof TkdListItemView) {
-      cell = (TkdListItemView)view;
+      cell = (TkdListItemView) view;
     }
 
-	  //相交
-    if ((myStart < visibleStart && myEnd > visibleStart) || (myStart < visibleEnd && myEnd > visibleEnd)) {
+    //相交
+    if ((myStart < visibleStart && myEnd > visibleStart) || (myStart < visibleEnd
+      && myEnd > visibleEnd)) {
       if (state == HippyTag.TAG_EXPOSURE_STATE_DID_APPEAR) {
         sendExposureEvent(view, HippyTag.TAG_PROPS_DID_DISAPPEAR);
         sendExposureEvent(view, HippyTag.TAG_PROPS_WILL_APPEAR);
         HippyTag.setExposureState(view, HippyTag.TAG_EXPOSURE_STATE_WILL_APPEAR);
-      }
-      else if (state == HippyTag.TAG_EXPOSURE_STATE_DID_DISAPPEAR)
-      {
+      } else if (state == HippyTag.TAG_EXPOSURE_STATE_DID_DISAPPEAR) {
         sendExposureEvent(view, HippyTag.TAG_PROPS_WILL_APPEAR);
         HippyTag.setExposureState(view, HippyTag.TAG_EXPOSURE_STATE_WILL_APPEAR);
       }
@@ -150,39 +151,30 @@ public class TkdListView extends HippyListView implements RecyclerView.OnListScr
 //          cell.setExposureState(TkdListItemView.EXPOSURE_STATE_APPEAR);
 //        }
 //      }
-    }
-    else if (myEnd <= visibleStart || myStart >= (visibleEnd - 1))   //离开
+    } else if (myEnd <= visibleStart || myStart >= (visibleEnd - 1))   //离开
     {
       if (state == HippyTag.TAG_EXPOSURE_STATE_WILL_APPEAR) {
         sendExposureEvent(view, HippyTag.TAG_PROPS_DID_APPEAR);
         sendExposureEvent(view, HippyTag.TAG_PROPS_DID_DISAPPEAR);
         HippyTag.setExposureState(view, HippyTag.TAG_EXPOSURE_STATE_DID_DISAPPEAR);
-      }
-      else if (state == HippyTag.TAG_EXPOSURE_STATE_DID_APPEAR)
-      {
+      } else if (state == HippyTag.TAG_EXPOSURE_STATE_DID_APPEAR) {
         sendExposureEvent(view, HippyTag.TAG_PROPS_DID_DISAPPEAR);
         HippyTag.setExposureState(view, HippyTag.TAG_EXPOSURE_STATE_DID_DISAPPEAR);
-      }
-      else if (cell != null && cell.getExposureState() != TkdListItemView.EXPOSURE_STATE_DISAPPEAR)
-      {
+      } else if (cell != null
+        && cell.getExposureState() != TkdListItemView.EXPOSURE_STATE_DISAPPEAR) {
         sendExposureEvent(view, TkdListItemView.EXPOSURE_EVENT_DISAPPEAR);
         cell.setExposureState(TkdListItemView.EXPOSURE_STATE_DISAPPEAR);
       }
-    }
-    else if ((myStart >= visibleStart && myEnd <= visibleEnd) || (myStart <= visibleStart && myEnd > visibleEnd))
-    {
+    } else if ((myStart >= visibleStart && myEnd <= visibleEnd) || (myStart <= visibleStart
+      && myEnd > visibleEnd)) {
       if (state == HippyTag.TAG_EXPOSURE_STATE_WILL_APPEAR) {
         sendExposureEvent(view, HippyTag.TAG_PROPS_DID_APPEAR);
         HippyTag.setExposureState(view, HippyTag.TAG_EXPOSURE_STATE_DID_APPEAR);
-      }
-      else if (state == HippyTag.TAG_EXPOSURE_STATE_DID_DISAPPEAR)
-      {
+      } else if (state == HippyTag.TAG_EXPOSURE_STATE_DID_DISAPPEAR) {
         sendExposureEvent(view, HippyTag.TAG_PROPS_WILL_APPEAR);
         sendExposureEvent(view, HippyTag.TAG_PROPS_DID_APPEAR);
         HippyTag.setExposureState(view, HippyTag.TAG_EXPOSURE_STATE_DID_APPEAR);
-      }
-      else if (cell != null && cell.getExposureState() != TkdListItemView.EXPOSURE_STATE_APPEAR)
-      {
+      } else if (cell != null && cell.getExposureState() != TkdListItemView.EXPOSURE_STATE_APPEAR) {
         sendExposureEvent(view, TkdListItemView.EXPOSURE_EVENT_APPEAR);
         cell.setExposureState(TkdListItemView.EXPOSURE_STATE_APPEAR);
       }
@@ -190,14 +182,13 @@ public class TkdListView extends HippyListView implements RecyclerView.OnListScr
   }
 
   @Override
-  public void onScrolled(int x, int y)
-  {
+  public void onScrolled(int x, int y) {
     super.onScrolled(x, y);
     mAdapter.notifyEndReached();
   }
 
   public boolean shouldEmitEndReachedEvent() {
-    if (mLayout.canScrollHorizontally()){
+    if (mLayout.canScrollHorizontally()) {
       int pdx = mState.mTotalHeight - mOffsetX - getWidth();
       if (pdx <= mPreloadDistance) {
         return true;
@@ -213,23 +204,20 @@ public class TkdListView extends HippyListView implements RecyclerView.OnListScr
   }
 
   public boolean isLoading() {
-	  return mIsLoading;
+    return mIsLoading;
   }
 
   public void setIsLoading(boolean isLoading) {
     mIsLoading = isLoading;
   }
 
-  public void setScrollMinOffset(int scrollMinOffset)
-  {
+  public void setScrollMinOffset(int scrollMinOffset) {
     scrollMinOffset = Math.max(200, scrollMinOffset);
-    mScrollMinOffset = (int)PixelUtil.dp2px(scrollMinOffset);
+    mScrollMinOffset = (int) PixelUtil.dp2px(scrollMinOffset);
   }
 
-  protected void sendOnScrollEvent()
-  {
-    if (mScrollEventEnable)
-    {
+  protected void sendOnScrollEvent() {
+    if (mScrollEventEnable) {
       long currTime = System.currentTimeMillis();
 
       if (mScrollMinOffset > 0) {
@@ -238,7 +226,7 @@ public class TkdListView extends HippyListView implements RecyclerView.OnListScr
             mLastOffsetX = mState.mCustomHeaderWidth;
           }
 
-          if (mOffsetX - mLastOffsetX >= mScrollMinOffset){
+          if (mOffsetX - mLastOffsetX >= mScrollMinOffset) {
             mLastOffsetX = mOffsetX;
             getOnScrollEvent().send(this, generateScrollEvent());
           }
@@ -247,45 +235,45 @@ public class TkdListView extends HippyListView implements RecyclerView.OnListScr
             mLastOffsetY = mState.mCustomHeaderHeight;
           }
 
-          if (mOffsetY - mLastOffsetY >= mScrollMinOffset){
+          if (mOffsetY - mLastOffsetY >= mScrollMinOffset) {
             mLastOffsetY = mOffsetY;
             getOnScrollEvent().send(this, generateScrollEvent());
           }
         }
-      } else if ((mScrollMinOffset == 0) && (currTime - mLastScrollEventTimeStamp >= mScrollEventThrottle)) {
+      } else if ((mScrollMinOffset == 0) && (currTime - mLastScrollEventTimeStamp
+        >= mScrollEventThrottle)) {
         mLastScrollEventTimeStamp = currTime;
         getOnScrollEvent().send(this, generateScrollEvent());
       }
     }
   }
 
-  protected HippyMap generateScrollEvent()
-  {
+  protected HippyMap generateScrollEvent() {
     HippyMap contentOffset = new HippyMap();
     HippyMap contentSize = new HippyMap();
     HippyMap frame = new HippyMap();
     if (mLayout.canScrollHorizontally()) {
-      contentOffset.pushInt("x", (int)PixelUtil.px2dp(mOffsetX - mState.mCustomHeaderWidth));
-      contentOffset.pushInt("y", (int)PixelUtil.px2dp(0));
+      contentOffset.pushInt("x", (int) PixelUtil.px2dp(mOffsetX - mState.mCustomHeaderWidth));
+      contentOffset.pushInt("y", (int) PixelUtil.px2dp(0));
 
-      contentSize.pushInt("width", (int)PixelUtil.px2dp(mState.mTotalHeight));
-      contentSize.pushInt("height", (int)PixelUtil.px2dp(getHeight()));
+      contentSize.pushInt("width", (int) PixelUtil.px2dp(mState.mTotalHeight));
+      contentSize.pushInt("height", (int) PixelUtil.px2dp(getHeight()));
 
-      frame.pushInt("x", (int)PixelUtil.px2dp(getX()));
-      frame.pushInt("y", (int)PixelUtil.px2dp(getY()));
-      frame.pushInt("width", (int)PixelUtil.px2dp(getWidth()));
-      frame.pushInt("height", (int)PixelUtil.px2dp(getHeight()));
+      frame.pushInt("x", (int) PixelUtil.px2dp(getX()));
+      frame.pushInt("y", (int) PixelUtil.px2dp(getY()));
+      frame.pushInt("width", (int) PixelUtil.px2dp(getWidth()));
+      frame.pushInt("height", (int) PixelUtil.px2dp(getHeight()));
     } else {
-      contentOffset.pushInt("x", (int)PixelUtil.px2dp(0));
-      contentOffset.pushInt("y", (int)PixelUtil.px2dp(mOffsetY - mState.mCustomHeaderHeight));
+      contentOffset.pushInt("x", (int) PixelUtil.px2dp(0));
+      contentOffset.pushInt("y", (int) PixelUtil.px2dp(mOffsetY - mState.mCustomHeaderHeight));
 
-      contentSize.pushInt("width", (int)PixelUtil.px2dp(getWidth()));
-      contentSize.pushInt("height", (int)PixelUtil.px2dp(mState.mTotalHeight));
+      contentSize.pushInt("width", (int) PixelUtil.px2dp(getWidth()));
+      contentSize.pushInt("height", (int) PixelUtil.px2dp(mState.mTotalHeight));
 
-      frame.pushInt("x", (int)PixelUtil.px2dp(getX()));
-      frame.pushInt("y", (int)PixelUtil.px2dp(getY()));
-      frame.pushInt("width", (int)PixelUtil.px2dp(getWidth()));
-      frame.pushInt("height", (int)PixelUtil.px2dp(getHeight()));
+      frame.pushInt("x", (int) PixelUtil.px2dp(getX()));
+      frame.pushInt("y", (int) PixelUtil.px2dp(getY()));
+      frame.pushInt("width", (int) PixelUtil.px2dp(getWidth()));
+      frame.pushInt("height", (int) PixelUtil.px2dp(getHeight()));
     }
 
     HippyMap event = new HippyMap();
@@ -296,22 +284,20 @@ public class TkdListView extends HippyListView implements RecyclerView.OnListScr
     return event;
   }
 
-  public void scrollWithDistance(int distance, int duration, final Promise promise)
-  {
+  public void scrollWithDistance(int distance, int duration, final Promise promise) {
     if (!mState.didStructureChange()) {
       if (mLayout.canScrollHorizontally()) {
-        mViewFlinger.smoothScrollBy(distance, 0, duration,true);
+        mViewFlinger.smoothScrollBy(distance, 0, duration, true);
       } else {
-        mViewFlinger.smoothScrollBy(0, distance, duration,true);
+        mViewFlinger.smoothScrollBy(0, distance, duration, true);
       }
 
       mPromise = promise;
     }
   }
 
-  public void setPreloadDistance(int preloadDistance)
-  {
+  public void setPreloadDistance(int preloadDistance) {
     preloadDistance = Math.max(0, preloadDistance);
-    mPreloadDistance = (int)PixelUtil.dp2px(preloadDistance);
+    mPreloadDistance = (int) PixelUtil.dp2px(preloadDistance);
   }
 }

@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.views.modal;
 
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 
 /**
+ *
  */
 /* package */ class RequestCloseEvent extends HippyViewEvent {
 
@@ -26,7 +28,6 @@ import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
   protected RequestCloseEvent() {
     super(EVENT_NAME);
   }
-
 
 
 }

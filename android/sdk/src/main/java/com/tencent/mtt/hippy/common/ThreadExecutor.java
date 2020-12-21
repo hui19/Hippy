@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.common;
 
 /**
@@ -21,132 +22,109 @@ package com.tencent.mtt.hippy.common;
  * @version: V1.0
  */
 
-public class ThreadExecutor implements Thread.UncaughtExceptionHandler
-{
-	HippyHandlerThread			mJsThread;
-	HippyHandlerThread			mJsBridgeThread;
-	HippyHandlerThread			mDomThread;
-	UncaughtExceptionHandler	mUncaughtExceptionHandler;
-	private int				    mGroupId = -1;
+public class ThreadExecutor implements Thread.UncaughtExceptionHandler {
 
-	public ThreadExecutor(int groupId)
-	{
-		mGroupId = groupId;
-		mJsThread = new HippyHandlerThread("hippy-js-Thread");
-		mJsThread.setUncaughtExceptionHandler(this);
+  HippyHandlerThread mJsThread;
+  HippyHandlerThread mJsBridgeThread;
+  HippyHandlerThread mDomThread;
+  UncaughtExceptionHandler mUncaughtExceptionHandler;
+  private int mGroupId = -1;
 
-		mJsBridgeThread = new HippyHandlerThread("hippy-jsBridge-Thread");
-		mJsBridgeThread.setUncaughtExceptionHandler(this);
-		mDomThread = new HippyHandlerThread("hippy-DomThread");
-		mDomThread.setUncaughtExceptionHandler(this);
-	}
+  public ThreadExecutor(int groupId) {
+    mGroupId = groupId;
+    mJsThread = new HippyHandlerThread("hippy-js-Thread");
+    mJsThread.setUncaughtExceptionHandler(this);
 
-	public void setUncaughtExceptionHandler(UncaughtExceptionHandler exceptionHandler)
-	{
-		mUncaughtExceptionHandler = exceptionHandler;
-	}
+    mJsBridgeThread = new HippyHandlerThread("hippy-jsBridge-Thread");
+    mJsBridgeThread.setUncaughtExceptionHandler(this);
+    mDomThread = new HippyHandlerThread("hippy-DomThread");
+    mDomThread.setUncaughtExceptionHandler(this);
+  }
 
-	public void destroy()
-	{
-		if (mDomThread != null && mDomThread.isThreadAlive())
-		{
-			mDomThread.quit();
-		
-			mDomThread.setUncaughtExceptionHandler(null);
-		}
+  public void setUncaughtExceptionHandler(UncaughtExceptionHandler exceptionHandler) {
+    mUncaughtExceptionHandler = exceptionHandler;
+  }
 
-		if (mJsBridgeThread != null && mJsBridgeThread.isThreadAlive())
-		{
-			mJsBridgeThread.quit();
-			
-			mJsBridgeThread.setUncaughtExceptionHandler(null);
-		}
+  public void destroy() {
+    if (mDomThread != null && mDomThread.isThreadAlive()) {
+      mDomThread.quit();
 
-		if (mJsThread != null && mJsThread.isThreadAlive())
-		{
-			mJsThread.quit();
-			
-			mJsThread.setUncaughtExceptionHandler(null);
-		}
+      mDomThread.setUncaughtExceptionHandler(null);
+    }
 
-		mUncaughtExceptionHandler = null;
-	}
+    if (mJsBridgeThread != null && mJsBridgeThread.isThreadAlive()) {
+      mJsBridgeThread.quit();
 
-	public void postDelayOnJsThread(int delay, Runnable runnable)
-	{
-		mJsThread.getHandler().postDelayed(runnable, delay);
-	}
+      mJsBridgeThread.setUncaughtExceptionHandler(null);
+    }
 
-	public void postOnJsThread(Runnable runnable)
-	{
-		mJsBridgeThread.runOnQueue(runnable);
-	}
+    if (mJsThread != null && mJsThread.isThreadAlive()) {
+      mJsThread.quit();
 
-	public void postOnJsBridgeThread(Runnable runnable)
-	{
-		mJsThread.runOnQueue(runnable);
-	}
+      mJsThread.setUncaughtExceptionHandler(null);
+    }
 
-	public void postOnDomThread(Runnable runnable)
-	{
-		mDomThread.runOnQueue(runnable);
-	}
+    mUncaughtExceptionHandler = null;
+  }
 
-	public void assertOnJsBridge()
-	{
-		if (Thread.currentThread().getId() != mJsBridgeThread.getId())
-		{
-			throw new RuntimeException("call is not on Js-bridge-thread");
-		}
-	}
+  public void postDelayOnJsThread(int delay, Runnable runnable) {
+    mJsThread.getHandler().postDelayed(runnable, delay);
+  }
 
-	public void assertOnJsThread()
-	{
-		if (Thread.currentThread().getId() != mJsThread.getId())
-		{
-			throw new RuntimeException("call is not on Js-thread");
-		}
-	}
+  public void postOnJsThread(Runnable runnable) {
+    mJsBridgeThread.runOnQueue(runnable);
+  }
 
-	public void assertOnDomThread()
-	{
-		if (Thread.currentThread().getId() != mDomThread.getId())
-		{
-			throw new RuntimeException("call is not on dom-thread");
-		}
-	}
+  public void postOnJsBridgeThread(Runnable runnable) {
+    mJsThread.runOnQueue(runnable);
+  }
 
-	public HippyHandlerThread getJsBridgeThread()
-	{
-		return mJsBridgeThread;
-	}
+  public void postOnDomThread(Runnable runnable) {
+    mDomThread.runOnQueue(runnable);
+  }
 
-	public HippyHandlerThread getJsThread()
-	{
-		return mJsThread;
-	}
+  public void assertOnJsBridge() {
+    if (Thread.currentThread().getId() != mJsBridgeThread.getId()) {
+      throw new RuntimeException("call is not on Js-bridge-thread");
+    }
+  }
 
-	public HippyHandlerThread getDomThread()
-	{
-		return mDomThread;
-	}
+  public void assertOnJsThread() {
+    if (Thread.currentThread().getId() != mJsThread.getId()) {
+      throw new RuntimeException("call is not on Js-thread");
+    }
+  }
 
-	@Override
-	public void uncaughtException(Thread t, Throwable e)
-	{
-		if (mUncaughtExceptionHandler != null)
-		{
-			mUncaughtExceptionHandler.handleThreadUncaughtException(t, e, mGroupId);
-		}
-		else
-		{
-			throw new RuntimeException(e);
-		}
+  public void assertOnDomThread() {
+    if (Thread.currentThread().getId() != mDomThread.getId()) {
+      throw new RuntimeException("call is not on dom-thread");
+    }
+  }
 
-	}
+  public HippyHandlerThread getJsBridgeThread() {
+    return mJsBridgeThread;
+  }
 
-	public interface UncaughtExceptionHandler
-	{
-		public void handleThreadUncaughtException(Thread t, Throwable e, Integer groupId);
-	}
+  public HippyHandlerThread getJsThread() {
+    return mJsThread;
+  }
+
+  public HippyHandlerThread getDomThread() {
+    return mDomThread;
+  }
+
+  @Override
+  public void uncaughtException(Thread t, Throwable e) {
+    if (mUncaughtExceptionHandler != null) {
+      mUncaughtExceptionHandler.handleThreadUncaughtException(t, e, mGroupId);
+    } else {
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  public interface UncaughtExceptionHandler {
+
+    public void handleThreadUncaughtException(Thread t, Throwable e, Integer groupId);
+  }
 }

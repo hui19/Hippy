@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.dom.flex;
+
 public class FlexOutput {
+
   public static long make(float width, float height) {
     return make((int) width, (int) height);
   }

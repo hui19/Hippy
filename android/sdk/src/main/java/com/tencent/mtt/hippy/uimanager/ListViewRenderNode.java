@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.uimanager;
 
 import com.tencent.mtt.hippy.HippyRootView;
@@ -25,29 +26,26 @@ import com.tencent.mtt.hippy.common.HippyMap;
  * @version: V1.0
  */
 
-public class ListViewRenderNode extends RenderNode
-{
-	public ListViewRenderNode(int mId, HippyMap mPropsToUpdate, String className, HippyRootView mRootView, ControllerManager componentManager,
-			boolean isLazyLoad)
-	{
-		super(mId, mPropsToUpdate, className, mRootView, componentManager, isLazyLoad);
-	}
+public class ListViewRenderNode extends RenderNode {
+
+  public ListViewRenderNode(int mId, HippyMap mPropsToUpdate, String className,
+    HippyRootView mRootView, ControllerManager componentManager,
+    boolean isLazyLoad) {
+    super(mId, mPropsToUpdate, className, mRootView, componentManager, isLazyLoad);
+  }
 
 
-	@Override
-	protected void addChildToPendingList(RenderNode renderNode)
-	{
-		//		super.addPendChild(renderNode);
-	}
+  @Override
+  protected void addChildToPendingList(RenderNode renderNode) {
+    //		super.addPendChild(renderNode);
+  }
 
-	@Override
-	public boolean removeChild(RenderNode uiNode)
-	{
-		if (uiNode instanceof ListItemRenderNode)
-		{
-			ListItemRenderNode listItemRenderNode = (ListItemRenderNode) uiNode;
-			listItemRenderNode.setRecycleItemTypeChangeListener(null);
-		}
-		return super.removeChild(uiNode);
-	}
+  @Override
+  public boolean removeChild(RenderNode uiNode) {
+    if (uiNode instanceof ListItemRenderNode) {
+      ListItemRenderNode listItemRenderNode = (ListItemRenderNode) uiNode;
+      listItemRenderNode.setRecycleItemTypeChangeListener(null);
+    }
+    return super.removeChild(uiNode);
+  }
 }

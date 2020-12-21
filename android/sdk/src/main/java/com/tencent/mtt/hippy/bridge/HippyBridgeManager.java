@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.bridge;
 
 import com.tencent.mtt.hippy.HippyEngine;
@@ -28,26 +29,27 @@ import com.tencent.mtt.hippy.common.HippyMap;
  * Description：
  * History：
  */
-public interface HippyBridgeManager
-{
-	void initBridge(Callback<Boolean> callback);
+public interface HippyBridgeManager {
 
-	void runBundle(int id, HippyBundleLoader loader, HippyEngine.ModuleListener listener, HippyRootView hippyRootView);
+  void initBridge(Callback<Boolean> callback);
 
-	void notifyModuleJsException(final HippyJsException exception);
+  void runBundle(int id, HippyBundleLoader loader, HippyEngine.ModuleListener listener,
+    HippyRootView hippyRootView);
 
-	void loadInstance(String name, int id, HippyMap params);
+  void notifyModuleJsException(final HippyJsException exception);
 
-	void resumeInstance(int id);
+  void loadInstance(String name, int id, HippyMap params);
 
-	void pauseInstance(int id);
+  void resumeInstance(int id);
 
-	void destroyInstance(int id);
+  void pauseInstance(int id);
 
-	void execCallback(Object params);
+  void destroyInstance(int id);
 
-	void destroy();
+  void execCallback(Object params);
 
-	void callJavaScriptModule(String mName, String name, Object params);
+  void destroy();
+
+  void callJavaScriptModule(String mName, String name, Object params);
 
 }

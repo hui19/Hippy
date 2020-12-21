@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.common;
 
 /**
@@ -20,7 +21,7 @@ package com.tencent.mtt.hippy.common;
  * Description：
  * History：
  */
-public interface Callback <T extends Object>
-{
-    public void callback(T param,Throwable e);
+public interface Callback<T extends Object> {
+
+  public void callback(T param, Throwable e);
 }

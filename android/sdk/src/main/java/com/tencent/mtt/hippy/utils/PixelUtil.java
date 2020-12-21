@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.utils;
 
 import android.util.DisplayMetrics;
@@ -25,43 +26,36 @@ import android.util.TypedValue;
  * @version: V1.0
  */
 
-public class PixelUtil
-{
-	static DisplayMetrics sMetrics = null;
+public class PixelUtil {
+
+  static DisplayMetrics sMetrics = null;
 
 
-	private static DisplayMetrics getMetrics()
-	{
-		if (sMetrics == null)
-		{
-			sMetrics = ContextHolder.getAppContext().getResources().getDisplayMetrics();
-		}
-		return sMetrics;
-	}
+  private static DisplayMetrics getMetrics() {
+    if (sMetrics == null) {
+      sMetrics = ContextHolder.getAppContext().getResources().getDisplayMetrics();
+    }
+    return sMetrics;
+  }
 
 
-	public static float dp2px(float value)
-	{
-		return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, getMetrics());
-	}
+  public static float dp2px(float value) {
+    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, getMetrics());
+  }
 
-	public static float dp2px(double value)
-	{
-		return dp2px((float)value);
-	}
+  public static float dp2px(double value) {
+    return dp2px((float) value);
+  }
 
-	public static float px2dp(float value)
-	{
-		return value / getMetrics().density + 0.5f;
-	}
+  public static float px2dp(float value) {
+    return value / getMetrics().density + 0.5f;
+  }
 
-	public static float sp2px(float value)
-	{
-		return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, getMetrics());
-	}
+  public static float sp2px(float value) {
+    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, getMetrics());
+  }
 
-	public static float px2sp(float value)
-	{
-		return value / getMetrics().scaledDensity + 0.5f;
-	}
+  public static float px2sp(float value) {
+    return value / getMetrics().scaledDensity + 0.5f;
+  }
 }

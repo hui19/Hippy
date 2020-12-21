@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.common;
 
 
@@ -21,32 +22,26 @@ package com.tencent.mtt.hippy.common;
  * Description：
  * History：
  */
-public abstract class HippyThreadRunnable<T extends Object> implements Runnable
-{
-	private T	mParam;
+public abstract class HippyThreadRunnable<T extends Object> implements Runnable {
 
-	public HippyThreadRunnable()
-	{
+  private T mParam;
 
-	}
+  public HippyThreadRunnable() {
 
-	public HippyThreadRunnable(T param)
-	{
-		mParam = param;
-	}
+  }
 
-	@Override
-	public void run()
-	{
-		try
-		{
-			run(mParam);
-		}
-		catch (Throwable e)
-		{
-			throw  e;
-		}
-	}
+  public HippyThreadRunnable(T param) {
+    mParam = param;
+  }
 
-	public abstract void run(T param);
+  @Override
+  public void run() {
+    try {
+      run(mParam);
+    } catch (Throwable e) {
+      throw e;
+    }
+  }
+
+  public abstract void run(T param);
 }

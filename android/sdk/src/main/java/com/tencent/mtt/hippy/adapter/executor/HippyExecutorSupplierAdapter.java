@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter.executor;
 
 import java.util.concurrent.Executor;
@@ -22,12 +23,11 @@ import java.util.concurrent.Executor;
  * Description：
  * History：
  */
-public interface HippyExecutorSupplierAdapter
-{
+public interface HippyExecutorSupplierAdapter {
 
-	Executor getDBExecutor();
+  Executor getDBExecutor();
 
-	Executor getBackgroundTaskExecutor();
+  Executor getBackgroundTaskExecutor();
 
-    void destroyIfNeed();
+  void destroyIfNeed();
 }

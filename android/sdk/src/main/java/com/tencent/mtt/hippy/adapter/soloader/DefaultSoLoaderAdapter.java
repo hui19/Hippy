@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter.soloader;
 
 /**
@@ -21,8 +22,9 @@ package com.tencent.mtt.hippy.adapter.soloader;
  * @version: V1.0
  */
 public class DefaultSoLoaderAdapter implements HippySoLoaderAdapter {
-    @Override
-    public String loadSoPath(String soName) {
-        return null;
-    }
+
+  @Override
+  public String loadSoPath(String soName) {
+    return null;
+  }
 }

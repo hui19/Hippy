@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.dom.node;
 
 import com.tencent.mtt.hippy.HippyRootView;
@@ -23,12 +24,11 @@ import com.tencent.mtt.hippy.common.HippyMap;
  * Description：
  * History：
  */
-public interface DomActionInterceptor
-{
+public interface DomActionInterceptor {
 
-	HippyMap onCreateNode(int tagId, HippyRootView rootView, HippyMap props);
+  HippyMap onCreateNode(int tagId, HippyRootView rootView, HippyMap props);
 
-	HippyMap onUpdateNode(int tagId, HippyRootView rootView, HippyMap props);
+  HippyMap onUpdateNode(int tagId, HippyRootView rootView, HippyMap props);
 
-	void onDeleteNode(int tagId);
+  void onDeleteNode(int tagId);
 }

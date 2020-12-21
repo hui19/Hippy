@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter.monitor;
 
 import android.util.Log;
@@ -26,46 +27,42 @@ import java.util.List;
  * History：
  * 1.0 xiandongluo on 2018/1/23
  */
-public class DefaultEngineMonitorAdapter implements HippyEngineMonitorAdapter
-{
+public class DefaultEngineMonitorAdapter implements HippyEngineMonitorAdapter {
 
-	@Override
-	public void reportEngineLoadStart()
-	{
+  @Override
+  public void reportEngineLoadStart() {
 
-	}
+  }
 
-	@Override
-	public void reportEngineLoadResult(int code, int loadTime, List<HippyEngineMonitorEvent> loadEvents, Throwable e)
-	{
+  @Override
+  public void reportEngineLoadResult(int code, int loadTime,
+    List<HippyEngineMonitorEvent> loadEvents, Throwable e) {
 
-	}
+  }
 
-	@Override
-	public void reportModuleLoadComplete(HippyRootView rootView, int loadTime, List<HippyEngineMonitorEvent> loadEvents)
-	{
+  @Override
+  public void reportModuleLoadComplete(HippyRootView rootView, int loadTime,
+    List<HippyEngineMonitorEvent> loadEvents) {
 
-	}
+  }
 
-	@Override
-	public boolean needReportBridgeANR()
-	{
-		return false;
-	}
+  @Override
+  public boolean needReportBridgeANR() {
+    return false;
+  }
 
-	@Override
-	public void reportBridgeANR(String message)
-	{
+  @Override
+  public void reportBridgeANR(String message) {
 
-	}
+  }
 
-	@Override
-	public void reportDoCallNatives(String moduleName, String moduleFunc) {
+  @Override
+  public void reportDoCallNatives(String moduleName, String moduleFunc) {
 
-	}
+  }
 
-	@Override
-	public void reportGestureEventCallStack(String funcName, String msg) {
+  @Override
+  public void reportGestureEventCallStack(String funcName, String msg) {
 
-	}
+  }
 }

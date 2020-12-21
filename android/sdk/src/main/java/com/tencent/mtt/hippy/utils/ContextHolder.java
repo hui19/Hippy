@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.utils;
 
 import android.content.Context;
@@ -21,21 +22,18 @@ import android.content.Context;
  * @version: V1.0
  */
 
-public class ContextHolder
-{
-	private static Context	sAppContext;
+public class ContextHolder {
 
-	public ContextHolder()
-	{
-	}
+  private static Context sAppContext;
 
-	public static void initAppContext(Context var0)
-	{
-		sAppContext = var0;
-	}
+  public ContextHolder() {
+  }
 
-	public static Context getAppContext()
-	{
-		return sAppContext;
-	}
+  public static void initAppContext(Context var0) {
+    sAppContext = var0;
+  }
+
+  public static Context getAppContext() {
+    return sAppContext;
+  }
 }

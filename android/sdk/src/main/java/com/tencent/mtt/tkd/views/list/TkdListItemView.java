@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.tkd.views.list;
 
 import android.content.Context;
@@ -27,10 +28,9 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.list.HippyListItemView;
 import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
-public class TkdListItemView extends HippyListItemView
-{
-	public TkdListItemView(Context context)
-	{
-		super(context);
-	}
+public class TkdListItemView extends HippyListItemView {
+
+  public TkdListItemView(Context context) {
+    super(context);
+  }
 }

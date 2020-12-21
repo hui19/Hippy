@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.dom.flex;
 
 public enum FlexCSSDirection {
@@ -22,12 +23,17 @@ public enum FlexCSSDirection {
   COLUMN_REVERSE;
 
   public static FlexCSSDirection fromInt(int value) {
-	    switch (value) {
-	      case 0: return ROW;
-	      case 1: return ROW_REVERSE;
-	      case 2: return COLUMN;
-	      case 3: return COLUMN_REVERSE;
-	      default: throw new IllegalArgumentException("Unknown enum value: " + value);
-	    }
-	  }
+    switch (value) {
+      case 0:
+        return ROW;
+      case 1:
+        return ROW_REVERSE;
+      case 2:
+        return COLUMN;
+      case 3:
+        return COLUMN_REVERSE;
+      default:
+        throw new IllegalArgumentException("Unknown enum value: " + value);
+    }
+  }
 }

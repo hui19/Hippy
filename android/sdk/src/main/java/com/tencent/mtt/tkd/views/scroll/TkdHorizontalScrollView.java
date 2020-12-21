@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.tkd.views.scroll;
 
 import android.animation.Animator;
@@ -32,157 +33,157 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.supportui.views.ScrollChecker;
 
-public class TkdHorizontalScrollView extends HippyHorizontalScrollView implements TkdScrollView
-{
-	private int mPreloadDistance       = 0;
-	private boolean mIsLoading         = false;
-	private float mLastScrollX         = 0;
+public class TkdHorizontalScrollView extends HippyHorizontalScrollView implements TkdScrollView {
 
-	public TkdHorizontalScrollView(Context context)
-	{
-		super(context);
-		mScrollMinOffset = (int)PixelUtil.dp2px(5);
-		mPreloadDistance = (int)PixelUtil.dp2px(200);
-	}
+  private int mPreloadDistance = 0;
+  private boolean mIsLoading = false;
+  private float mLastScrollX = 0;
 
-	@Override
-	public void setPreloadDistance(int preloadDistance)
-	{
-		preloadDistance = Math.max(0, preloadDistance);
-		mPreloadDistance = (int)PixelUtil.dp2px(preloadDistance);
-	}
+  public TkdHorizontalScrollView(Context context) {
+    super(context);
+    mScrollMinOffset = (int) PixelUtil.dp2px(5);
+    mPreloadDistance = (int) PixelUtil.dp2px(200);
+  }
 
-	@Override
-	public void callLoadMoreFinish() {
-		setLoadMoreState(false);
-	}
+  @Override
+  public void setPreloadDistance(int preloadDistance) {
+    preloadDistance = Math.max(0, preloadDistance);
+    mPreloadDistance = (int) PixelUtil.dp2px(preloadDistance);
+  }
 
-	private void setLoadMoreState(boolean isLoading) {
-		mIsLoading = isLoading;
-	}
+  @Override
+  public void callLoadMoreFinish() {
+    setLoadMoreState(false);
+  }
 
-	@Override
-	public void callScrollToTop(boolean isSmoothScroll) {
-		if (isSmoothScroll) {
-			smoothScrollTo(0, 0);
-		} else {
-			scrollTo(0, 0);
-		}
-	}
+  private void setLoadMoreState(boolean isLoading) {
+    mIsLoading = isLoading;
+  }
 
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		int action = event.getAction() & MotionEvent.ACTION_MASK;
-		if (action == MotionEvent.ACTION_MOVE && !mIsLoading) {
-			if (getScrollX() == 0) {
-				if (mLastScrollX == 0) {
-					mLastScrollX = event.getX();
-				} else if (event.getX() > mLastScrollX) {
-					TkdScrollViewEventHelper.emitScrollStartReachedEvent(this);
-					setLoadMoreState(true);
-					mLastScrollX = 0;
-				}
-			} else if (getChildCount() > 0) {
-			    int contentWidth = getChildAt(0).getWidth();
-                if ((getScrollX() + getWidth()) >= (contentWidth - 2)) {
-                    if (mLastScrollX == 0) {
-                        mLastScrollX = event.getX();
-                    } else if (event.getX() < mLastScrollX) {
-                        TkdScrollViewEventHelper.emitScrollEndReachedEvent(this);
-						setLoadMoreState(true);
-                        mLastScrollX = 0;
-                    }
-                }
-            }
-		}
+  @Override
+  public void callScrollToTop(boolean isSmoothScroll) {
+    if (isSmoothScroll) {
+      smoothScrollTo(0, 0);
+    } else {
+      scrollTo(0, 0);
+    }
+  }
 
-		return super.onTouchEvent(event);
-	}
+  @Override
+  public boolean onTouchEvent(MotionEvent event) {
+    int action = event.getAction() & MotionEvent.ACTION_MASK;
+    if (action == MotionEvent.ACTION_MOVE && !mIsLoading) {
+      if (getScrollX() == 0) {
+        if (mLastScrollX == 0) {
+          mLastScrollX = event.getX();
+        } else if (event.getX() > mLastScrollX) {
+          TkdScrollViewEventHelper.emitScrollStartReachedEvent(this);
+          setLoadMoreState(true);
+          mLastScrollX = 0;
+        }
+      } else if (getChildCount() > 0) {
+        int contentWidth = getChildAt(0).getWidth();
+        if ((getScrollX() + getWidth()) >= (contentWidth - 2)) {
+          if (mLastScrollX == 0) {
+            mLastScrollX = event.getX();
+          } else if (event.getX() < mLastScrollX) {
+            TkdScrollViewEventHelper.emitScrollEndReachedEvent(this);
+            setLoadMoreState(true);
+            mLastScrollX = 0;
+          }
+        }
+      }
+    }
 
-	@Override
-	protected void onScrollChanged(int x, int y, int oldX, int oldY)
-	{
-		super.onScrollChanged(x, y, oldX, oldY);
-		if (mPreloadDistance > 0 && !mIsLoading) {
-			if (shouldEmitEndReachedEvent(x, oldX)) {
-				TkdScrollViewEventHelper.emitScrollEndReachedEvent(this);
-				setLoadMoreState(true);
-			} else if (shouldEmitStartReachedEvent(x, oldX)) {
-				TkdScrollViewEventHelper.emitScrollStartReachedEvent(this);
-				setLoadMoreState(true);
-			}
-		}
-	}
+    return super.onTouchEvent(event);
+  }
 
-	@Override
-	public void callScrollToPosition(int distance, int duration, final Promise promise) {
-		int offset = getScrollX() + distance;
-		if (duration <= 0) {
-			scrollTo(offset, 0);
-			if (promise != null) {
-				HippyMap resultMap = new HippyMap();
-				resultMap.pushString("msg", "on scroll end!");
-				promise.resolve(resultMap);
-			}
-		} else {
-			ObjectAnimator xTranslate = ObjectAnimator.ofInt(this, "scrollX", offset);
-			ObjectAnimator yTranslate = ObjectAnimator.ofInt(this, "scrollY", 0);
+  @Override
+  protected void onScrollChanged(int x, int y, int oldX, int oldY) {
+    super.onScrollChanged(x, y, oldX, oldY);
+    if (mPreloadDistance > 0 && !mIsLoading) {
+      if (shouldEmitEndReachedEvent(x, oldX)) {
+        TkdScrollViewEventHelper.emitScrollEndReachedEvent(this);
+        setLoadMoreState(true);
+      } else if (shouldEmitStartReachedEvent(x, oldX)) {
+        TkdScrollViewEventHelper.emitScrollStartReachedEvent(this);
+        setLoadMoreState(true);
+      }
+    }
+  }
 
-			AnimatorSet animators = new AnimatorSet();
-			animators.setDuration(duration);
-			animators.playTogether(xTranslate, yTranslate);
-			animators.addListener(new Animator.AnimatorListener() {
-				@Override
-				public void onAnimationStart(Animator arg0) {
-					// TODO Auto-generated method stub
-				}
-				@Override
-				public void onAnimationRepeat(Animator arg0) {
-					// TODO Auto-generated method stub
-				}
-				@Override
-				public void onAnimationEnd(Animator arg0) {
-					// TODO Auto-generated method stub
-					if (promise != null) {
-						HippyMap resultMap = new HippyMap();
-						resultMap.pushString("msg", "on scroll end!");
-						promise.resolve(resultMap);
-					}
-				}
-				@Override
-				public void onAnimationCancel(Animator arg0) {
-					// TODO Auto-generated method stub
-				}
-			});
-			animators.start();
-		}
-	}
+  @Override
+  public void callScrollToPosition(int distance, int duration, final Promise promise) {
+    int offset = getScrollX() + distance;
+    if (duration <= 0) {
+      scrollTo(offset, 0);
+      if (promise != null) {
+        HippyMap resultMap = new HippyMap();
+        resultMap.pushString("msg", "on scroll end!");
+        promise.resolve(resultMap);
+      }
+    } else {
+      ObjectAnimator xTranslate = ObjectAnimator.ofInt(this, "scrollX", offset);
+      ObjectAnimator yTranslate = ObjectAnimator.ofInt(this, "scrollY", 0);
 
-	private boolean shouldEmitStartReachedEvent(int x, int oldX) {
-		if (x < oldX && x < mPreloadDistance) {
-			return true;
-		}
+      AnimatorSet animators = new AnimatorSet();
+      animators.setDuration(duration);
+      animators.playTogether(xTranslate, yTranslate);
+      animators.addListener(new Animator.AnimatorListener() {
+        @Override
+        public void onAnimationStart(Animator arg0) {
+          // TODO Auto-generated method stub
+        }
 
-		return false;
-	}
+        @Override
+        public void onAnimationRepeat(Animator arg0) {
+          // TODO Auto-generated method stub
+        }
 
-	private boolean shouldEmitEndReachedEvent(int x, int oldX) {
-		int contentWidth = getWidth();
-		int layoutWidth = getWidth();
+        @Override
+        public void onAnimationEnd(Animator arg0) {
+          // TODO Auto-generated method stub
+          if (promise != null) {
+            HippyMap resultMap = new HippyMap();
+            resultMap.pushString("msg", "on scroll end!");
+            promise.resolve(resultMap);
+          }
+        }
 
-		if (getChildCount() > 0) {
-			contentWidth = getChildAt(0).getWidth();
-		}
+        @Override
+        public void onAnimationCancel(Animator arg0) {
+          // TODO Auto-generated method stub
+        }
+      });
+      animators.start();
+    }
+  }
 
-		if (contentWidth <= layoutWidth || contentWidth < mPreloadDistance) {
-			return true;
-		}
+  private boolean shouldEmitStartReachedEvent(int x, int oldX) {
+    if (x < oldX && x < mPreloadDistance) {
+      return true;
+    }
 
-		int offset = x + layoutWidth;
-		if (x > 0 && x > oldX && (offset >= (contentWidth - mPreloadDistance))) {
-			return true;
-		}
+    return false;
+  }
 
-		return false;
-	}
+  private boolean shouldEmitEndReachedEvent(int x, int oldX) {
+    int contentWidth = getWidth();
+    int layoutWidth = getWidth();
+
+    if (getChildCount() > 0) {
+      contentWidth = getChildAt(0).getWidth();
+    }
+
+    if (contentWidth <= layoutWidth || contentWidth < mPreloadDistance) {
+      return true;
+    }
+
+    int offset = x + layoutWidth;
+    if (x > 0 && x > oldX && (offset >= (contentWidth - mPreloadDistance))) {
+      return true;
+    }
+
+    return false;
+  }
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.modules.nativemodules.animation;
 
 import com.tencent.mtt.hippy.HippyRootView;
@@ -25,54 +26,46 @@ import java.util.ArrayList;
  * Description：
  * History：
  */
-public class AnimationNode
-{
-	private int						mTagId;
+public class AnimationNode {
 
-	private HippyRootView			mRootView;
+  private int mTagId;
 
-	private HippyMap				mProps;
+  private HippyRootView mRootView;
 
-	private ArrayList<Animation>	mAnimations;
+  private HippyMap mProps;
 
-	public AnimationNode(int tagId, HippyRootView rootView)
-	{
-		this.mTagId = tagId;
-		this.mRootView = rootView;
-		mAnimations = new ArrayList<>();
-	}
+  private ArrayList<Animation> mAnimations;
 
-	public int getId()
-	{
-		return mTagId;
-	}
+  public AnimationNode(int tagId, HippyRootView rootView) {
+    this.mTagId = tagId;
+    this.mRootView = rootView;
+    mAnimations = new ArrayList<>();
+  }
 
-	public HippyRootView getRootView()
-	{
-		return mRootView;
-	}
+  public int getId() {
+    return mTagId;
+  }
 
-	public HippyMap getProps()
-	{
-		return mProps;
-	}
+  public HippyRootView getRootView() {
+    return mRootView;
+  }
 
-	public void setProps(HippyMap props)
-	{
-		this.mProps = props;
-	}
+  public HippyMap getProps() {
+    return mProps;
+  }
 
-	public void addAnimation(Animation animation)
-	{
-		if (!mAnimations.contains(animation))
-		{
-			mAnimations.add(animation);
-		}
-	}
+  public void setProps(HippyMap props) {
+    this.mProps = props;
+  }
 
-	public ArrayList<Animation> getAnimations()
-	{
-		return mAnimations;
-	}
+  public void addAnimation(Animation animation) {
+    if (!mAnimations.contains(animation)) {
+      mAnimations.add(animation);
+    }
+  }
+
+  public ArrayList<Animation> getAnimations() {
+    return mAnimations;
+  }
 
 }

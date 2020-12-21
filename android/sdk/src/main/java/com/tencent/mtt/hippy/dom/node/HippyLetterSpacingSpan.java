@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.dom.node;
 
 import android.annotation.TargetApi;
@@ -27,33 +28,26 @@ import android.text.style.MetricAffectingSpan;
  * @version: V1.0
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public class HippyLetterSpacingSpan extends MetricAffectingSpan
-{
+public class HippyLetterSpacingSpan extends MetricAffectingSpan {
 
-	float	mSpace;
+  float mSpace;
 
-	public HippyLetterSpacingSpan(float mSpace)
-	{
-		this.mSpace = mSpace;
-	}
+  public HippyLetterSpacingSpan(float mSpace) {
+    this.mSpace = mSpace;
+  }
 
-	@Override
-	public void updateMeasureState(TextPaint p)
-	{
-		if (!Float.isNaN(mSpace))
-		{
-				p.setLetterSpacing(mSpace / p.getTextSize());
-		}
-	}
+  @Override
+  public void updateMeasureState(TextPaint p) {
+    if (!Float.isNaN(mSpace)) {
+      p.setLetterSpacing(mSpace / p.getTextSize());
+    }
+  }
 
 
-
-	@Override
-	public void updateDrawState(TextPaint tp)
-	{
-		if (!Float.isNaN(mSpace))
-		{
-			tp.setLetterSpacing(mSpace / tp.getTextSize());
-		}
-	}
+  @Override
+  public void updateDrawState(TextPaint tp) {
+    if (!Float.isNaN(mSpace)) {
+      tp.setLetterSpacing(mSpace / tp.getTextSize());
+    }
+  }
 }

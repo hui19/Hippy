@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.annotation;
 
 import java.lang.annotation.ElementType;
@@ -29,9 +30,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Target(ElementType.TYPE)
 public @interface HippyController {
-  String  name();
+
+  String name();
 
   String[] names() default {};
 
-  boolean isLazyLoad() default  false;
+  boolean isLazyLoad() default false;
 }

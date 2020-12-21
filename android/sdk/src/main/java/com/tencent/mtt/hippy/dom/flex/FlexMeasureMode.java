@@ -13,18 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.dom.flex;
 
 public enum FlexMeasureMode {
   UNDEFINED,
   EXACTLY,
   AT_MOST;
+
   public static FlexMeasureMode fromInt(int value) {
-	    switch (value) {
-	      case 0: return UNDEFINED;
-	      case 1: return EXACTLY;
-	      case 2: return AT_MOST;
-	      default: throw new IllegalArgumentException("Unknown enum value: " + value);
-	    }
-	  }
+    switch (value) {
+      case 0:
+        return UNDEFINED;
+      case 1:
+        return EXACTLY;
+      case 2:
+        return AT_MOST;
+      default:
+        throw new IllegalArgumentException("Unknown enum value: " + value);
+    }
+  }
 }

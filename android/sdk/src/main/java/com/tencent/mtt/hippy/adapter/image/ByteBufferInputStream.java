@@ -13,55 +13,56 @@ import java.nio.ByteBuffer;
  */
 
 public class ByteBufferInputStream extends InputStream {
-	private final ByteBuffer byteBuffer;
-	private int markPos = -1;
 
-	ByteBufferInputStream(ByteBuffer byteBuffer) {
-		this.byteBuffer = byteBuffer;
-		byteBuffer.flip();
-	}
+  private final ByteBuffer byteBuffer;
+  private int markPos = -1;
 
-	public int available() {
-		return this.byteBuffer.remaining();
-	}
+  ByteBufferInputStream(ByteBuffer byteBuffer) {
+    this.byteBuffer = byteBuffer;
+    byteBuffer.flip();
+  }
 
-	public int read() {
-		return !this.byteBuffer.hasRemaining() ? -1 : this.byteBuffer.get();
-	}
+  public int available() {
+    return this.byteBuffer.remaining();
+  }
 
-	public synchronized void mark(int readLimit) {
-		this.markPos = this.byteBuffer.position();
-	}
+  public int read() {
+    return !this.byteBuffer.hasRemaining() ? -1 : this.byteBuffer.get();
+  }
 
-	public boolean markSupported() {
-		return true;
-	}
+  public synchronized void mark(int readLimit) {
+    this.markPos = this.byteBuffer.position();
+  }
 
-	public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
-		if (!this.byteBuffer.hasRemaining()) {
-			return -1;
-		} else {
-			int toRead = Math.min(byteCount, this.available());
-			this.byteBuffer.get(buffer, byteOffset, toRead);
-			return toRead;
-		}
-	}
+  public boolean markSupported() {
+    return true;
+  }
 
-	public synchronized void reset() throws IOException {
-		if (this.markPos == -1) {
-			throw new IOException("Cannot reset to unset mark position");
-		} else {
-			this.byteBuffer.position(this.markPos);
-		}
-	}
+  public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
+    if (!this.byteBuffer.hasRemaining()) {
+      return -1;
+    } else {
+      int toRead = Math.min(byteCount, this.available());
+      this.byteBuffer.get(buffer, byteOffset, toRead);
+      return toRead;
+    }
+  }
 
-	public long skip(long byteCount) throws IOException {
-		if (!this.byteBuffer.hasRemaining()) {
-			return -1L;
-		} else {
-			long toSkip = Math.min(byteCount, (long)this.available());
-			this.byteBuffer.position((int)((long)this.byteBuffer.position() + toSkip));
-			return toSkip;
-		}
-	}
+  public synchronized void reset() throws IOException {
+    if (this.markPos == -1) {
+      throw new IOException("Cannot reset to unset mark position");
+    } else {
+      this.byteBuffer.position(this.markPos);
+    }
+  }
+
+  public long skip(long byteCount) throws IOException {
+    if (!this.byteBuffer.hasRemaining()) {
+      return -1L;
+    } else {
+      long toSkip = Math.min(byteCount, (long) this.available());
+      this.byteBuffer.position((int) ((long) this.byteBuffer.position() + toSkip));
+      return toSkip;
+    }
+  }
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.modules.javascriptmodules;
 
 
@@ -27,38 +28,31 @@ import java.lang.reflect.Method;
  * Description：
  * History：
  */
-public class HippyJavaScriptModuleInvocationHandler implements InvocationHandler
-{
-	private HippyEngineContext	mHippyContext;
-	private String				mName;
+public class HippyJavaScriptModuleInvocationHandler implements InvocationHandler {
 
-	public HippyJavaScriptModuleInvocationHandler(HippyEngineContext context, String name)
-	{
-		mHippyContext = context;
-		this.mName = name;
-	}
+  private HippyEngineContext mHippyContext;
+  private String mName;
 
-	@Override
-	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
-	{
-		if (proxy instanceof HippyJavaScriptModule)
-		{
-			Object params = null;
-			if (args != null && args.length == 1)
-			{
-				params = args[0];
-			}
-			else
-			{
-				params = ArgumentUtils.fromJavaArgs(args);
-			}
+  public HippyJavaScriptModuleInvocationHandler(HippyEngineContext context, String name) {
+    mHippyContext = context;
+    this.mName = name;
+  }
 
-			if (mHippyContext != null && mHippyContext.getBridgeManager() != null)
-			{
-				mHippyContext.getBridgeManager().callJavaScriptModule(mName, method.getName(), params);
-			}
-		}
-		return null;
-	}
+  @Override
+  public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    if (proxy instanceof HippyJavaScriptModule) {
+      Object params = null;
+      if (args != null && args.length == 1) {
+        params = args[0];
+      } else {
+        params = ArgumentUtils.fromJavaArgs(args);
+      }
+
+      if (mHippyContext != null && mHippyContext.getBridgeManager() != null) {
+        mHippyContext.getBridgeManager().callJavaScriptModule(mName, method.getName(), params);
+      }
+    }
+    return null;
+  }
 
 }

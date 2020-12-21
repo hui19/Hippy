@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.annotation;
 
 import java.lang.annotation.ElementType;
@@ -28,7 +29,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Retention(RUNTIME)
 @Target(ElementType.METHOD)
-public @interface HippyMethod
-{
-    String name() default "";
+public @interface HippyMethod {
+
+  String name() default "";
 }

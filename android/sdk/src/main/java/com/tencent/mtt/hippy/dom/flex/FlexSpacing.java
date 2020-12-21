@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.dom.flex;
 
 import java.util.Arrays;
@@ -75,7 +76,7 @@ public class FlexSpacing {
       }
 
       mHasAliasesSet =
-          (mValueFlags & sFlagsMap[ALL]) != 0 ||
+        (mValueFlags & sFlagsMap[ALL]) != 0 ||
           (mValueFlags & sFlagsMap[VERTICAL]) != 0 ||
           (mValueFlags & sFlagsMap[HORIZONTAL]) != 0;
 
@@ -87,8 +88,8 @@ public class FlexSpacing {
 
   public float get(int spacingType) {
     float defaultValue = (spacingType == START || spacingType == END
-        ? FlexConstants.UNDEFINED
-        : mDefaultValue);
+      ? FlexConstants.UNDEFINED
+      : mDefaultValue);
 
     if (mValueFlags == 0) {
       return defaultValue;
@@ -125,22 +126,22 @@ public class FlexSpacing {
 
   float getWithFallback(int spacingType, int fallbackType) {
     return
-        (mValueFlags & sFlagsMap[spacingType]) != 0
-            ? mSpacing[spacingType]
-            : get(fallbackType);
+      (mValueFlags & sFlagsMap[spacingType]) != 0
+        ? mSpacing[spacingType]
+        : get(fallbackType);
   }
 
   private static float[] newFullSpacingArray() {
-    return new float[] {
-        FlexConstants.UNDEFINED,
-        FlexConstants.UNDEFINED,
-        FlexConstants.UNDEFINED,
-        FlexConstants.UNDEFINED,
-        FlexConstants.UNDEFINED,
-        FlexConstants.UNDEFINED,
-        FlexConstants.UNDEFINED,
-        FlexConstants.UNDEFINED,
-        FlexConstants.UNDEFINED,
+    return new float[]{
+      FlexConstants.UNDEFINED,
+      FlexConstants.UNDEFINED,
+      FlexConstants.UNDEFINED,
+      FlexConstants.UNDEFINED,
+      FlexConstants.UNDEFINED,
+      FlexConstants.UNDEFINED,
+      FlexConstants.UNDEFINED,
+      FlexConstants.UNDEFINED,
+      FlexConstants.UNDEFINED,
     };
   }
 }

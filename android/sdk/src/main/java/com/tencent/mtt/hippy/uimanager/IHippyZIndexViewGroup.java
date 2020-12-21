@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.uimanager;
 
 /**
  * Created by leonardgong on 2018/1/9 0009.
  */
 
-public interface IHippyZIndexViewGroup
-{
-    int getZIndexMappedChildIndex(int index);
+public interface IHippyZIndexViewGroup {
 
-    void updateDrawingOrder();
+  int getZIndexMappedChildIndex(int index);
+
+  void updateDrawingOrder();
 }

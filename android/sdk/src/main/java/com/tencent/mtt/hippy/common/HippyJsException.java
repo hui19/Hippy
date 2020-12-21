@@ -13,25 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.common;
 
 /**
  * Created by leonardgong on 2017/11/17 0017.
  */
 
-public class HippyJsException extends Exception
-{
-	private final String	mStack;
-	private String[]		mStackTrace;
+public class HippyJsException extends Exception {
 
-	public HippyJsException(String message, String stack)
-	{
-		super(message);
-		mStack = stack;
-	}
+  private final String mStack;
+  private String[] mStackTrace;
 
-	public String getStack()
-	{
-		return mStack;
-	}
+  public HippyJsException(String message, String stack) {
+    super(message);
+    mStack = stack;
+  }
+
+  public String getStack() {
+    return mStack;
+  }
 }
