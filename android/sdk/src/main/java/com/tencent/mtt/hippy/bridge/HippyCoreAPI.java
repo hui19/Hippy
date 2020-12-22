@@ -42,6 +42,7 @@ import com.tencent.mtt.hippy.views.audioview.AudioViewController;
 import com.tencent.mtt.hippy.views.image.HippyImageViewController;
 import com.tencent.mtt.hippy.views.list.HippyListItemViewController;
 import com.tencent.mtt.hippy.views.list.HippyListViewController;
+import com.tencent.mtt.hippy.views.list.HippyRecyclerViewController;
 import com.tencent.mtt.hippy.views.modal.HippyModalHostManager;
 import com.tencent.mtt.hippy.views.navigator.NavigatorController;
 import com.tencent.mtt.hippy.views.refresh.HippyPullFooterViewController;
@@ -216,7 +217,7 @@ public class HippyCoreAPI implements HippyAPIProvider
 		components.add(HippyTextViewController.class);
 		components.add(HippyViewGroupController.class);
 		components.add(HippyImageViewController.class);
-		components.add(HippyListViewController.class);
+		//components.add(HippyListViewController.class);
 		components.add(HippyListItemViewController.class);
 		components.add(HippyTextInputController.class);
 		components.add(HippyScrollViewController.class);
@@ -225,15 +226,18 @@ public class HippyCoreAPI implements HippyAPIProvider
 		components.add(HippyModalHostManager.class);
 		components.add(RefreshWrapperController.class);
 		components.add(RefreshWrapperItemController.class);
-    components.add(HippyPullHeaderViewController.class);
-    components.add(HippyPullFooterViewController.class);
+		components.add(HippyPullHeaderViewController.class);
+		components.add(HippyPullFooterViewController.class);
 		components.add(NavigatorController.class);
 		components.add(HippyWebViewController.class);
 		components.add(AudioViewController.class);
 		components.add(VideoHippyViewController.class);
-    components.add(TkdScrollViewController.class);
-    components.add(TkdListItemViewController.class);
-    components.add(TkdListViewController.class);
+		components.add(TkdScrollViewController.class);
+		components.add(TkdListItemViewController.class);
+		components.add(TkdListViewController.class);
+
+		components.add(HippyRecyclerViewController.class);
+
 		return components;
 	}
 }

@@ -56,7 +56,7 @@ public class RenderNode
 	ControllerManager	mComponentManager;
 
 
-	RenderNode			mParent					= null;
+	public RenderNode			mParent					= null;
 
 	boolean				mIsDelete				= false;
 	boolean				mIsRootHasDelete		= false;
