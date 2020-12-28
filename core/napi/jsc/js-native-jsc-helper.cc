@@ -24,31 +24,39 @@
 
 #include <iostream>
 
+#include "core/base/logging.h"
+#include "core/napi/js-native-api-types.h"
+#include "core/napi/js-native-api.h"
+#include "core/napi/jsc/js-native-api-jsc.h"
+#include "core/napi/native-source-code.h"
+
 namespace hippy {
 namespace napi {
 
-std::string js_string_to_utf8(JSStringRef jsString) {
-  size_t maxBufferSize = JSStringGetMaximumUTF8CStringSize(jsString);
-  char *utf8Buffer = new char[maxBufferSize];
-  size_t bytesWritten =
-      JSStringGetUTF8CString(jsString, utf8Buffer, maxBufferSize);
-  std::string utf_string = std::string(utf8Buffer, bytesWritten - 1);
-  delete[] utf8Buffer;
+std::string JsStrToUTF8(JSStringRef str) {
+  size_t max_size = JSStringGetMaximumUTF8CStringSize(str);
+  char *buf = new char[max_size];
+  size_t bytes = JSStringGetUTF8CString(str, buf, max_size);
+  std::string utf_string = std::string(buf, bytes - 1);
+  delete[] buf;
   return utf_string;
 }
 
-void exception_description(JSContextRef ctx, JSValueRef exception) {
+void ExceptionDescription(JSContextRef ctx, JSValueRef exception) {
   if (!exception) {
     return;
   }
 
-  JSStringRef exceptionRef = JSValueToStringCopy(ctx, exception, nullptr);
-  size_t maxBufferSize = JSStringGetMaximumUTF8CStringSize(exceptionRef);
-  char *utf8Buffer = new char[maxBufferSize];
-  JSStringGetUTF8CString(exceptionRef, utf8Buffer, maxBufferSize);
+  JSStringRef exception_ref = JSValueToStringCopy(ctx, exception, nullptr);
+  size_t max_size = JSStringGetMaximumUTF8CStringSize(exception_ref);
+  if (max_size <= 0) {
+    return;
+  }
+  char *buf = new char[max_size];
+  JSStringGetUTF8CString(exception_ref, buf, max_size);
 
-  std::cout << "call function expection: " << utf8Buffer << std::endl;
-  delete[] utf8Buffer;
+  std::cout << "call function expection: " << buf << std::endl;
+  delete[] buf;
 }
 
 }  // namespace napi

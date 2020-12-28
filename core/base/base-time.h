@@ -20,23 +20,22 @@
  *
  */
 
-#ifndef CORE_NAPI_NATIVE_SOURCE_CODE_H_
-#define CORE_NAPI_NATIVE_SOURCE_CODE_H_
+#ifndef CORE_BASE_TIME_H_
+#define CORE_BASE_TIME_H_
 
-#include <stddef.h>
 #include <stdint.h>
 
-#include <string>
+#include <chrono>
 
 namespace hippy {
-
-struct NativeSourceCode {
-  const uint8_t* data_;
-  size_t length_;  // strlen(data_)
-};
-
-const NativeSourceCode GetNativeSourceCode(const std::string& filename);
-
+namespace base {
+inline uint64_t MonotonicallyIncreasingTime() {
+  auto now = std::chrono::steady_clock::now();
+  auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now)
+                    .time_since_epoch();
+  return std::chrono::duration_cast<std::chrono::milliseconds>(now_ms).count();
+}
+}  // namespace base
 }  // namespace hippy
 
-#endif  // CORE_NAPI_NATIVE_SOURCE_CODE_H_
+#endif  // CORE_BASE_TIME_H_

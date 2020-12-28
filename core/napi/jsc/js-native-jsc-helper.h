@@ -24,13 +24,16 @@
 #define CORE_NAPI_JSC_JS_NATIVE_JSC_HELPER_H_
 
 #include <JavaScriptCore/JavaScriptCore.h>
+
 #include <string>
+
+#include "core/napi/js-native-api-types.h"
+#include "core/napi/jsc/js-native-api-jsc.h"
 
 namespace hippy {
 namespace napi {
 
-std::string js_string_to_utf8(JSStringRef jsString);
-void exception_description(JSContextRef ctx, JSValueRef exception);
+std::string JsStrToUTF8(JSStringRef str);
 
 }  // namespace napi
 }  // namespace hippy
