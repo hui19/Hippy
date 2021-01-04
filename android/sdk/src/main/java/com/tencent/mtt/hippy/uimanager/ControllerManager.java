@@ -502,4 +502,13 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
     }
     mControllerRegistry.removeRootView(mId);
   }
+
+  public View copyView(HippyRootView rootView, int id, String className, HippyMap initialProps) {
+    HippyViewController controller = mControllerRegistry.getViewController(className);
+    View view = controller.createView(rootView, id, mContext, className, initialProps);
+    if (view != null) {
+      mControllerUpdateManger.updateProps(controller, view, initialProps);
+    }
+    return view;
+  }
 }

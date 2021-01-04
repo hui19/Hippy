@@ -19,7 +19,7 @@ import com.tencent.mtt.hippy.views.scroll.HippyScrollViewEventHelper;
  * Created by niuniuyang on 2020/12/24.
  * Description
  */
-class RecyclerViewEventHelper extends OnScrollListener implements OnLayoutChangeListener {
+public class RecyclerViewEventHelper extends OnScrollListener implements OnLayoutChangeListener {
 
   private final HippyRecyclerView hippyRecyclerView;
   private boolean scrollBeginDragEventEnable;
@@ -211,7 +211,7 @@ class RecyclerViewEventHelper extends OnScrollListener implements OnLayoutChange
   protected HippyMap generateScrollEvent() {
     HippyMap contentOffset = new HippyMap();
     contentOffset.pushDouble("x", PixelUtil.px2dp(0));
-    contentOffset.pushDouble("y", PixelUtil.px2dp(hippyRecyclerView.getContentOffset()));
+    contentOffset.pushDouble("y", PixelUtil.px2dp(hippyRecyclerView.getContentOffsetY()));
     HippyMap event = new HippyMap();
     event.pushMap("contentOffset", contentOffset);
     return event;

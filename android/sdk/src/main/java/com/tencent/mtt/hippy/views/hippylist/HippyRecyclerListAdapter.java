@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.support.v7.widget.RecyclerView.LayoutParams;
+import android.view.View;
 import android.view.ViewGroup;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -14,11 +15,10 @@ import com.tencent.mtt.hippy.uimanager.PullFooterRenderNode;
 import com.tencent.mtt.hippy.uimanager.PullHeaderRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.views.list.IRecycleItemTypeChange;
-import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase;
 import java.util.ArrayList;
 
 /**
- * Created by niuniuyang on 2020/12/22.
+ * Created by niuniuyang on 2020/12≥/22.
  * Description
  */
 public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> implements
@@ -45,7 +45,7 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
   @Override
   public void onBindViewHolder(HippyRecyclerViewHolder hippyRecyclerViewHolder, int position) {
     RenderNode oldNode = hippyRecyclerViewHolder.bindNode;
-    setLayoutParams(hippyRecyclerViewHolder, position);
+    setLayoutParams(hippyRecyclerViewHolder.itemView, position);
     if (hippyRecyclerViewHolder.isCreated) {
       oldNode.updateViewRecursive();
       hippyRecyclerViewHolder.isCreated = false;
@@ -70,8 +70,8 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
     }
   }
 
-  protected void setLayoutParams(HippyRecyclerViewHolder hippyRecyclerViewHolder, int position) {
-    ViewGroup.LayoutParams params = hippyRecyclerViewHolder.itemView.getLayoutParams();
+  protected void setLayoutParams(View itemView, int position) {
+    ViewGroup.LayoutParams params = itemView.getLayoutParams();
     RecyclerView.LayoutParams childLp = null;
     if (params instanceof RecyclerView.LayoutParams) {
       childLp = (LayoutParams) params;
@@ -82,19 +82,18 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
     RenderNode childNode = getChildNode(position);
     childLp.height = childNode.getHeight();
     childLp.width = childNode.getWidth();
-    hippyRecyclerViewHolder.itemView.setLayoutParams(childLp);
+    itemView.setLayoutParams(childLp);
   }
 
   @Override
   public int getItemViewType(int position) {
     int viewType = super.getItemViewType(position);
     RenderNode childNode = getChildNode(position);
-    //兼容老逻辑，这里加一堆instanceof，确实让人看得心烦
     if (childNode != null) {
       if (childNode instanceof PullFooterRenderNode) {
-        viewType = RecyclerViewBase.ViewHolder.TYPE_CUSTOM_FOOTER;
+        viewType = 5;//RecyclerViewBase.ViewHolder.TYPE_CUSTOM_FOOTER;
       } else if (childNode instanceof PullHeaderRenderNode) {
-        viewType = RecyclerViewBase.ViewHolder.TYPE_CUSTOM_HEADERE;
+        viewType = 4;//RecyclerViewBase.ViewHolder.TYPE_CUSTOM_HEADERE;
       } else if (childNode.getProps() != null) {
         HippyMap listItemProps = childNode.getProps();
         if (listItemProps.get(ListItemRenderNode.ITEM_VIEW_TYPE) != null) {
@@ -127,8 +126,17 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
     return 0;
   }
 
+  public int getItemWidth(int position) {
+    RenderNode renderNode = getChildNode(position);
+    if (renderNode != null) {
+      return renderNode.getWidth();
+    }
+    return 0;
+  }
+
   protected RenderNode getParentNode() {
-    return hpContext.getRenderManager().getRenderNode(hippyRecyclerView.getId());
+    return hpContext.getRenderManager()
+      .getRenderNode(((View) hippyRecyclerView.getParent()).getId());
   }
 
   @Override
@@ -136,4 +144,22 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
 
   }
 
+  @Override
+  public long getItemId(int position) {
+    return getChildNode(position).getId();
+  }
+
+  //  @Override
+  public boolean isStickyPosition(int position) {
+    RenderNode renderNode = getChildNode(position);
+    if (renderNode instanceof ListItemRenderNode) {
+      return ((ListItemRenderNode) renderNode).shouldSticky();
+    }
+    return false;
+  }
+
+  //  @Override
+  public View createStickView(ViewGroup parent, int position) {
+    return null;
+  }
 }

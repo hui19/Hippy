@@ -19,7 +19,6 @@ package com.tencent.mtt.hippy.views.hippylist;
 import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
-import android.view.ViewGroup;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
@@ -35,42 +34,40 @@ import com.tencent.mtt.hippy.uimanager.RenderNode;
  */
 
 @HippyController(name = HippyRecyclerViewController.CLASS_NAME)
-public class HippyRecyclerViewController extends HippyViewController<HippyRecyclerView> {
+public class HippyRecyclerViewController extends HippyViewController<HippyRecyclerViewWrapper> {
 
-  public static final String CLASS_NAME = "QBRecyclerView";
-
-  @Override
-  protected void addView(ViewGroup parentView, View view, int index) {
-    //		super.addView(parentView, view, index);
-  }
+  public static final String CLASS_NAME = "RecyclerView";
 
   @Override
-  public int getChildCount(HippyRecyclerView viewGroup) {
+  public int getChildCount(HippyRecyclerViewWrapper viewGroup) {
     return viewGroup.getChildCountWithCaches();
   }
 
   @Override
-  public View getChildAt(HippyRecyclerView viewGroup, int index) {
+  public View getChildAt(HippyRecyclerViewWrapper viewGroup, int index) {
     return viewGroup.getChildAtWithCaches(index);
   }
 
   @Override
-  public void onBatchComplete(HippyRecyclerView view) {
+  public void onBatchComplete(HippyRecyclerViewWrapper view) {
     super.onBatchComplete(view);
     view.setListData();
   }
 
   @Override
   protected View createViewImpl(Context context) {
-    return new HippyRecyclerView(context);
+    return new HippyRecyclerViewWrapper(context,
+      new HippyRecyclerView(context, LinearLayoutManager.HORIZONTAL));
   }
 
   @Override
   protected View createViewImpl(Context context, HippyMap iniProps) {
     if (iniProps != null && iniProps.containsKey("horizontal")) {
-      return new HippyRecyclerView(context, LinearLayoutManager.HORIZONTAL);
+      return new HippyRecyclerViewWrapper(context,
+        new HippyRecyclerView(context, LinearLayoutManager.HORIZONTAL));
     } else {
-      return new HippyRecyclerView(context, LinearLayoutManager.VERTICAL);
+      return new HippyRecyclerViewWrapper(context,
+        new HippyRecyclerView(context, LinearLayoutManager.VERTICAL));
     }
   }
 
@@ -81,53 +78,53 @@ public class HippyRecyclerViewController extends HippyViewController<HippyRecycl
   }
 
   @HippyControllerProps(name = "rowShouldSticky")
-  public void setRowShouldSticky(HippyRecyclerView view, boolean enable) {
-//    view.setHasSuspentedItem(enable);
+  public void setRowShouldSticky(HippyRecyclerViewWrapper view, boolean enable) {
+    view.setRowShouldSticky(enable);
   }
 
   @HippyControllerProps(name = "onScrollBeginDrag", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-  public void setScrollBeginDragEventEnable(HippyRecyclerView view, boolean flag) {
+  public void setScrollBeginDragEventEnable(HippyRecyclerViewWrapper view, boolean flag) {
     view.getRecyclerViewEventHelper().setScrollBeginDragEventEnable(flag);
   }
 
   @HippyControllerProps(name = "onScrollEndDrag", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-  public void setScrollEndDragEventEnable(HippyRecyclerView view, boolean flag) {
+  public void setScrollEndDragEventEnable(HippyRecyclerViewWrapper view, boolean flag) {
     view.getRecyclerViewEventHelper().setScrollEndDragEventEnable(flag);
   }
 
   @HippyControllerProps(name = "onMomentumScrollBegin", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-  public void setMomentumScrollBeginEventEnable(HippyRecyclerView view, boolean flag) {
+  public void setMomentumScrollBeginEventEnable(HippyRecyclerViewWrapper view, boolean flag) {
     view.getRecyclerViewEventHelper().setMomentumScrollBeginEventEnable(flag);
   }
 
   @HippyControllerProps(name = "onMomentumScrollEnd", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-  public void setMomentumScrollEndEventEnable(HippyRecyclerView view, boolean flag) {
+  public void setMomentumScrollEndEventEnable(HippyRecyclerViewWrapper view, boolean flag) {
     view.getRecyclerViewEventHelper().setMomentumScrollEndEventEnable(flag);
   }
 
   @HippyControllerProps(name = "onScrollEnable", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-  public void setOnScrollEventEnable(HippyRecyclerView view, boolean flag) {
+  public void setOnScrollEventEnable(HippyRecyclerViewWrapper view, boolean flag) {
     view.getRecyclerViewEventHelper().setOnScrollEventEnable(flag);
   }
 
   @HippyControllerProps(name = "exposureEventEnabled", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-  public void setExposureEventEnable(HippyRecyclerView view, boolean flag) {
+  public void setExposureEventEnable(HippyRecyclerViewWrapper view, boolean flag) {
     view.getRecyclerViewEventHelper().setExposureEventEnable(flag);
   }
 
   @HippyControllerProps(name = "scrollEnabled", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = true)
-  public void setScrollEnable(HippyRecyclerView view, boolean flag) {
+  public void setScrollEnable(HippyRecyclerViewWrapper view, boolean flag) {
     view.setScrollEnable(flag);
   }
 
   @HippyControllerProps(name = "scrollEventThrottle", defaultType = HippyControllerProps.NUMBER, defaultNumber = 30.0D)
-  public void setscrollEventThrottle(HippyRecyclerView view, int scrollEventThrottle) {
+  public void setscrollEventThrottle(HippyRecyclerViewWrapper view, int scrollEventThrottle) {
     view.getRecyclerViewEventHelper().setScrollEventThrottle(scrollEventThrottle);
   }
 
   @HippyControllerProps(name = "preloadItemNumber")
-  public void setPreloadItemNumber(HippyRecyclerView view, int preloadItemNumber) {
-    //FIXME niuniuyang
+  public void setPreloadItemNumber(HippyRecyclerViewWrapper view, int preloadItemNumber) {
+    //FIXME niuniuyang ,配合分页加载使用
 //    RecyclerViewBase.Adapter adapter = view.getAdapter();
 //    if (adapter instanceof HippyListAdapter) {
 //      ((HippyListAdapter) adapter).setPreloadItemNumber(preloadItemNumber);
@@ -135,30 +132,31 @@ public class HippyRecyclerViewController extends HippyViewController<HippyRecycl
   }
 
   @Override
-  public void dispatchFunction(HippyRecyclerView view, String functionName, HippyArray dataArray) {
+  public void dispatchFunction(HippyRecyclerViewWrapper view, String functionName,
+    HippyArray dataArray) {
     super.dispatchFunction(view, functionName, dataArray);
     //FIXME niuniuyang
     switch (functionName) {
       case "scrollToIndex": {
         // list滑动到某个item
-//        int xIndex = dataArray.getInt(0);
-//        int yIndex = dataArray.getInt(1);
-//        boolean animated = dataArray.getBoolean(2);
-//        int duration = dataArray.getInt(3); //1.2.7 增加滚动时间 ms,animated==true时生效
-//        view.scrollToIndex(xIndex, yIndex, animated, duration);
+        int xIndex = dataArray.getInt(0);
+        int yIndex = dataArray.getInt(1);
+        boolean animated = dataArray.getBoolean(2);
+        int duration = dataArray.getInt(3); //1.2.7 增加滚动时间 ms,animated==true时生效
+        view.scrollToIndex(xIndex, yIndex, animated, duration);
         break;
       }
       case "scrollToContentOffset": {
         // list滑动到某个距离
-//        double xOffset = dataArray.getDouble(0);
-//        double yOffset = dataArray.getDouble(1);
-//        boolean animated = dataArray.getBoolean(2);
-//        int duration = dataArray.getInt(3);  //1.2.7 增加滚动时间 ms,animated==true时生效
-//        view.scrollToContentOffset(xOffset, yOffset, animated, duration);
+        double xOffset = dataArray.getDouble(0);
+        double yOffset = dataArray.getDouble(1);
+        boolean animated = dataArray.getBoolean(2);
+        int duration = dataArray.getInt(3);  //1.2.7 增加滚动时间 ms,animated==true时生效
+        view.scrollToContentOffset(xOffset, yOffset, animated, duration);
         break;
       }
       case "scrollToTop": {
-//        view.scrollToTop(null);
+        view.scrollToTop();
         break;
       }
     }
