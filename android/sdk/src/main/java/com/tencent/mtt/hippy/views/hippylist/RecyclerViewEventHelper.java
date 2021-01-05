@@ -18,6 +18,7 @@ import com.tencent.mtt.hippy.views.scroll.HippyScrollViewEventHelper;
 /**
  * Created by niuniuyang on 2020/12/24.
  * Description
+ * 各种事件的通知，通知前端view的曝光事件，用于前端的统计上报
  */
 public class RecyclerViewEventHelper extends OnScrollListener implements OnLayoutChangeListener {
 

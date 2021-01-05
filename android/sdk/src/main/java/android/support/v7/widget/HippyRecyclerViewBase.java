@@ -11,6 +11,8 @@ import java.util.ArrayList;
 
 /**
  * Created by niuniuyang on 2020/10/14.
+ *
+ * 由于Hippy的特殊需求，需要看到更多的RecyclerVew的方法和成员，这里
  */
 
 public class HippyRecyclerViewBase extends RecyclerView {

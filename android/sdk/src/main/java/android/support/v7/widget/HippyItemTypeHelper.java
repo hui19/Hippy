@@ -13,6 +13,7 @@ import java.util.ArrayList;
 /**
  * Created by niuniuyang on 2021/1/4.
  * Description
+ * Hippy 前端如果发生Item类型的变化，终端的RecyclerView需要将所有的ViewHolder进行同步修改
  */
 public class HippyItemTypeHelper {
 
@@ -24,6 +25,13 @@ public class HippyItemTypeHelper {
     this.recycler = recyclerView.mRecycler;
   }
 
+  /**
+   * 更新3层缓存的ViewHolder
+   *
+   * @param oldType 老的type
+   * @param newType 新的type
+   * @param listItemRenderNode 前端变化type的RenderNode
+   */
   public void updateItemType(int oldType, int newType, ListItemRenderNode listItemRenderNode) {
     int count = recyclerView.getChildCount();
     for (int i = 0; i < count; i++) {
@@ -61,6 +69,9 @@ public class HippyItemTypeHelper {
     }
   }
 
+  /**
+   * 重新将viewHolder加入缓存池
+   */
   private void addNewType(int newType, ViewHolder holder) {
     holder.mItemViewType = newType;
     SparseArray<ScrapData> scrap = recycler.getRecycledViewPool().mScrap;

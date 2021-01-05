@@ -10,6 +10,8 @@ import java.util.ArrayList;
 /**
  * Created by niuniuyang on 2021/1/4.
  * Description
+ * RecyclerView的扩展的缓存，如果mAttachedScrap 和  mCachedViews 都没有命中，会在访问RecyclerPool之前
+ * 先访问ViewCacheExtension。参看{@link Recycler#tryGetViewHolderForPositionByDeadline}的执行流程
  */
 public class HippyRecyclerExtension extends RecyclerView.ViewCacheExtension {
 
@@ -66,6 +68,9 @@ public class HippyRecyclerExtension extends RecyclerView.ViewCacheExtension {
     return null;
   }
 
+  /**
+   * 找到对应的bindNode
+   */
   protected boolean isTheBestHolder(int position, int type, ViewHolder holder) {
     if (holder.getAdapterPosition() != position || holder.isInvalid() || holder.isRemoved()) {
       return false;
