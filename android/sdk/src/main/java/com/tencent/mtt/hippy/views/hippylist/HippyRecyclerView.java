@@ -2,7 +2,7 @@ package com.tencent.mtt.hippy.views.hippylist;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.support.v7.widget.EasyRecyclerView;
+import android.support.v7.widget.HippyRecyclerViewBase;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.MotionEvent;
 import android.view.View;
@@ -16,7 +16,7 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
  * Created by niuniuyang on 2020/12/22.
  * Description
  */
-public class HippyRecyclerView extends EasyRecyclerView {
+public class HippyRecyclerView extends HippyRecyclerViewBase {
 
   private HippyEngineContext hippyEngineContext;
   private HippyRecyclerListAdapter listAdapter;
@@ -43,6 +43,7 @@ public class HippyRecyclerView extends EasyRecyclerView {
     listAdapter = new HippyRecyclerListAdapter(this, hippyEngineContext);
     setAdapter(listAdapter);
   }
+
 
   @Override
   public boolean onTouchEvent(MotionEvent e) {
@@ -200,6 +201,7 @@ public class HippyRecyclerView extends EasyRecyclerView {
    */
   public void setRowShouldSticky(boolean enable) {
     this.enableSticky = enable;
+    //FIXME niuniuyang
 //    if (enableSticky) {
 //      if (stickyHeaderHelper == null) {
 //        stickyHeaderHelper = new StickyHeaderHelper(this, listAdapter);

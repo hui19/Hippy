@@ -2,9 +2,12 @@ package com.tencent.mtt.hippy.views.hippylist;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.HippyRecyclerExtension;
+import android.support.v7.widget.HippyRecyclerPool;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import com.tencent.mtt.hippy.HippyEngineContext;
+import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 
@@ -14,14 +17,19 @@ import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
  */
 public class HippyRecyclerViewWrapper extends FrameLayout implements HippyViewBase {
 
+  private final HippyEngineContext hpContext;
   private HippyRecyclerView recyclerView;
   private NativeGestureDispatcher nativeGestureDispatcher;
 
   public HippyRecyclerViewWrapper(@NonNull Context context, HippyRecyclerView recyclerView) {
     super(context);
     this.recyclerView = recyclerView;
-    addView(recyclerView,
-      new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+    addView(recyclerView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+    hpContext = ((HippyInstanceContext) context).getEngineContext();
+    HippyRecyclerExtension cacheExtension = new HippyRecyclerExtension(recyclerView, hpContext);
+    recyclerView.setViewCacheExtension(cacheExtension);
+    HippyRecyclerPool recycledViewPool = new HippyRecyclerPool(hpContext, this, cacheExtension);
+    recyclerView.setRecycledViewPool(recycledViewPool);
   }
 
   @Override

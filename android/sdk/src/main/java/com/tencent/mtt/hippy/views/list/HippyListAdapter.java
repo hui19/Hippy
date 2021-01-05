@@ -514,8 +514,8 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 
         if (listItemNode.getProps() != null) {
           HippyMap listItemProps = listItemNode.getProps();
-          if (listItemProps.get(ListItemRenderNode.ITEM_VIEW_TYPE) != null) {
-            return listItemProps.getInt(ListItemRenderNode.ITEM_VIEW_TYPE);
+          if (listItemProps.get(ListItemRenderNode.ITEM_VIEW_TYPE_NEW) != null) {
+            return listItemProps.getInt(ListItemRenderNode.ITEM_VIEW_TYPE_NEW);
           }
         }
       }

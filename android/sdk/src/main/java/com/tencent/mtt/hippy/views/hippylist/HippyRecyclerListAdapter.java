@@ -1,6 +1,7 @@
 package com.tencent.mtt.hippy.views.hippylist;
 
 import android.support.annotation.NonNull;
+import android.support.v7.widget.HippyItemTypeHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.support.v7.widget.RecyclerView.LayoutParams;
@@ -26,18 +27,20 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
 
   private final HippyEngineContext hpContext;
   private final HippyRecyclerView hippyRecyclerView;
+  private final HippyItemTypeHelper hippyItemTypeHelper;
   private int positionToCreateHolder;
 
   public HippyRecyclerListAdapter(HippyRecyclerView hippyRecyclerView,
     HippyEngineContext hpContext) {
     this.hpContext = hpContext;
     this.hippyRecyclerView = hippyRecyclerView;
+    hippyItemTypeHelper = new HippyItemTypeHelper(hippyRecyclerView);
   }
 
   @NonNull
   @Override
   public HippyRecyclerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-    RenderNode renderNode = getChildNode(positionToCreateHolder);
+    ListItemRenderNode renderNode = getChildNode(positionToCreateHolder);
     renderNode.setLazy(false);
     return new HippyRecyclerViewHolder(renderNode.createViewRecursive(), renderNode);
   }
@@ -65,9 +68,10 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
         DiffUtils.createView(hpContext.getRenderManager().getControllerManager(), patchTypes);
         //step:5 patch the dif result
         DiffUtils.doPatch(hpContext.getRenderManager().getControllerManager(), patchTypes);
-        hippyRecyclerViewHolder.bindNode = toNode;
+        hippyRecyclerViewHolder.bindNode = (ListItemRenderNode) toNode;
       }
     }
+    hippyRecyclerViewHolder.bindNode.setRecycleItemTypeChangeListener(this);
   }
 
   protected void setLayoutParams(View itemView, int position) {
@@ -96,8 +100,8 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
         viewType = 4;//RecyclerViewBase.ViewHolder.TYPE_CUSTOM_HEADERE;
       } else if (childNode.getProps() != null) {
         HippyMap listItemProps = childNode.getProps();
-        if (listItemProps.get(ListItemRenderNode.ITEM_VIEW_TYPE) != null) {
-          viewType = listItemProps.getInt(ListItemRenderNode.ITEM_VIEW_TYPE);
+        if (listItemProps.get(ListItemRenderNode.ITEM_VIEW_TYPE_NEW) != null) {
+          viewType = listItemProps.getInt(ListItemRenderNode.ITEM_VIEW_TYPE_NEW);
         }
       }
     }
@@ -105,8 +109,8 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
     return viewType;
   }
 
-  private RenderNode getChildNode(int position) {
-    return getParentNode().getChildAt(position);
+  private ListItemRenderNode getChildNode(int position) {
+    return (ListItemRenderNode) getParentNode().getChildAt(position);
   }
 
   @Override
@@ -141,7 +145,7 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
 
   @Override
   public void onRecycleItemTypeChanged(int oldType, int newType, ListItemRenderNode listItemNode) {
-
+    hippyItemTypeHelper.updateItemType(oldType, newType, listItemNode);
   }
 
   @Override
@@ -149,6 +153,7 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
     return getChildNode(position).getId();
   }
 
+  //FIXME niuniuyang
   //  @Override
   public boolean isStickyPosition(int position) {
     RenderNode renderNode = getChildNode(position);
@@ -158,6 +163,7 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
     return false;
   }
 
+  //FIXME niuniuyang
   //  @Override
   public View createStickView(ViewGroup parent, int position) {
     return null;

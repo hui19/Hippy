@@ -30,6 +30,8 @@ public class ListItemRenderNode extends RenderNode {
 
   public static final String ITEM_VIEW_TYPE = "type";
   public static final String ITEM_STICKY = "sticky";
+  public static final String ITEM_VIEW_TYPE_NEW = "itemViewType";
+
 
   private boolean mShouldSticky;
   private IRecycleItemTypeChange mRecycleItemTypeChangeListener;
