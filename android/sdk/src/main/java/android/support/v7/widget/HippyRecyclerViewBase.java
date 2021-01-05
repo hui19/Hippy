@@ -12,7 +12,7 @@ import java.util.ArrayList;
 /**
  * Created by niuniuyang on 2020/10/14.
  *
- * 由于Hippy的特殊需求，需要看到更多的RecyclerVew的方法和成员，这里
+ * 由于Hippy的特殊需求，需要看到更多的RecyclerVew的方法和成员，这里创建和系统RecyclerView同包名。
  */
 
 public class HippyRecyclerViewBase extends RecyclerView {
@@ -26,7 +26,8 @@ public class HippyRecyclerViewBase extends RecyclerView {
     super(context, attrs);
   }
 
-  public HippyRecyclerViewBase(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
+  public HippyRecyclerViewBase(@NonNull Context context, @Nullable AttributeSet attrs,
+    int defStyle) {
     super(context, attrs, defStyle);
   }
 

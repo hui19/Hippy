@@ -21,6 +21,7 @@ import java.util.ArrayList;
 /**
  * Created by niuniuyang on 2020/12≥/22.
  * Description
+ * RecyclerView的子View，直接是前端的RenderNode节点，没有之前包装的那层RecyclerViewItem。
  */
 public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> implements
   IRecycleItemTypeChange {
@@ -53,27 +54,27 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
       oldNode.updateViewRecursive();
       hippyRecyclerViewHolder.isCreated = false;
     } else {
-      //step 1: diff
       oldNode.setLazy(true);
       RenderNode toNode = getChildNode(position);
-      //保护下:道理来说这里不应该出现toNode==null这样的情况
-      if (toNode != null) {
-        toNode.setLazy(false);
-        ArrayList<PatchType> patchTypes = DiffUtils.diff(oldNode, toNode);
-        //step:2 delete unUseful views
-        DiffUtils.deleteViews(hpContext.getRenderManager().getControllerManager(), patchTypes);
-        //step:3 replace id
-        DiffUtils.replaceIds(hpContext.getRenderManager().getControllerManager(), patchTypes);
-        //step:4 create view is do not  reUse
-        DiffUtils.createView(hpContext.getRenderManager().getControllerManager(), patchTypes);
-        //step:5 patch the dif result
-        DiffUtils.doPatch(hpContext.getRenderManager().getControllerManager(), patchTypes);
-        hippyRecyclerViewHolder.bindNode = (ListItemRenderNode) toNode;
-      }
+      toNode.setLazy(false);
+      //step 1: diff
+      ArrayList<PatchType> patchTypes = DiffUtils.diff(oldNode, toNode);
+      //step:2 delete unUseful views
+      DiffUtils.deleteViews(hpContext.getRenderManager().getControllerManager(), patchTypes);
+      //step:3 replace id
+      DiffUtils.replaceIds(hpContext.getRenderManager().getControllerManager(), patchTypes);
+      //step:4 create view is do not  reUse
+      DiffUtils.createView(hpContext.getRenderManager().getControllerManager(), patchTypes);
+      //step:5 patch the dif result
+      DiffUtils.doPatch(hpContext.getRenderManager().getControllerManager(), patchTypes);
+      hippyRecyclerViewHolder.bindNode = (ListItemRenderNode) toNode;
     }
     hippyRecyclerViewHolder.bindNode.setRecycleItemTypeChangeListener(this);
   }
 
+  /**
+   * 设置View的LayoutParams排版属性
+   */
   protected void setLayoutParams(View itemView, int position) {
     ViewGroup.LayoutParams params = itemView.getLayoutParams();
     RecyclerView.LayoutParams childLp = null;
@@ -105,6 +106,8 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
         }
       }
     }
+    //在调用onCreateViewHolder之前，必然会调用getItemViewType，所以这里把position记下来
+    //用在onCreateViewHolder的时候来创建View
     positionToCreateHolder = position;
     return viewType;
   }

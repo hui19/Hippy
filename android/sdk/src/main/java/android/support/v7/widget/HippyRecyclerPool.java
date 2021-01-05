@@ -27,7 +27,7 @@ public class HippyRecyclerPool extends RecyclerView.RecycledViewPool {
   /**
    * 从缓存池里面获取ViewHolder进行复用
    * 1、精确命中相同的renderNode
-   * 2、命中相同Type的ViewHolder，并且对于的RenderNode是没有被删除的
+   * 2、命中相同Type的ViewHolder，并且对应的RenderNode是没有被前端删除的
    * 如果renderNode.isDelete为true,说明前端删除了RenderNode，
    * 此时会调用 RenderManager框架的deleteChild, 所以view也不会存在了。
    * 即使找到了相同type的Holder，也不能复用了。
