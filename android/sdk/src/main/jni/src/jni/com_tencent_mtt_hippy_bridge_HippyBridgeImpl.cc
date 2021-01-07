@@ -662,6 +662,8 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   task->callback = [runtime, save_object_ = std::move(save_object), action_name,
                     hippy_params] {
+    HIPPY_DLOG(hippy::Debug, "js callFunction action_name = %s, hippy_params = %s",
+               action_name.c_str(), hippy_params.c_str());
     std::shared_ptr<Ctx> context = runtime->GetScope()->GetContext();
     if (runtime->IsDebug() && !action_name.compare("onWebsocketMsg")) {
       global_inspector->SendMessageToV8(hippy_params);
@@ -731,8 +733,12 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_destroy(
 
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   task->callback = [runtime, runtime_id] {
+    HIPPY_LOG(hippy::Debug, "js destroy");
     if (runtime->IsDebug()) {
       global_inspector->DestroyContext();
+      global_inspector->Reset(nullptr, runtime->GetBridge());
+    } else {
+      runtime->GetScope()->WillExit();
     }
 
     runtime->SetScope(nullptr);
@@ -742,6 +748,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_destroy(
   int64_t group = runtime->GetGroupId();
   HIPPY_DLOG(hippy::Debug, "destroy, group = %lld", group);
   if (group == kDebuggerEngineId) {
+    runtime->GetScope()->WillExit();
   } else if (group == kDefaultEngineId) {
     runtime->GetEngine()->TerminateRunner();
   } else {
@@ -761,7 +768,6 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_destroy(
       HIPPY_LOG(hippy::Fatal, "engine not find");
     }
   }
-
   CallJavaMethod(jcallback, 1);
   HIPPY_DLOG(hippy::Debug, "destroy end");
 }
