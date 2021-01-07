@@ -1,14 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/rootView"
-    >
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:id="@+id/rootView"
+  android:background="#ffffff"
+  >
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        />
+    <Button
+      android:id="@+id/btn_build"
+      android:layout_marginTop="26dp"
+      android:layout_marginLeft="40dp"
+      android:layout_width="120dp"
+      android:layout_height="50dp"
+      android:background="#5555FF"
+      android:text="@string/button_create" />
 
-</FrameLayout>
+    <Button
+      android:id="@+id/btn_destroy"
+      android:layout_marginTop="26dp"
+      android:layout_marginLeft="200dp"
+      android:layout_width="120dp"
+      android:layout_height="50dp"
+      android:background="#5555FF"
+      android:text="@string/button_destroy" />
+
+    <RelativeLayout
+      android:id="@+id/hippy_container"
+      android:layout_marginTop="100dp"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent">
+    </RelativeLayout>
+
+
+</RelativeLayout>

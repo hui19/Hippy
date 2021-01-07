@@ -2,8 +2,12 @@ package com.tencent.mtt.hippy.example;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 
+import android.widget.Button;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyAPIProvider;
 import com.tencent.mtt.hippy.HippyRootView;
@@ -29,13 +33,9 @@ public class MyActivity extends Activity
 {
 	private HippyEngine mHippyEngine;
 	private HippyRootView mHippyView;
+	private ViewGroup mContainer;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState)
-	{
-		super.onCreate(savedInstanceState);
-		getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-
+	private void initHippyEngine() {
 		// 1/3. 初始化hippy引擎
 		{
 			HippyEngine.EngineInitParams initParams = new HippyEngine.EngineInitParams();
@@ -122,12 +122,45 @@ public class MyActivity extends Activity
 						loadParams.jsParams.pushString("msgFromNative", "Hi js developer, I come from native code!");
 						// 加载Hippy前端模块
 						mHippyView = mHippyEngine.loadModule(loadParams);
-
-						setContentView(mHippyView);
+						mContainer.addView(mHippyView);
+						//setContentView(mHippyView);
 					}
 				}
 			});
 		}
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
+		getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+		LayoutInflater inflater = getLayoutInflater();
+		View rootView = inflater.inflate(R.layout.activity_main, null);
+		mContainer = rootView.findViewById(R.id.hippy_container);
+		setContentView(rootView);
+
+		Button createBtn = rootView.findViewById(R.id.btn_build);
+		createBtn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				initHippyEngine();
+			}
+		});
+
+		Button destroyBtn = rootView.findViewById(R.id.btn_destroy);
+		destroyBtn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (mHippyEngine != null) {
+					mHippyEngine.destroyModule(mHippyView);
+					mHippyEngine.destroyEngine();
+					mContainer.removeView(mHippyView);
+					mHippyView = null;
+					mHippyEngine = null;
+				}
+			}
+		});
 	}
 
 	@Override
