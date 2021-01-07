@@ -15,14 +15,14 @@
  */
 package com.tencent.mtt.hippy;
 
+import android.os.Handler;
+import android.os.Looper;
 import com.tencent.mtt.hippy.bridge.HippyBridgeManagerImpl;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
+import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.ThreadExecutor;
+import com.tencent.mtt.hippy.utils.LogUtils;
 
-/**
- * FileName: HippyNormalEngineManager
- * Description：
- */
 public class HippySingleThreadEngineManager extends HippyEngineManagerImpl
 {
 
@@ -40,21 +40,22 @@ public class HippySingleThreadEngineManager extends HippyEngineManagerImpl
 	}
 
 	@Override
-	public void destroyEngine()
-	{
-		super.destroyEngine();
-		synchronized (sLock)
-		{
+	protected void onDestroy() {
+		super.onDestroy();
+		synchronized (sLock) {
 			--sEngineNum;
-			if (sEngineNum == 0)
-			{
-				if (sThreadExecutor != null)
-				{
+			if (sEngineNum == 0) {
+				if (sThreadExecutor != null) {
 					sThreadExecutor.destroy();
 					sThreadExecutor = null;
 				}
 			}
 		}
+	}
+
+	@Override
+	public void destroyEngine() {
+		super.destroyEngine();
 	}
 
 	@Override
