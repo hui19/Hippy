@@ -10,7 +10,7 @@ import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
-//import com.tencent.mtt.nxeasy.listview.skikcy.StickyHeaderHelper;
+import com.tencent.mtt.nxeasy.listview.skikcy.StickyHeaderHelper;
 
 /**
  * Created by niuniuyang on 2020/12/22.
@@ -23,7 +23,7 @@ public class HippyRecyclerView extends HippyRecyclerViewBase {
   private RecyclerViewEventHelper recyclerViewEventHelper;
   private boolean isEnableScroll;
   private boolean enableSticky;
-//  private StickyHeaderHelper stickyHeaderHelper;//FIXME niuniuayng 后续实现
+  private StickyHeaderHelper stickyHeaderHelper;//FIXME niuniuayng 后续实现
 
   public HippyRecyclerView(Context context, int orientation) {
     super(context);
@@ -201,16 +201,15 @@ public class HippyRecyclerView extends HippyRecyclerViewBase {
    */
   public void setRowShouldSticky(boolean enable) {
     this.enableSticky = enable;
-    //FIXME niuniuyang
-//    if (enableSticky) {
-//      if (stickyHeaderHelper == null) {
-//        stickyHeaderHelper = new StickyHeaderHelper(this, listAdapter);
-//        addOnScrollListener(stickyHeaderHelper);
-//      }
-//    } else {
-//      if (stickyHeaderHelper != null) {
-//        removeOnScrollListener(stickyHeaderHelper);
-//      }
-//    }
+    if (enableSticky) {
+      if (stickyHeaderHelper == null) {
+        stickyHeaderHelper = new StickyHeaderHelper(this, listAdapter);
+        addOnScrollListener(stickyHeaderHelper);
+      }
+    } else {
+      if (stickyHeaderHelper != null) {
+        removeOnScrollListener(stickyHeaderHelper);
+      }
+    }
   }
 }
