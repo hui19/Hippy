@@ -325,6 +325,14 @@ void JSCCtx::RegisterNativeBinding(const std::string& name,
   return;
 };
 
+std::shared_ptr<CtxValue> JSCCtx::GetJsFn(const std::string& name) {
+  JSStringRef nameRef = JSStringCreateWithUTF8CString(name.c_str());
+  JSValueRef property =
+        JSObjectGetProperty(context_, JSContextGetGlobalObject(context_), nameRef, nullptr);
+  
+  return std::make_shared<JSCCtxValue>(context_, property);
+};
+
 std::shared_ptr<CtxValue> JSCCtx::RunScript(const uint8_t* data,
                                             size_t len,
                                             const std::string& file_name,
