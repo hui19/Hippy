@@ -277,9 +277,7 @@ std::shared_ptr<CtxValue> JSCCtx::GetGlobalObjVar(const std::string& name,
   if (is_undefined) {
     return nullptr;
   } else {
-    std::shared_ptr<JSCCtxValue> jscctx_value =
-        std::make_shared<JSCCtxValue>(context_, value_ref);
-    return jscctx_value;
+    return std::make_shared<JSCCtxValue>(context_, value_ref);
   }
 }
 
@@ -325,12 +323,9 @@ void JSCCtx::RegisterNativeBinding(const std::string& name,
   return;
 };
 
-std::shared_ptr<CtxValue> JSCCtx::GetJsFn(const std::string& name) {
-  JSStringRef nameRef = JSStringCreateWithUTF8CString(name.c_str());
-  JSValueRef property =
-        JSObjectGetProperty(context_, JSContextGetGlobalObject(context_), nameRef, nullptr);
-  
-  return std::make_shared<JSCCtxValue>(context_, property);
+std::shared_ptr<CtxValue> JSCCtx::GetJsFn(const std::string& name,
+                                          std::string* exception) {
+  return GetGlobalObjVar(name, exception);
 };
 
 std::shared_ptr<CtxValue> JSCCtx::RunScript(const uint8_t* data,
