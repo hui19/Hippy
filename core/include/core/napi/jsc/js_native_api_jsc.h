@@ -133,9 +133,7 @@ class JSCCtx : public Ctx {
 
   virtual bool IsFunction(std::shared_ptr<CtxValue>);
   virtual std::string CopyFunctionName(std::shared_ptr<CtxValue>);
-  virtual std::shared_ptr<CtxValue> GetJsFn(const std::string& name) {
-    return nullptr;
-  };
+  virtual std::shared_ptr<CtxValue> GetJsFn(const std::string& name);
 
   virtual std::shared_ptr<CtxValue> RunScript(
       const uint8_t* data,
