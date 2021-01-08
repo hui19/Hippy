@@ -25,9 +25,9 @@ import java.util.concurrent.Executor;
  */
 public interface HippyExecutorSupplierAdapter {
 
-  Executor getDBExecutor();
+    Executor getDBExecutor();
 
-  Executor getBackgroundTaskExecutor();
+    Executor getBackgroundTaskExecutor();
 
-  void destroyIfNeed();
+    void destroyIfNeed();
 }

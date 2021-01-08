@@ -23,7 +23,7 @@ package com.tencent.mtt.hippy.bridge;
  */
 public class HippyJsThreadRunnableParams<T extends Object> {
 
-  public int instanceId;
+    public int instanceId;
 
-  public T param;
+    public T param;
 }

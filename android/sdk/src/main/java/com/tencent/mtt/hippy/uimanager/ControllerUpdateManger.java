@@ -38,121 +38,121 @@ import java.util.Set;
 
 public class ControllerUpdateManger<T, G> {
 
-  static Map<Class, Map<String, PropsMethodHolder>> CLASS_PROPS_METHOD = new HashMap<>();
+    static Map<Class, Map<String, PropsMethodHolder>> CLASS_PROPS_METHOD = new HashMap<>();
 
-  public static class PropsMethodHolder {
+    public static class PropsMethodHolder {
 
-    Method mMethod;
-    String mDefaultType;
-    String mDefaultString;
-    double mDefaultNumber;
-    boolean mDefaultBoolean;
-    Type[] mTypes;
-  }
-
-  private void findPropsMethod(Class cls, Map<String, PropsMethodHolder> hashMap) {
-    if (cls != HippyViewController.class) {
-      // find parent methods first
-      findPropsMethod(cls.getSuperclass(), hashMap);
+        Method mMethod;
+        String mDefaultType;
+        String mDefaultString;
+        double mDefaultNumber;
+        boolean mDefaultBoolean;
+        Type[] mTypes;
     }
 
-    Map<String, PropsMethodHolder> methodHolder = CLASS_PROPS_METHOD.get(cls);
-    if (methodHolder == null) {
-
-      Method methods[] = cls.getMethods();
-      for (Method method : methods) {
-        HippyControllerProps controllerProps = method.getAnnotation(HippyControllerProps.class);
-        if (controllerProps != null) {
-          String style = controllerProps.name();
-          PropsMethodHolder propsMethodHolder = new PropsMethodHolder();
-          propsMethodHolder.mDefaultNumber = controllerProps.defaultNumber();
-          propsMethodHolder.mDefaultType = controllerProps.defaultType();
-          propsMethodHolder.mDefaultString = controllerProps.defaultString();
-          propsMethodHolder.mDefaultBoolean = controllerProps.defaultBoolean();
-          propsMethodHolder.mMethod = method;
-          hashMap.put(style, propsMethodHolder);
+    private void findPropsMethod(Class cls, Map<String, PropsMethodHolder> hashMap) {
+        if (cls != HippyViewController.class) {
+            // find parent methods first
+            findPropsMethod(cls.getSuperclass(), hashMap);
         }
-      }
-      // put to CLASS_PROPS_METHOD
-      CLASS_PROPS_METHOD.put(cls, new HashMap<String, PropsMethodHolder>(hashMap));
-    } else {
-      hashMap.putAll(methodHolder);
-    }
 
-  }
+        Map<String, PropsMethodHolder> methodHolder = CLASS_PROPS_METHOD.get(cls);
+        if (methodHolder == null) {
 
-  private Map<String, PropsMethodHolder> findPropsMethod(Class cla) {
-    Map<String, PropsMethodHolder> hashMap = new HashMap<>();
-    findPropsMethod(cla, hashMap);
-    return hashMap;
-  }
-
-  public void updateProps(T t, G g, HippyMap hippyMap) {
-    if (hippyMap == null) {
-      return;
-    }
-    Class cla = t.getClass();
-
-    Map<String, PropsMethodHolder> methodHolder = CLASS_PROPS_METHOD.get(cla);
-    if (methodHolder == null) {
-      methodHolder = findPropsMethod(cla);
-    }
-
-    Set<String> props = hippyMap.keySet();
-    for (String prop : props) {
-      PropsMethodHolder propsMethodHolder = methodHolder.get(prop);
-      if (propsMethodHolder != null) {
-        try {
-          if (hippyMap.get(prop) == null) {
-            switch (propsMethodHolder.mDefaultType) {
-              case HippyControllerProps.BOOLEAN:
-                propsMethodHolder.mMethod.invoke(t, g, propsMethodHolder.mDefaultBoolean);
-                break;
-              case HippyControllerProps.NUMBER:
-                if (propsMethodHolder.mTypes == null) {
-                  propsMethodHolder.mTypes = propsMethodHolder.mMethod.getGenericParameterTypes();
+            Method methods[] = cls.getMethods();
+            for (Method method : methods) {
+                HippyControllerProps controllerProps = method.getAnnotation(HippyControllerProps.class);
+                if (controllerProps != null) {
+                    String style = controllerProps.name();
+                    PropsMethodHolder propsMethodHolder = new PropsMethodHolder();
+                    propsMethodHolder.mDefaultNumber = controllerProps.defaultNumber();
+                    propsMethodHolder.mDefaultType = controllerProps.defaultType();
+                    propsMethodHolder.mDefaultString = controllerProps.defaultString();
+                    propsMethodHolder.mDefaultBoolean = controllerProps.defaultBoolean();
+                    propsMethodHolder.mMethod = method;
+                    hashMap.put(style, propsMethodHolder);
                 }
-                propsMethodHolder.mMethod.invoke(t, g, ArgumentUtils
-                  .parseArgument(propsMethodHolder.mTypes[1], propsMethodHolder.mDefaultNumber));
-                break;
-              case HippyControllerProps.STRING:
-                propsMethodHolder.mMethod.invoke(t, g, propsMethodHolder.mDefaultString);
-                break;
-              default:
-                Object o = null;
-                propsMethodHolder.mMethod.invoke(t, g, o);
-                break;
             }
-          } else {
-            Object object = hippyMap.get(prop);
-            if (object instanceof Number) {
-              if (propsMethodHolder.mTypes == null) {
-                propsMethodHolder.mTypes = propsMethodHolder.mMethod.getGenericParameterTypes();
-              }
-              object = ArgumentUtils.parseArgument(propsMethodHolder.mTypes[1], hippyMap, prop);
-            }
-
-            propsMethodHolder.mMethod.invoke(t, g, object);
-          }
-        } catch (Throwable e) {
-          LogUtils.e("ControllerUpdateManager", e.getMessage(), e);
-          e.printStackTrace();
-        }
-      } else {
-        if (prop.equals(NodeProps.STYLE) && hippyMap.get(prop) instanceof HippyMap) {
-          updateProps(t, g, (HippyMap) hippyMap.get(prop));
+            // put to CLASS_PROPS_METHOD
+            CLASS_PROPS_METHOD.put(cls, new HashMap<String, PropsMethodHolder>(hashMap));
         } else {
-          try {
-            Object customProps = hippyMap.get(prop);
-            if (t instanceof HippyViewController && g instanceof View) {
-              ((HippyViewController) t).setCustomProp((View) g, prop, customProps);
-            }
-          } catch (Throwable e) {
-            LogUtils.e("ControllerUpdateManager", "customProps " + e.getMessage(), e);
-            e.printStackTrace();
-          }
+            hashMap.putAll(methodHolder);
         }
-      }
+
     }
-  }
+
+    private Map<String, PropsMethodHolder> findPropsMethod(Class cla) {
+        Map<String, PropsMethodHolder> hashMap = new HashMap<>();
+        findPropsMethod(cla, hashMap);
+        return hashMap;
+    }
+
+    public void updateProps(T t, G g, HippyMap hippyMap) {
+        if (hippyMap == null) {
+            return;
+        }
+        Class cla = t.getClass();
+
+        Map<String, PropsMethodHolder> methodHolder = CLASS_PROPS_METHOD.get(cla);
+        if (methodHolder == null) {
+            methodHolder = findPropsMethod(cla);
+        }
+
+        Set<String> props = hippyMap.keySet();
+        for (String prop : props) {
+            PropsMethodHolder propsMethodHolder = methodHolder.get(prop);
+            if (propsMethodHolder != null) {
+                try {
+                    if (hippyMap.get(prop) == null) {
+                        switch (propsMethodHolder.mDefaultType) {
+                            case HippyControllerProps.BOOLEAN:
+                                propsMethodHolder.mMethod.invoke(t, g, propsMethodHolder.mDefaultBoolean);
+                                break;
+                            case HippyControllerProps.NUMBER:
+                                if (propsMethodHolder.mTypes == null) {
+                                    propsMethodHolder.mTypes = propsMethodHolder.mMethod.getGenericParameterTypes();
+                                }
+                                propsMethodHolder.mMethod.invoke(t, g, ArgumentUtils
+                                        .parseArgument(propsMethodHolder.mTypes[1], propsMethodHolder.mDefaultNumber));
+                                break;
+                            case HippyControllerProps.STRING:
+                                propsMethodHolder.mMethod.invoke(t, g, propsMethodHolder.mDefaultString);
+                                break;
+                            default:
+                                Object o = null;
+                                propsMethodHolder.mMethod.invoke(t, g, o);
+                                break;
+                        }
+                    } else {
+                        Object object = hippyMap.get(prop);
+                        if (object instanceof Number) {
+                            if (propsMethodHolder.mTypes == null) {
+                                propsMethodHolder.mTypes = propsMethodHolder.mMethod.getGenericParameterTypes();
+                            }
+                            object = ArgumentUtils.parseArgument(propsMethodHolder.mTypes[1], hippyMap, prop);
+                        }
+
+                        propsMethodHolder.mMethod.invoke(t, g, object);
+                    }
+                } catch (Throwable e) {
+                    LogUtils.e("ControllerUpdateManager", e.getMessage(), e);
+                    e.printStackTrace();
+                }
+            } else {
+                if (prop.equals(NodeProps.STYLE) && hippyMap.get(prop) instanceof HippyMap) {
+                    updateProps(t, g, (HippyMap) hippyMap.get(prop));
+                } else {
+                    try {
+                        Object customProps = hippyMap.get(prop);
+                        if (t instanceof HippyViewController && g instanceof View) {
+                            ((HippyViewController) t).setCustomProp((View) g, prop, customProps);
+                        }
+                    } catch (Throwable e) {
+                        LogUtils.e("ControllerUpdateManager", "customProps " + e.getMessage(), e);
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
 }

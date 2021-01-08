@@ -24,13 +24,13 @@ package com.tencent.mtt.hippy.adapter.font;
 
 public class DefaultFontScaleAdapter implements HippyFontScaleAdapter {
 
-  @Override
-  public float getFontScale() {
-    return 1;
-  }
+    @Override
+    public float getFontScale() {
+        return 1;
+    }
 
-  @Override
-  public CharSequence getEmoticonText(CharSequence text, int fontSize) {
-    return text;
-  }
+    @Override
+    public CharSequence getEmoticonText(CharSequence text, int fontSize) {
+        return text;
+    }
 }

@@ -26,9 +26,9 @@ import com.tencent.mtt.hippy.common.HippyJsException;
 
 public interface HippyExceptionHandlerAdapter {
 
-  void handleJsException(HippyJsException exception);
+    void handleJsException(HippyJsException exception);
 
-  void handleNativeException(Exception exception, boolean haveCaught);
+    void handleNativeException(Exception exception, boolean haveCaught);
 
-  void handleBackgroundTracing(String details);
+    void handleBackgroundTracing(String details);
 }

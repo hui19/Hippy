@@ -27,9 +27,9 @@ import java.io.InputStream;
 
 public interface BundleFetchCallBack {
 
-  void onSuccess(File file);
+    void onSuccess(File file);
 
-  void onSuccess(InputStream inputStream);
+    void onSuccess(InputStream inputStream);
 
-  void onFail(Exception exception);
+    void onFail(Exception exception);
 }

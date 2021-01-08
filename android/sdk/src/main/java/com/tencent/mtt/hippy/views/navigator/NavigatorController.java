@@ -41,88 +41,88 @@ import com.tencent.mtt.hippy.uimanager.HippyGroupController;
 @HippyController(name = NavigatorController.CLASS)
 public class NavigatorController extends HippyGroupController<Navigator> {
 
-  public static final String CLASS = "Navigator";
+    public static final String CLASS = "Navigator";
 
-  private final static String PUSH = "push";
-  private final static String POP = "pop";
+    private final static String PUSH = "push";
+    private final static String POP = "pop";
 
-  @Override
-  protected View createViewImpl(Context context) {
-    return new Navigator(context);
-  }
-
-  @Override
-  protected void addView(ViewGroup parentView, View view, int index) {
-    //		super.addView(parentView, view, index);
-    Log.d(CLASS, "addView");
-  }
-
-  @Override
-  public void dispatchFunction(Navigator view, String functionName, HippyArray var) {
-    super.dispatchFunction(view, functionName, var);
-
-    switch (functionName) {
-      case POP:
-        boolean animated = false;
-        String toDirection = null;
-        if (var != null) {
-          HippyMap hippyMap = var.getMap(0);
-          if (hippyMap != null) {
-            animated = hippyMap.getBoolean("animated");
-            toDirection = hippyMap.getString("toDirection");
-          }
-        }
-        view.pop(animated, toDirection);
-        break;
-      case PUSH:
-        if (var != null) {
-          HippyMap hippyMap = var.getMap(0);
-          if (hippyMap != null) {
-            String component = hippyMap.getString("routeName");
-            HippyMap initProps = hippyMap.getMap("initProps");
-            animated = hippyMap.getBoolean("animated");
-            String fromDirection = hippyMap.getString("fromDirection");
-            HippyRootView hippyRootView = loadNavPage(view, component, initProps);
-            view.push(hippyRootView, animated, fromDirection);
-          }
-        }
-        break;
+    @Override
+    protected View createViewImpl(Context context) {
+        return new Navigator(context);
     }
-  }
 
-  private HippyRootView loadNavPage(Navigator view, String component, HippyMap initProps) {
-    HippyInstanceContext hippyInstanceContext = (HippyInstanceContext) view.getContext();
-    HippyEngine.ModuleLoadParams moduleParams = new HippyEngine.ModuleLoadParams(
-      hippyInstanceContext.getModuleParams());
-    moduleParams.componentName = component;
-    moduleParams.jsParams = initProps;
-    return hippyInstanceContext.getEngineManager().loadModule(moduleParams);
-  }
-
-  @HippyControllerProps(name = "initialRoute", defaultType = HippyControllerProps.MAP)
-  public void initPage(Navigator navigator, HippyMap hippyMap) {
-    String component = hippyMap.getString("routeName");
-    HippyMap initProps = hippyMap.getMap("initProps");
-
-    HippyRootView hippyRootView = loadNavPage(navigator, component, initProps);
-
-    navigator.init(hippyRootView);
-  }
-
-  public static void destroyInstance(View view) {
-    if (view instanceof HippyRootView) {
-      HippyInstanceContext hippyInstanceContext = (HippyInstanceContext) view.getContext();
-      HippyRootView hippyRootView = (HippyRootView) view;
-      hippyInstanceContext.getEngineManager().destroyModule(hippyRootView);
+    @Override
+    protected void addView(ViewGroup parentView, View view, int index) {
+        //		super.addView(parentView, view, index);
+        Log.d(CLASS, "addView");
     }
-  }
 
-  @Override
-  protected void deleteChild(ViewGroup parentView, View childView) {
-    //		super.deleteChild(parentView, childView);
+    @Override
+    public void dispatchFunction(Navigator view, String functionName, HippyArray var) {
+        super.dispatchFunction(view, functionName, var);
 
-    destroyInstance(childView);
+        switch (functionName) {
+            case POP:
+                boolean animated = false;
+                String toDirection = null;
+                if (var != null) {
+                    HippyMap hippyMap = var.getMap(0);
+                    if (hippyMap != null) {
+                        animated = hippyMap.getBoolean("animated");
+                        toDirection = hippyMap.getString("toDirection");
+                    }
+                }
+                view.pop(animated, toDirection);
+                break;
+            case PUSH:
+                if (var != null) {
+                    HippyMap hippyMap = var.getMap(0);
+                    if (hippyMap != null) {
+                        String component = hippyMap.getString("routeName");
+                        HippyMap initProps = hippyMap.getMap("initProps");
+                        animated = hippyMap.getBoolean("animated");
+                        String fromDirection = hippyMap.getString("fromDirection");
+                        HippyRootView hippyRootView = loadNavPage(view, component, initProps);
+                        view.push(hippyRootView, animated, fromDirection);
+                    }
+                }
+                break;
+        }
+    }
 
-    Log.d(CLASS, "deleteChild");
-  }
+    private HippyRootView loadNavPage(Navigator view, String component, HippyMap initProps) {
+        HippyInstanceContext hippyInstanceContext = (HippyInstanceContext) view.getContext();
+        HippyEngine.ModuleLoadParams moduleParams = new HippyEngine.ModuleLoadParams(
+                hippyInstanceContext.getModuleParams());
+        moduleParams.componentName = component;
+        moduleParams.jsParams = initProps;
+        return hippyInstanceContext.getEngineManager().loadModule(moduleParams);
+    }
+
+    @HippyControllerProps(name = "initialRoute", defaultType = HippyControllerProps.MAP)
+    public void initPage(Navigator navigator, HippyMap hippyMap) {
+        String component = hippyMap.getString("routeName");
+        HippyMap initProps = hippyMap.getMap("initProps");
+
+        HippyRootView hippyRootView = loadNavPage(navigator, component, initProps);
+
+        navigator.init(hippyRootView);
+    }
+
+    public static void destroyInstance(View view) {
+        if (view instanceof HippyRootView) {
+            HippyInstanceContext hippyInstanceContext = (HippyInstanceContext) view.getContext();
+            HippyRootView hippyRootView = (HippyRootView) view;
+            hippyInstanceContext.getEngineManager().destroyModule(hippyRootView);
+        }
+    }
+
+    @Override
+    protected void deleteChild(ViewGroup parentView, View childView) {
+        //		super.deleteChild(parentView, childView);
+
+        destroyInstance(childView);
+
+        Log.d(CLASS, "deleteChild");
+    }
 }

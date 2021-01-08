@@ -18,42 +18,42 @@ package com.tencent.smtt.flexbox;
 
 public class FlexValue {
 
-  public enum Unit {
-    UNDEFINED,
-    POINT,
-    PERCENT,
-    AUTO;
+    public enum Unit {
+        UNDEFINED,
+        POINT,
+        PERCENT,
+        AUTO;
 
-    public static Unit fromInt(int value) {
-      switch (value) {
-        case 0:
-          return UNDEFINED;
-        case 1:
-          return POINT;
-        case 2:
-          return PERCENT;
-        case 3:
-          return AUTO;
-        default:
-          throw new IllegalArgumentException("Unknown enum value: " + value);
-      }
+        public static Unit fromInt(int value) {
+            switch (value) {
+                case 0:
+                    return UNDEFINED;
+                case 1:
+                    return POINT;
+                case 2:
+                    return PERCENT;
+                case 3:
+                    return AUTO;
+                default:
+                    throw new IllegalArgumentException("Unknown enum value: " + value);
+            }
+        }
     }
-  }
 
-  public final float value;
-  public final Unit unit;
+    public final float value;
+    public final Unit unit;
 
-  public FlexValue(float value, Unit unit) {
-    this.value = value;
-    this.unit = unit;
-  }
+    public FlexValue(float value, Unit unit) {
+        this.value = value;
+        this.unit = unit;
+    }
 
 
-  FlexValue(float value, int unit) {
-    this(value, Unit.fromInt(unit));
-  }
+    FlexValue(float value, int unit) {
+        this(value, Unit.fromInt(unit));
+    }
 
-  float value() {
-    return value;
-  }
+    float value() {
+        return value;
+    }
 }

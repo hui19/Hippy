@@ -41,247 +41,247 @@ import java.util.List;
 
 public class RenderManager {
 
-  private static final String TAG = "RenderManager";
-  SparseArray<RenderNode> mNodes = new SparseArray<>();
+    private static final String TAG = "RenderManager";
+    SparseArray<RenderNode> mNodes = new SparseArray<>();
 
-  SparseArray<Boolean> mPreIsLazy = new SparseArray<>();
+    SparseArray<Boolean> mPreIsLazy = new SparseArray<>();
 
-  ArrayList<RenderNode> mUIUpdateNodes = new ArrayList<>();
-  ArrayList<RenderNode> mNullUIUpdateNodes = new ArrayList<>();
+    ArrayList<RenderNode> mUIUpdateNodes = new ArrayList<>();
+    ArrayList<RenderNode> mNullUIUpdateNodes = new ArrayList<>();
 
-  HippyEngineContext mContext;
+    HippyEngineContext mContext;
 
-  ControllerManager mControllerManager;
+    ControllerManager mControllerManager;
 
-  public RenderManager(HippyEngineContext hippyContext, List<HippyAPIProvider> packages) {
-    mContext = hippyContext;
-    mControllerManager = new ControllerManager(hippyContext, packages);
-  }
-
-  public ControllerManager getControllerManager() {
-    return mControllerManager;
-  }
-
-  public void createRootNode(int id) {
-    RenderNode uiNode = new RenderNode(id, NodeProps.ROOT_NODE, mControllerManager);
-    mNodes.put(id, uiNode);
-  }
-
-  public void destroy() {
-    getControllerManager().destroy();
-  }
-
-  public void createNode(HippyRootView hippyRootView, int id, int pId, int childIndex,
-    String className, HippyMap props) {
-    LogUtils.d("RenderManager",
-      "createNode ID " + id + " mParentId " + pId + " index " + childIndex + "className"
-        + className);
-
-    //		mContext.getGlobalConfigs().getLogAdapter().log(TAG,"createNode ID " + id + " mParentId " + pId + " index " + childIndex + "className" + className);
-    RenderNode parentNode = mNodes.get(pId);
-
-    boolean isLazy = mControllerManager.isControllerLazy(className);
-    RenderNode uiNode = mControllerManager
-      .createRenderNode(id, props, className, hippyRootView, isLazy || parentNode.mIsLazyLoad);
-
-    mNodes.put(id, uiNode);
-
-    mPreIsLazy.remove(id);
-
-    parentNode.addChild(uiNode, childIndex);
-
-    addUpdateNodeIfNeeded(parentNode);
-
-    addUpdateNodeIfNeeded(uiNode);
-  }
-
-  public void addUpdateNodeIfNeeded(RenderNode renderNode) {
-    if (!mUIUpdateNodes.contains(renderNode)) {
-      if (null != renderNode) {
-        mUIUpdateNodes.add(renderNode);
-      }
-    }
-  }
-
-  void addNullUINodeIfNeeded(RenderNode renderNode) {
-    if (!mNullUIUpdateNodes.contains(renderNode)) {
-      mNullUIUpdateNodes.add(renderNode);
-    }
-  }
-
-  public void updateLayout(int id, int x, int y, int w, int h) {
-    LogUtils.d("RenderManager", "updateLayout ID " + id);
-    RenderNode uiNode = mNodes.get(id);
-    uiNode.updateLayout(x, y, w, h);
-
-    addUpdateNodeIfNeeded(uiNode);
-  }
-
-  public void updateNode(int id, HippyMap map) {
-    LogUtils.d("RenderManager", "updateNode ID " + id);
-    RenderNode uiNode = mNodes.get(id);
-    uiNode.updateNode(map);
-    addUpdateNodeIfNeeded(uiNode);
-  }
-
-  public void moveNode(ArrayList<Integer> moveIds, int pId, int id) {
-
-    RenderNode parentNode = mNodes.get(pId);
-    RenderNode newParent = mNodes.get(id);
-    List<RenderNode> arrayList = new ArrayList<>();
-
-    for (int i = 0; i < moveIds.size(); i++) {
-      RenderNode renderNode = mNodes.get(moveIds.get(i));
-      arrayList.add(renderNode);
-      parentNode.removeChild(renderNode);
-      newParent.addChild(renderNode, i);
-    }
-    //		mContext.getGlobalConfigs().getLogAdapter().log(TAG,"render  moveNode  pId:" + pId+" id: "+id+" moveids:"+moveIds.toString());
-    parentNode.move(arrayList, id);
-    addUpdateNodeIfNeeded(newParent);
-  }
-
-  public void updateExtra(int id, Object object) {
-    LogUtils.d("RenderManager", "updateExtra ID " + id);
-    RenderNode uiNode = mNodes.get(id);
-    uiNode.updateExtra(object);
-
-    addUpdateNodeIfNeeded(uiNode);
-  }
-
-  public void deleteNode(int id) {
-    RenderNode uiNode = mNodes.get(id);
-    uiNode.setDelete(true);
-
-    if (uiNode.mParent != null && mControllerManager.hasView(id)) {
-      uiNode.mParent.addDeleteId(id, uiNode);
-      addUpdateNodeIfNeeded(uiNode.mParent);
-    } else if (TextUtils.equals(NodeProps.ROOT_NODE, uiNode.getClassName())) {
-      addUpdateNodeIfNeeded(uiNode);
-    }
-    deleteSelfFromParent(uiNode);
-
-  }
-
-  public void dispatchUIFunction(int id, String functionName, HippyArray var, Promise promise) {
-    RenderNode renderNode = mNodes.get(id);
-    if (renderNode != null) {
-      renderNode.dispatchUIFunction(functionName, var, promise);
-      addNullUINodeIfNeeded(renderNode);
-    } else {
-      LogUtils.e("RenderManager", "dispatchUIFunction Node Null");
+    public RenderManager(HippyEngineContext hippyContext, List<HippyAPIProvider> packages) {
+        mContext = hippyContext;
+        mControllerManager = new ControllerManager(hippyContext, packages);
     }
 
-  }
-
-  public void nonUIBatchEnd() {
-    LogUtils.d("RenderManager", "do nonUIBatchEnd size " + mUIUpdateNodes.size());
-    //		mContext.getGlobalConfigs().getLogAdapter().log(TAG,"do nonUIBatchEnd size " + mShouldUpdateNodes.size());
-
-    for (int i = 0; i < mUIUpdateNodes.size(); i++) {
-      mUIUpdateNodes.get(i).createView();
-    }
-    for (int i = 0; i < mUIUpdateNodes.size(); i++) {
-      RenderNode uiNode = mUIUpdateNodes.get(i);
-      uiNode.update();
+    public ControllerManager getControllerManager() {
+        return mControllerManager;
     }
 
-    mUIUpdateNodes.clear();
-  }
-
-  public void batch() {
-    LogUtils.d("RenderManager", "do batch size " + mUIUpdateNodes.size());
-    //		mContext.getGlobalConfigs().getLogAdapter().log(TAG,"do batch size " + mShouldUpdateNodes.size());
-
-    for (int i = 0; i < mUIUpdateNodes.size(); i++) {
-      mUIUpdateNodes.get(i).createView();
+    public void createRootNode(int id) {
+        RenderNode uiNode = new RenderNode(id, NodeProps.ROOT_NODE, mControllerManager);
+        mNodes.put(id, uiNode);
     }
 
-    for (int i = 0; i < mUIUpdateNodes.size(); i++) {
-      RenderNode uiNode = mUIUpdateNodes.get(i);
-      uiNode.update();
+    public void destroy() {
+        getControllerManager().destroy();
     }
 
-    for (int i = 0; i < mUIUpdateNodes.size(); i++) {
-      RenderNode uiNode = mUIUpdateNodes.get(i);
-      uiNode.batchComplete();
+    public void createNode(HippyRootView hippyRootView, int id, int pId, int childIndex,
+            String className, HippyMap props) {
+        LogUtils.d("RenderManager",
+                "createNode ID " + id + " mParentId " + pId + " index " + childIndex + "className"
+                        + className);
+
+        //		mContext.getGlobalConfigs().getLogAdapter().log(TAG,"createNode ID " + id + " mParentId " + pId + " index " + childIndex + "className" + className);
+        RenderNode parentNode = mNodes.get(pId);
+
+        boolean isLazy = mControllerManager.isControllerLazy(className);
+        RenderNode uiNode = mControllerManager
+                .createRenderNode(id, props, className, hippyRootView, isLazy || parentNode.mIsLazyLoad);
+
+        mNodes.put(id, uiNode);
+
+        mPreIsLazy.remove(id);
+
+        parentNode.addChild(uiNode, childIndex);
+
+        addUpdateNodeIfNeeded(parentNode);
+
+        addUpdateNodeIfNeeded(uiNode);
     }
 
-    mUIUpdateNodes.clear();
-    // measureInWindow and dispatch ui function
-    for (int i = 0; i < mNullUIUpdateNodes.size(); i++) {
-      mNullUIUpdateNodes.get(i).createView();
-    }
-    for (int i = 0; i < mNullUIUpdateNodes.size(); i++) {
-      mNullUIUpdateNodes.get(i).update();
-    }
-
-    mNullUIUpdateNodes.clear();
-  }
-
-  private void deleteSelfFromParent(RenderNode uiNode) {
-
-    LogUtils.d("RenderManager", "delete RenderNode " + uiNode.mId + " class " + uiNode.mClassName);
-    //		mContext.getGlobalConfigs().getLogAdapter().log(TAG,"delete RenderNode " + uiNode.mId + " class " + uiNode.mClassName);
-    if (uiNode.mParent != null) {
-      uiNode.mParent.removeChild(uiNode);
+    public void addUpdateNodeIfNeeded(RenderNode renderNode) {
+        if (!mUIUpdateNodes.contains(renderNode)) {
+            if (null != renderNode) {
+                mUIUpdateNodes.add(renderNode);
+            }
+        }
     }
 
-    mNodes.remove(uiNode.mId);
-
-    int childCount = uiNode.getChildCount();
-    for (int i = 0; i < childCount; i++) {
-      deleteSelfFromParent(uiNode.getChildAt(0));
-    }
-  }
-
-  public DomNode createStyleNode(String className, boolean isVirtual, int id) {
-    DomNode domNode = mControllerManager.createStyleNode(className, isVirtual);
-    domNode.setViewClassName(className);
-    domNode.setId(id);
-    return domNode;
-  }
-
-  public RenderNode getRenderNode(int id) {
-    try {
-      return mNodes.get(id);
-    } catch (Exception e) {
-      return null;
-    }
-  }
-
-  public void replaceID(int oldId, int newId) {
-    mControllerManager.replaceID(oldId, newId);
-  }
-
-
-  public void measureInWindow(int id, Promise promise) {
-    RenderNode renderNode = mNodes.get(id);
-    if (renderNode == null) {
-      promise.reject("this view is null");
-    } else {
-      renderNode.measureInWindow(promise);
-
-      addNullUINodeIfNeeded(renderNode);
+    void addNullUINodeIfNeeded(RenderNode renderNode) {
+        if (!mNullUIUpdateNodes.contains(renderNode)) {
+            mNullUIUpdateNodes.add(renderNode);
+        }
     }
 
-  }
+    public void updateLayout(int id, int x, int y, int w, int h) {
+        LogUtils.d("RenderManager", "updateLayout ID " + id);
+        RenderNode uiNode = mNodes.get(id);
+        uiNode.updateLayout(x, y, w, h);
 
-  public void createPreView(HippyRootView hippyRootView, int id, int pid, int mIndex,
-    String className, HippyMap newProps) {
-
-    boolean isLazy = mControllerManager.isControllerLazy(className);
-
-    RenderNode parentNode = mNodes.get(pid);
-    if (parentNode != null) {
-      isLazy = isLazy || parentNode.mIsLazyLoad;
-    } else {
-      isLazy = isLazy || mPreIsLazy.get(pid);
+        addUpdateNodeIfNeeded(uiNode);
     }
-    mPreIsLazy.put(id, isLazy);
 
-    if (!isLazy) {
-      mControllerManager.createPreView(hippyRootView, id, className, newProps);
+    public void updateNode(int id, HippyMap map) {
+        LogUtils.d("RenderManager", "updateNode ID " + id);
+        RenderNode uiNode = mNodes.get(id);
+        uiNode.updateNode(map);
+        addUpdateNodeIfNeeded(uiNode);
     }
-  }
+
+    public void moveNode(ArrayList<Integer> moveIds, int pId, int id) {
+
+        RenderNode parentNode = mNodes.get(pId);
+        RenderNode newParent = mNodes.get(id);
+        List<RenderNode> arrayList = new ArrayList<>();
+
+        for (int i = 0; i < moveIds.size(); i++) {
+            RenderNode renderNode = mNodes.get(moveIds.get(i));
+            arrayList.add(renderNode);
+            parentNode.removeChild(renderNode);
+            newParent.addChild(renderNode, i);
+        }
+        //		mContext.getGlobalConfigs().getLogAdapter().log(TAG,"render  moveNode  pId:" + pId+" id: "+id+" moveids:"+moveIds.toString());
+        parentNode.move(arrayList, id);
+        addUpdateNodeIfNeeded(newParent);
+    }
+
+    public void updateExtra(int id, Object object) {
+        LogUtils.d("RenderManager", "updateExtra ID " + id);
+        RenderNode uiNode = mNodes.get(id);
+        uiNode.updateExtra(object);
+
+        addUpdateNodeIfNeeded(uiNode);
+    }
+
+    public void deleteNode(int id) {
+        RenderNode uiNode = mNodes.get(id);
+        uiNode.setDelete(true);
+
+        if (uiNode.mParent != null && mControllerManager.hasView(id)) {
+            uiNode.mParent.addDeleteId(id, uiNode);
+            addUpdateNodeIfNeeded(uiNode.mParent);
+        } else if (TextUtils.equals(NodeProps.ROOT_NODE, uiNode.getClassName())) {
+            addUpdateNodeIfNeeded(uiNode);
+        }
+        deleteSelfFromParent(uiNode);
+
+    }
+
+    public void dispatchUIFunction(int id, String functionName, HippyArray var, Promise promise) {
+        RenderNode renderNode = mNodes.get(id);
+        if (renderNode != null) {
+            renderNode.dispatchUIFunction(functionName, var, promise);
+            addNullUINodeIfNeeded(renderNode);
+        } else {
+            LogUtils.e("RenderManager", "dispatchUIFunction Node Null");
+        }
+
+    }
+
+    public void nonUIBatchEnd() {
+        LogUtils.d("RenderManager", "do nonUIBatchEnd size " + mUIUpdateNodes.size());
+        //		mContext.getGlobalConfigs().getLogAdapter().log(TAG,"do nonUIBatchEnd size " + mShouldUpdateNodes.size());
+
+        for (int i = 0; i < mUIUpdateNodes.size(); i++) {
+            mUIUpdateNodes.get(i).createView();
+        }
+        for (int i = 0; i < mUIUpdateNodes.size(); i++) {
+            RenderNode uiNode = mUIUpdateNodes.get(i);
+            uiNode.update();
+        }
+
+        mUIUpdateNodes.clear();
+    }
+
+    public void batch() {
+        LogUtils.d("RenderManager", "do batch size " + mUIUpdateNodes.size());
+        //		mContext.getGlobalConfigs().getLogAdapter().log(TAG,"do batch size " + mShouldUpdateNodes.size());
+
+        for (int i = 0; i < mUIUpdateNodes.size(); i++) {
+            mUIUpdateNodes.get(i).createView();
+        }
+
+        for (int i = 0; i < mUIUpdateNodes.size(); i++) {
+            RenderNode uiNode = mUIUpdateNodes.get(i);
+            uiNode.update();
+        }
+
+        for (int i = 0; i < mUIUpdateNodes.size(); i++) {
+            RenderNode uiNode = mUIUpdateNodes.get(i);
+            uiNode.batchComplete();
+        }
+
+        mUIUpdateNodes.clear();
+        // measureInWindow and dispatch ui function
+        for (int i = 0; i < mNullUIUpdateNodes.size(); i++) {
+            mNullUIUpdateNodes.get(i).createView();
+        }
+        for (int i = 0; i < mNullUIUpdateNodes.size(); i++) {
+            mNullUIUpdateNodes.get(i).update();
+        }
+
+        mNullUIUpdateNodes.clear();
+    }
+
+    private void deleteSelfFromParent(RenderNode uiNode) {
+
+        LogUtils.d("RenderManager", "delete RenderNode " + uiNode.mId + " class " + uiNode.mClassName);
+        //		mContext.getGlobalConfigs().getLogAdapter().log(TAG,"delete RenderNode " + uiNode.mId + " class " + uiNode.mClassName);
+        if (uiNode.mParent != null) {
+            uiNode.mParent.removeChild(uiNode);
+        }
+
+        mNodes.remove(uiNode.mId);
+
+        int childCount = uiNode.getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            deleteSelfFromParent(uiNode.getChildAt(0));
+        }
+    }
+
+    public DomNode createStyleNode(String className, boolean isVirtual, int id) {
+        DomNode domNode = mControllerManager.createStyleNode(className, isVirtual);
+        domNode.setViewClassName(className);
+        domNode.setId(id);
+        return domNode;
+    }
+
+    public RenderNode getRenderNode(int id) {
+        try {
+            return mNodes.get(id);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public void replaceID(int oldId, int newId) {
+        mControllerManager.replaceID(oldId, newId);
+    }
+
+
+    public void measureInWindow(int id, Promise promise) {
+        RenderNode renderNode = mNodes.get(id);
+        if (renderNode == null) {
+            promise.reject("this view is null");
+        } else {
+            renderNode.measureInWindow(promise);
+
+            addNullUINodeIfNeeded(renderNode);
+        }
+
+    }
+
+    public void createPreView(HippyRootView hippyRootView, int id, int pid, int mIndex,
+            String className, HippyMap newProps) {
+
+        boolean isLazy = mControllerManager.isControllerLazy(className);
+
+        RenderNode parentNode = mNodes.get(pid);
+        if (parentNode != null) {
+            isLazy = isLazy || parentNode.mIsLazyLoad;
+        } else {
+            isLazy = isLazy || mPreIsLazy.get(pid);
+        }
+        mPreIsLazy.put(id, isLazy);
+
+        if (!isLazy) {
+            mControllerManager.createPreView(hippyRootView, id, className, newProps);
+        }
+    }
 }

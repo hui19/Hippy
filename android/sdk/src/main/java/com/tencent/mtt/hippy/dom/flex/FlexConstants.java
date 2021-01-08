@@ -18,9 +18,9 @@ package com.tencent.mtt.hippy.dom.flex;
 
 public class FlexConstants {
 
-  public static final float UNDEFINED = Float.NaN;
+    public static final float UNDEFINED = Float.NaN;
 
-  public static boolean isUndefined(float value) {
-    return Float.compare(value, UNDEFINED) == 0;
-  }
+    public static boolean isUndefined(float value) {
+        return Float.compare(value, UNDEFINED) == 0;
+    }
 }

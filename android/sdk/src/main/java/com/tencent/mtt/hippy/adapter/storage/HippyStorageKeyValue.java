@@ -23,6 +23,6 @@ package com.tencent.mtt.hippy.adapter.storage;
  */
 public class HippyStorageKeyValue {
 
-  public String key;
-  public String value;
+    public String key;
+    public String value;
 }

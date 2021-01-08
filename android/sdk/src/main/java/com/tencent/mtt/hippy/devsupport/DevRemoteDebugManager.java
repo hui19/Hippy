@@ -29,50 +29,50 @@ import com.tencent.mtt.hippy.modules.nativemodules.HippySettableFuture;
  */
 public class DevRemoteDebugManager implements DevRemoteDebugProxy {
 
-  DevServerHelper mFetchHelper;
+    DevServerHelper mFetchHelper;
 
-  ProgressDialog mProgressDialog;
+    ProgressDialog mProgressDialog;
 
-  RemoteDebugExceptionHandler mRemoteDebugExceptionHandler;
+    RemoteDebugExceptionHandler mRemoteDebugExceptionHandler;
 
-  Context mContext;
+    Context mContext;
 
-  public DevRemoteDebugManager(Context context, DevServerHelper fetchHelper,
-    RemoteDebugExceptionHandler handler) {
-    this.mContext = context;
-    this.mFetchHelper = fetchHelper;
-    this.mRemoteDebugExceptionHandler = handler;
-  }
-
-
-  private void showProgressDialog(Context context) {
-    if (context == null) {
-      return;
+    public DevRemoteDebugManager(Context context, DevServerHelper fetchHelper,
+            RemoteDebugExceptionHandler handler) {
+        this.mContext = context;
+        this.mFetchHelper = fetchHelper;
+        this.mRemoteDebugExceptionHandler = handler;
     }
 
-    if (mProgressDialog == null) {
-      mProgressDialog = new ProgressDialog(context);
-      mProgressDialog.setCancelable(true);
-      mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+
+    private void showProgressDialog(Context context) {
+        if (context == null) {
+            return;
+        }
+
+        if (mProgressDialog == null) {
+            mProgressDialog = new ProgressDialog(context);
+            mProgressDialog.setCancelable(true);
+            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        }
+        mProgressDialog.show();
     }
-    mProgressDialog.show();
-  }
 
-  @Override
-  public void destroy() {
-    if (mProgressDialog != null) {
-      mProgressDialog.dismiss();
+    @Override
+    public void destroy() {
+        if (mProgressDialog != null) {
+            mProgressDialog.dismiss();
+        }
     }
-  }
 
-  public void handleException(Throwable t) {
-    if (mRemoteDebugExceptionHandler != null) {
-      mRemoteDebugExceptionHandler.onHandleRemoteDebugException(t);
+    public void handleException(Throwable t) {
+        if (mRemoteDebugExceptionHandler != null) {
+            mRemoteDebugExceptionHandler.onHandleRemoteDebugException(t);
+        }
     }
-  }
 
-  public interface RemoteDebugExceptionHandler {
+    public interface RemoteDebugExceptionHandler {
 
-    public void onHandleRemoteDebugException(Throwable t);
-  }
+        public void onHandleRemoteDebugException(Throwable t);
+    }
 }

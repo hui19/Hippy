@@ -28,44 +28,44 @@ import java.util.ArrayList;
  */
 public class AnimationNode {
 
-  private int mTagId;
+    private int mTagId;
 
-  private HippyRootView mRootView;
+    private HippyRootView mRootView;
 
-  private HippyMap mProps;
+    private HippyMap mProps;
 
-  private ArrayList<Animation> mAnimations;
+    private ArrayList<Animation> mAnimations;
 
-  public AnimationNode(int tagId, HippyRootView rootView) {
-    this.mTagId = tagId;
-    this.mRootView = rootView;
-    mAnimations = new ArrayList<>();
-  }
-
-  public int getId() {
-    return mTagId;
-  }
-
-  public HippyRootView getRootView() {
-    return mRootView;
-  }
-
-  public HippyMap getProps() {
-    return mProps;
-  }
-
-  public void setProps(HippyMap props) {
-    this.mProps = props;
-  }
-
-  public void addAnimation(Animation animation) {
-    if (!mAnimations.contains(animation)) {
-      mAnimations.add(animation);
+    public AnimationNode(int tagId, HippyRootView rootView) {
+        this.mTagId = tagId;
+        this.mRootView = rootView;
+        mAnimations = new ArrayList<>();
     }
-  }
 
-  public ArrayList<Animation> getAnimations() {
-    return mAnimations;
-  }
+    public int getId() {
+        return mTagId;
+    }
+
+    public HippyRootView getRootView() {
+        return mRootView;
+    }
+
+    public HippyMap getProps() {
+        return mProps;
+    }
+
+    public void setProps(HippyMap props) {
+        this.mProps = props;
+    }
+
+    public void addAnimation(Animation animation) {
+        if (!mAnimations.contains(animation)) {
+            mAnimations.add(animation);
+        }
+    }
+
+    public ArrayList<Animation> getAnimations() {
+        return mAnimations;
+    }
 
 }

@@ -27,45 +27,45 @@ import java.util.concurrent.Executors;
  */
 public class DefaultExecutorSupplierAdapter implements HippyExecutorSupplierAdapter {
 
-  private volatile ExecutorService mDBExecutor;
+    private volatile ExecutorService mDBExecutor;
 
-  private volatile ExecutorService mBackgroundTaskExecutor;
+    private volatile ExecutorService mBackgroundTaskExecutor;
 
-  @Override
-  public Executor getDBExecutor() {
-    if (mDBExecutor == null) {
-      synchronized (DefaultExecutorSupplierAdapter.class) {
+    @Override
+    public Executor getDBExecutor() {
         if (mDBExecutor == null) {
-          mDBExecutor = Executors.newSingleThreadExecutor();
+            synchronized (DefaultExecutorSupplierAdapter.class) {
+                if (mDBExecutor == null) {
+                    mDBExecutor = Executors.newSingleThreadExecutor();
+                }
+            }
         }
-      }
+        return mDBExecutor;
     }
-    return mDBExecutor;
-  }
 
-  @Override
-  public Executor getBackgroundTaskExecutor() {
-    if (mBackgroundTaskExecutor == null) {
-      synchronized (DefaultExecutorSupplierAdapter.class) {
+    @Override
+    public Executor getBackgroundTaskExecutor() {
         if (mBackgroundTaskExecutor == null) {
-          mBackgroundTaskExecutor = Executors.newSingleThreadExecutor();
+            synchronized (DefaultExecutorSupplierAdapter.class) {
+                if (mBackgroundTaskExecutor == null) {
+                    mBackgroundTaskExecutor = Executors.newSingleThreadExecutor();
+                }
+            }
         }
-      }
+        return mBackgroundTaskExecutor;
     }
-    return mBackgroundTaskExecutor;
-  }
 
-  public void destroyIfNeed() {
-    synchronized (DefaultExecutorSupplierAdapter.class) {
-      if (mDBExecutor != null && !mDBExecutor.isShutdown()) {
-        mDBExecutor.shutdown();
-        mDBExecutor = null;
-      }
+    public void destroyIfNeed() {
+        synchronized (DefaultExecutorSupplierAdapter.class) {
+            if (mDBExecutor != null && !mDBExecutor.isShutdown()) {
+                mDBExecutor.shutdown();
+                mDBExecutor = null;
+            }
 
-      if (mBackgroundTaskExecutor != null && !mBackgroundTaskExecutor.isShutdown()) {
-        mBackgroundTaskExecutor.shutdown();
-        mBackgroundTaskExecutor = null;
-      }
+            if (mBackgroundTaskExecutor != null && !mBackgroundTaskExecutor.isShutdown()) {
+                mBackgroundTaskExecutor.shutdown();
+                mBackgroundTaskExecutor = null;
+            }
+        }
     }
-  }
 }

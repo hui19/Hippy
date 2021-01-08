@@ -26,15 +26,15 @@ import com.tencent.mtt.hippy.bridge.NativeCallback;
  */
 public interface HippyBundleLoader {
 
-  boolean load(HippyBridge bridge, NativeCallback callback);
+    boolean load(HippyBridge bridge, NativeCallback callback);
 
-  String getPath();
+    String getPath();
 
-  public String getRawPath();
+    public String getRawPath();
 
-  String getBundleUniKey();
+    String getBundleUniKey();
 
-  boolean canUseCodeCache();
+    boolean canUseCodeCache();
 
-  String getCodeCacheTag();
+    String getCodeCacheTag();
 }

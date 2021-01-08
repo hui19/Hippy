@@ -25,10 +25,10 @@ import android.content.Context;
  */
 public interface DevRemoteDebugProxy {
 
-  void destroy();
+    void destroy();
 
-  interface OnReceiveDataListener {
+    interface OnReceiveDataListener {
 
-    public void onReceiveData(String mesg);
-  }
+        public void onReceiveData(String mesg);
+    }
 }

@@ -29,44 +29,44 @@ import com.tencent.mtt.hippy.HippyRootView;
 
 public class DevSupportManager {
 
-  DevServerInterface mDevImp = null;
-  boolean mSupportDev;
+    DevServerInterface mDevImp = null;
+    boolean mSupportDev;
 
-  public DevSupportManager(HippyGlobalConfigs configs, boolean enableDev, String serverHost,
-    String bundleName) {
-    this.mDevImp = DevFactory.create(configs, enableDev, serverHost, bundleName);
-    mSupportDev = enableDev;
-  }
+    public DevSupportManager(HippyGlobalConfigs configs, boolean enableDev, String serverHost,
+            String bundleName) {
+        this.mDevImp = DevFactory.create(configs, enableDev, serverHost, bundleName);
+        mSupportDev = enableDev;
+    }
 
-  public boolean supportDev() {
-    return mSupportDev;
-  }
+    public boolean supportDev() {
+        return mSupportDev;
+    }
 
-  public void setDevCallback(DevServerCallBack devCallback) {
-    mDevImp.setDevServerCallback(devCallback);
-  }
+    public void setDevCallback(DevServerCallBack devCallback) {
+        mDevImp.setDevServerCallback(devCallback);
+    }
 
-  public void attachToHost(HippyRootView view) {
-    mDevImp.attachToHost(view);
-  }
+    public void attachToHost(HippyRootView view) {
+        mDevImp.attachToHost(view);
+    }
 
-  public void detachFromHost(HippyRootView view) {
-    mDevImp.detachFromHost(view);
-  }
+    public void detachFromHost(HippyRootView view) {
+        mDevImp.detachFromHost(view);
+    }
 
-  public void init(DevRemoteDebugProxy remoteDebugManager) {
+    public void init(DevRemoteDebugProxy remoteDebugManager) {
 
-  }
+    }
 
-  public String createResourceUrl(String resName) {
-    return mDevImp.createResourceUrl(resName);
-  }
+    public String createResourceUrl(String resName) {
+        return mDevImp.createResourceUrl(resName);
+    }
 
-  public void handleException(Throwable throwable) {
-    mDevImp.handleException(throwable);
-  }
+    public void handleException(Throwable throwable) {
+        mDevImp.handleException(throwable);
+    }
 
-  public void loadRemoteResource(String url, DevServerCallBack serverCallBack) {
-    mDevImp.loadRemoteResource(url, serverCallBack);
-  }
+    public void loadRemoteResource(String url, DevServerCallBack serverCallBack) {
+        mDevImp.loadRemoteResource(url, serverCallBack);
+    }
 }

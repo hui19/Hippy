@@ -17,93 +17,93 @@ import java.util.ArrayList;
  */
 public class HippyItemTypeHelper {
 
-  HippyRecyclerViewBase recyclerView;
-  private Recycler recycler;
+    HippyRecyclerViewBase recyclerView;
+    private Recycler recycler;
 
-  public HippyItemTypeHelper(HippyRecyclerViewBase recyclerView) {
-    this.recyclerView = recyclerView;
-    this.recycler = recyclerView.mRecycler;
-  }
-
-  /**
-   * 更新3层缓存的ViewHolder
-   *
-   * @param oldType 老的type
-   * @param newType 新的type
-   * @param listItemRenderNode 前端变化type的RenderNode
-   */
-  public void updateItemType(int oldType, int newType, ListItemRenderNode listItemRenderNode) {
-    int count = recyclerView.getChildCount();
-    for (int i = 0; i < count; i++) {
-      final RecyclerView.ViewHolder holder = recyclerView
-        .getChildViewHolder(recyclerView.getChildAt(i));
-      if (changeTypeIfNeed(oldType, newType, listItemRenderNode, holder)) {
-        return;
-      }
+    public HippyItemTypeHelper(HippyRecyclerViewBase recyclerView) {
+        this.recyclerView = recyclerView;
+        this.recycler = recyclerView.mRecycler;
     }
 
-    if (updateItemType(oldType, newType, listItemRenderNode, recycler.mAttachedScrap)) {
-      return;
-    }
-
-    if (updateItemType(oldType, newType, listItemRenderNode, recyclerView.mRecycler.mCachedViews)) {
-      return;
-    }
-
-    updateTypeForRecyclerPool(oldType, newType, listItemRenderNode);
-  }
-
-  private void updateTypeForRecyclerPool(int oldType, int newType, ListItemRenderNode renderNode) {
-    if (recycler.getRecycledViewPool() != null) {
-      SparseArray<ScrapData> scrap = recycler.getRecycledViewPool().mScrap;
-      RecycledViewPool.ScrapData scrapData = scrap.get(oldType);
-      if (scrapData != null && !scrapData.mScrapHeap.isEmpty()) {
-        for (RecyclerView.ViewHolder holder : scrapData.mScrapHeap) {
-          if (changeTypeIfNeed(oldType, newType, renderNode, holder)) {
-            scrapData.mScrapHeap.remove(holder);
-            addNewType(newType, holder);
-            return;
-          }
+    /**
+     * 更新3层缓存的ViewHolder
+     *
+     * @param oldType 老的type
+     * @param newType 新的type
+     * @param listItemRenderNode 前端变化type的RenderNode
+     */
+    public void updateItemType(int oldType, int newType, ListItemRenderNode listItemRenderNode) {
+        int count = recyclerView.getChildCount();
+        for (int i = 0; i < count; i++) {
+            final RecyclerView.ViewHolder holder = recyclerView
+                    .getChildViewHolder(recyclerView.getChildAt(i));
+            if (changeTypeIfNeed(oldType, newType, listItemRenderNode, holder)) {
+                return;
+            }
         }
-      }
-    }
-  }
 
-  /**
-   * 重新将viewHolder加入缓存池
-   */
-  private void addNewType(int newType, ViewHolder holder) {
-    holder.mItemViewType = newType;
-    SparseArray<ScrapData> scrap = recycler.getRecycledViewPool().mScrap;
-    ScrapData newScrapData = scrap.get(newType);
-    if (newScrapData == null) {
-      newScrapData = new ScrapData();
-      scrap.append(newType, newScrapData);
-    }
-    newScrapData.mScrapHeap.add(holder);
-  }
+        if (updateItemType(oldType, newType, listItemRenderNode, recycler.mAttachedScrap)) {
+            return;
+        }
 
-  private boolean updateItemType(int oldType, int newType, ListItemRenderNode listItemRenderNode,
-    ArrayList<RecyclerView.ViewHolder> viewHolders) {
-    final int cacheSize = viewHolders.size();
-    for (int i = 0; i < cacheSize; i++) {
-      final RecyclerView.ViewHolder holder = viewHolders.get(i);
-      if (changeTypeIfNeed(oldType, newType, listItemRenderNode, holder)) {
-        return true;
-      }
-    }
-    return false;
-  }
+        if (updateItemType(oldType, newType, listItemRenderNode, recyclerView.mRecycler.mCachedViews)) {
+            return;
+        }
 
-  private boolean changeTypeIfNeed(int oldType, int newType, ListItemRenderNode listItemRenderNode,
-    RecyclerView.ViewHolder holder) {
-    if (holder.getItemViewType() == oldType && holder instanceof HippyRecyclerViewHolder) {
-      RenderNode holderNode = ((HippyRecyclerViewHolder) holder).bindNode;
-      if (holderNode == listItemRenderNode) {
+        updateTypeForRecyclerPool(oldType, newType, listItemRenderNode);
+    }
+
+    private void updateTypeForRecyclerPool(int oldType, int newType, ListItemRenderNode renderNode) {
+        if (recycler.getRecycledViewPool() != null) {
+            SparseArray<ScrapData> scrap = recycler.getRecycledViewPool().mScrap;
+            RecycledViewPool.ScrapData scrapData = scrap.get(oldType);
+            if (scrapData != null && !scrapData.mScrapHeap.isEmpty()) {
+                for (RecyclerView.ViewHolder holder : scrapData.mScrapHeap) {
+                    if (changeTypeIfNeed(oldType, newType, renderNode, holder)) {
+                        scrapData.mScrapHeap.remove(holder);
+                        addNewType(newType, holder);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 重新将viewHolder加入缓存池
+     */
+    private void addNewType(int newType, ViewHolder holder) {
         holder.mItemViewType = newType;
-        return true;
-      }
+        SparseArray<ScrapData> scrap = recycler.getRecycledViewPool().mScrap;
+        ScrapData newScrapData = scrap.get(newType);
+        if (newScrapData == null) {
+            newScrapData = new ScrapData();
+            scrap.append(newType, newScrapData);
+        }
+        newScrapData.mScrapHeap.add(holder);
     }
-    return false;
-  }
+
+    private boolean updateItemType(int oldType, int newType, ListItemRenderNode listItemRenderNode,
+            ArrayList<RecyclerView.ViewHolder> viewHolders) {
+        final int cacheSize = viewHolders.size();
+        for (int i = 0; i < cacheSize; i++) {
+            final RecyclerView.ViewHolder holder = viewHolders.get(i);
+            if (changeTypeIfNeed(oldType, newType, listItemRenderNode, holder)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean changeTypeIfNeed(int oldType, int newType, ListItemRenderNode listItemRenderNode,
+            RecyclerView.ViewHolder holder) {
+        if (holder.getItemViewType() == oldType && holder instanceof HippyRecyclerViewHolder) {
+            RenderNode holderNode = ((HippyRecyclerViewHolder) holder).bindNode;
+            if (holderNode == listItemRenderNode) {
+                holder.mItemViewType = newType;
+                return true;
+            }
+        }
+        return false;
+    }
 }

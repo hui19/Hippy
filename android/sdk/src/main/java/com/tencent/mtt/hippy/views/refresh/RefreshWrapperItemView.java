@@ -27,7 +27,7 @@ import com.tencent.mtt.hippy.views.view.HippyViewGroup;
  */
 public class RefreshWrapperItemView extends HippyViewGroup {
 
-  public RefreshWrapperItemView(Context context) {
-    super(context);
-  }
+    public RefreshWrapperItemView(Context context) {
+        super(context);
+    }
 }

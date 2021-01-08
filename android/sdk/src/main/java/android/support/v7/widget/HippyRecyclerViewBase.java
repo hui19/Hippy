@@ -14,16 +14,16 @@ import android.util.AttributeSet;
 
 public class HippyRecyclerViewBase extends EasyRecyclerView {
 
-  public HippyRecyclerViewBase(@NonNull Context context) {
-    super(context);
-  }
+    public HippyRecyclerViewBase(@NonNull Context context) {
+        super(context);
+    }
 
-  public HippyRecyclerViewBase(@NonNull Context context, @Nullable AttributeSet attrs) {
-    super(context, attrs);
-  }
+    public HippyRecyclerViewBase(@NonNull Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+    }
 
-  public HippyRecyclerViewBase(@NonNull Context context, @Nullable AttributeSet attrs,
-    int defStyle) {
-    super(context, attrs, defStyle);
-  }
+    public HippyRecyclerViewBase(@NonNull Context context, @Nullable AttributeSet attrs,
+            int defStyle) {
+        super(context, attrs, defStyle);
+    }
 }

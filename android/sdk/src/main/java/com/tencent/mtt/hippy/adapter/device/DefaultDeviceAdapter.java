@@ -28,9 +28,9 @@ import com.tencent.mtt.hippy.common.HippyMap;
 
 public class DefaultDeviceAdapter implements HippyDeviceAdapter {
 
-  @Override
-  public void reviseDimensionIfNeed(Context context, HippyMap dimensionMap,
-    boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged) {
-    // Default do nothing here
-  }
+    @Override
+    public void reviseDimensionIfNeed(Context context, HippyMap dimensionMap,
+            boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged) {
+        // Default do nothing here
+    }
 }

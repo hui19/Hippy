@@ -24,5 +24,5 @@ import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
 
 public interface IRecycleItemTypeChange {
 
-  void onRecycleItemTypeChanged(int oldType, int newType, ListItemRenderNode listItemNode);
+    void onRecycleItemTypeChanged(int oldType, int newType, ListItemRenderNode listItemNode);
 }

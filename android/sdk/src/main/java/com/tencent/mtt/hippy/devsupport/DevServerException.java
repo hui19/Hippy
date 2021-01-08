@@ -25,7 +25,7 @@ package com.tencent.mtt.hippy.devsupport;
 
 public class DevServerException extends RuntimeException {
 
-  public DevServerException(String message) {
-    super(message);
-  }
+    public DevServerException(String message) {
+        super(message);
+    }
 }

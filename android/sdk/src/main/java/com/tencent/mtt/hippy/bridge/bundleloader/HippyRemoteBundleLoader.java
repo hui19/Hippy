@@ -22,65 +22,65 @@ import com.tencent.mtt.hippy.bridge.NativeCallback;
 
 public class HippyRemoteBundleLoader implements HippyBundleLoader {
 
-  String mUrl;
+    String mUrl;
 
-  boolean mIsDebugMode = false;
+    boolean mIsDebugMode = false;
 
-  private boolean mCanUseCodeCache;
+    private boolean mCanUseCodeCache;
 
-  private String mCodeCacheTag;
+    private String mCodeCacheTag;
 
-  public HippyRemoteBundleLoader(String url) {
-    this(url, false, "");
-  }
-
-  public HippyRemoteBundleLoader(String url, boolean canUseCodeCache, String codeCacheTag) {
-    this.mUrl = url;
-    this.mCanUseCodeCache = canUseCodeCache;
-    this.mCodeCacheTag = codeCacheTag;
-  }
-
-  public void setCodeCache(boolean canUseCodeCache, String codeCacheTag) {
-    this.mCanUseCodeCache = canUseCodeCache;
-    this.mCodeCacheTag = codeCacheTag;
-  }
-
-  public void setIsDebugMode(boolean debugMode) {
-    mIsDebugMode = debugMode;
-  }
-
-  @Override
-  public boolean load(HippyBridge bridge, NativeCallback callback) {
-    if (TextUtils.isEmpty(mUrl)) {
-      return false;
+    public HippyRemoteBundleLoader(String url) {
+        this(url, false, "");
     }
 
-    return bridge.runScriptFromUri(mUrl, null, mCanUseCodeCache, mCodeCacheTag, callback);
-  }
+    public HippyRemoteBundleLoader(String url, boolean canUseCodeCache, String codeCacheTag) {
+        this.mUrl = url;
+        this.mCanUseCodeCache = canUseCodeCache;
+        this.mCodeCacheTag = codeCacheTag;
+    }
 
-  @Override
-  public String getPath() {
-    return mUrl;
-  }
+    public void setCodeCache(boolean canUseCodeCache, String codeCacheTag) {
+        this.mCanUseCodeCache = canUseCodeCache;
+        this.mCodeCacheTag = codeCacheTag;
+    }
 
-  @Override
-  public String getRawPath() {
-    return mUrl;
-  }
+    public void setIsDebugMode(boolean debugMode) {
+        mIsDebugMode = debugMode;
+    }
 
-  @Override
-  public String getBundleUniKey() {
-    return getPath();
-  }
+    @Override
+    public boolean load(HippyBridge bridge, NativeCallback callback) {
+        if (TextUtils.isEmpty(mUrl)) {
+            return false;
+        }
 
-  @Override
-  public boolean canUseCodeCache() {
-    return mCanUseCodeCache;
-  }
+        return bridge.runScriptFromUri(mUrl, null, mCanUseCodeCache, mCodeCacheTag, callback);
+    }
 
-  @Override
-  public String getCodeCacheTag() {
-    return mCodeCacheTag;
-  }
+    @Override
+    public String getPath() {
+        return mUrl;
+    }
+
+    @Override
+    public String getRawPath() {
+        return mUrl;
+    }
+
+    @Override
+    public String getBundleUniKey() {
+        return getPath();
+    }
+
+    @Override
+    public boolean canUseCodeCache() {
+        return mCanUseCodeCache;
+    }
+
+    @Override
+    public String getCodeCacheTag() {
+        return mCodeCacheTag;
+    }
 
 }

@@ -24,16 +24,16 @@ import android.content.Context;
 
 public class ContextHolder {
 
-  private static Context sAppContext;
+    private static Context sAppContext;
 
-  public ContextHolder() {
-  }
+    public ContextHolder() {
+    }
 
-  public static void initAppContext(Context var0) {
-    sAppContext = var0;
-  }
+    public static void initAppContext(Context var0) {
+        sAppContext = var0;
+    }
 
-  public static Context getAppContext() {
-    return sAppContext;
-  }
+    public static Context getAppContext() {
+        return sAppContext;
+    }
 }

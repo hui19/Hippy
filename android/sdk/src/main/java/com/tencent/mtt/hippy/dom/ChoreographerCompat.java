@@ -28,48 +28,48 @@ import java.util.Map;
 
 public class ChoreographerCompat {
 
-  private static boolean IS_JELLY_BEAN = Build.VERSION.SDK_INT >= 16;
-  private static ChoreographerCompat sInstance;
+    private static boolean IS_JELLY_BEAN = Build.VERSION.SDK_INT >= 16;
+    private static ChoreographerCompat sInstance;
 
-  private ChoreographerCompat() {
+    private ChoreographerCompat() {
 
-  }
-
-  public static ChoreographerCompat getInstance() {
-    if (sInstance == null) {
-      sInstance = new ChoreographerCompat();
     }
-    return sInstance;
-  }
 
-  private Map<HippyChoreographer.FrameCallback, Choreographer.FrameCallback> mMapper = new HashMap<>();
-
-  public void postFrameCallback(final HippyChoreographer.FrameCallback callback) {
-    if (IS_JELLY_BEAN) {
-      Choreographer.FrameCallback frameCallback = new Choreographer.FrameCallback() {
-        @Override
-        public void doFrame(long frameTimeNanos) {
-          if (callback != null) {
-            callback.doFrame(frameTimeNanos);
-          }
+    public static ChoreographerCompat getInstance() {
+        if (sInstance == null) {
+            sInstance = new ChoreographerCompat();
         }
-      };
-      mMapper.put(callback, frameCallback);
-      Choreographer.getInstance().postFrameCallback(frameCallback);
-    } else {
-      ICSChoreographer.getInstance().postFrameCallback(callback);
+        return sInstance;
     }
-  }
 
-  public void removeFrameCallback(HippyChoreographer.FrameCallback callback) {
-    if (IS_JELLY_BEAN) {
-      Choreographer.FrameCallback frameCallback = mMapper.get(callback);
-      if (frameCallback != null) {
-        mMapper.remove(callback);
-        Choreographer.getInstance().removeFrameCallback(frameCallback);
-      }
-    } else {
-      ICSChoreographer.getInstance().removeFrameCallback(callback);
+    private Map<HippyChoreographer.FrameCallback, Choreographer.FrameCallback> mMapper = new HashMap<>();
+
+    public void postFrameCallback(final HippyChoreographer.FrameCallback callback) {
+        if (IS_JELLY_BEAN) {
+            Choreographer.FrameCallback frameCallback = new Choreographer.FrameCallback() {
+                @Override
+                public void doFrame(long frameTimeNanos) {
+                    if (callback != null) {
+                        callback.doFrame(frameTimeNanos);
+                    }
+                }
+            };
+            mMapper.put(callback, frameCallback);
+            Choreographer.getInstance().postFrameCallback(frameCallback);
+        } else {
+            ICSChoreographer.getInstance().postFrameCallback(callback);
+        }
     }
-  }
+
+    public void removeFrameCallback(HippyChoreographer.FrameCallback callback) {
+        if (IS_JELLY_BEAN) {
+            Choreographer.FrameCallback frameCallback = mMapper.get(callback);
+            if (frameCallback != null) {
+                mMapper.remove(callback);
+                Choreographer.getInstance().removeFrameCallback(frameCallback);
+            }
+        } else {
+            ICSChoreographer.getInstance().removeFrameCallback(callback);
+        }
+    }
 }

@@ -23,52 +23,52 @@ import java.io.File;
 
 public class DevServerConfig {
 
-  private static final String JS_REMOTE_DEBUG = "js_remote_debug";
+    private static final String JS_REMOTE_DEBUG = "js_remote_debug";
 
-  private static final String HIPPYDEBUGPREF = "hippydebugpref";
+    private static final String HIPPYDEBUGPREF = "hippydebugpref";
 
-  public static final String JS_BUNDLE_FILE_NAME = "HippyDevBundle.js";
+    public static final String JS_BUNDLE_FILE_NAME = "HippyDevBundle.js";
 
-  boolean mLiveDebug = false;
+    boolean mLiveDebug = false;
 
-  SharedPreferences sharedPreferences;
+    SharedPreferences sharedPreferences;
 
-  private File mJSBundleTempFile;
+    private File mJSBundleTempFile;
 
-  // Hippy Server JsBundle名字
-  private String mServerBundleName;
-  private String mServerHost;
+    // Hippy Server JsBundle名字
+    private String mServerBundleName;
+    private String mServerHost;
 
-  public DevServerConfig(String serverHost, String bundleName) {
-    sharedPreferences = ContextHolder.getAppContext()
-      .getSharedPreferences(HIPPYDEBUGPREF, Context.MODE_PRIVATE);
-    mJSBundleTempFile = new File(ContextHolder.getAppContext().getFilesDir(), JS_BUNDLE_FILE_NAME);
-    mServerBundleName = bundleName;
-    mServerHost = serverHost;
-  }
+    public DevServerConfig(String serverHost, String bundleName) {
+        sharedPreferences = ContextHolder.getAppContext()
+                .getSharedPreferences(HIPPYDEBUGPREF, Context.MODE_PRIVATE);
+        mJSBundleTempFile = new File(ContextHolder.getAppContext().getFilesDir(), JS_BUNDLE_FILE_NAME);
+        mServerBundleName = bundleName;
+        mServerHost = serverHost;
+    }
 
-  public File getJSBundleTempFile() {
-    return mJSBundleTempFile;
-  }
+    public File getJSBundleTempFile() {
+        return mJSBundleTempFile;
+    }
 
-  public String getBundleName() {
-    return mServerBundleName;
-  }
+    public String getBundleName() {
+        return mServerBundleName;
+    }
 
-  public String getServerHost() {
-    return mServerHost;
-  }
+    public String getServerHost() {
+        return mServerHost;
+    }
 
-  public boolean enableRemoteDebug() {
-    return sharedPreferences.getBoolean(JS_REMOTE_DEBUG, false);
-  }
+    public boolean enableRemoteDebug() {
+        return sharedPreferences.getBoolean(JS_REMOTE_DEBUG, false);
+    }
 
-  public boolean enableLiveDebug() {
-    return mLiveDebug;
-  }
+    public boolean enableLiveDebug() {
+        return mLiveDebug;
+    }
 
-  public void setEnableLiveDebug(boolean enableLiveDebug) {
-    mLiveDebug = enableLiveDebug;
-  }
+    public void setEnableLiveDebug(boolean enableLiveDebug) {
+        mLiveDebug = enableLiveDebug;
+    }
 
 }

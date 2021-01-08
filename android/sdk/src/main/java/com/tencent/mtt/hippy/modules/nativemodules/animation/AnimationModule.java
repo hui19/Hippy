@@ -44,532 +44,532 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 @HippyNativeModule(name = "AnimationModule", thread = HippyNativeModule.Thread.DOM)
 public class AnimationModule extends HippyNativeModuleBase implements DomActionInterceptor,
-  Animation.AnimationListener, Handler.Callback,
-  HippyEngineLifecycleEventListener {
+        Animation.AnimationListener, Handler.Callback,
+        HippyEngineLifecycleEventListener {
 
-  public static final String ANIMATION_ID = "animationId";
-  public static final String TIMING = "timing";
-  public static final String USE_ANIMATION = "useAnimation";
-  public static final String HANDLE_MESSAGE_BY_ANIMATION = "handleMessageByAnimation";
-  public static final String FOLLOW = "follow";
+    public static final String ANIMATION_ID = "animationId";
+    public static final String TIMING = "timing";
+    public static final String USE_ANIMATION = "useAnimation";
+    public static final String HANDLE_MESSAGE_BY_ANIMATION = "handleMessageByAnimation";
+    public static final String FOLLOW = "follow";
 
-  public static final String EVENT_NAME_ANIMATION_START = "onHippyAnimationStart";
-  public static final String EVENT_NAME_ANIMATION_END = "onHippyAnimationEnd";
-  public static final String EVENT_NAME_ANIMATION_CANCEL = "onHippyAnimationCancel";
-  public static final String EVENT_NAME_ANIMATION_REPEAT = "onHippyAnimationRepeat";
+    public static final String EVENT_NAME_ANIMATION_START = "onHippyAnimationStart";
+    public static final String EVENT_NAME_ANIMATION_END = "onHippyAnimationEnd";
+    public static final String EVENT_NAME_ANIMATION_CANCEL = "onHippyAnimationCancel";
+    public static final String EVENT_NAME_ANIMATION_REPEAT = "onHippyAnimationRepeat";
 
-  private static final int ANIMATION_DELAY_TIME = 16;
-  private static final int MSG_CHANGE_ANIMATION_STATUS = 100;
-  private static final int MSG_UPDATE_ANIMATION_NODE = 101;
-  private SparseArray<Animation> mAnimations;
-  private SparseArray<AnimationNode> mAnimationNodes;
-  private Handler mHandler;
-  private long mLastUpdateTime;
-  private Set<Integer> mNeedUpdateAnimationNodes;
-  private Set<AnimationNode> mWaitUpdateAnimationNodes;
+    private static final int ANIMATION_DELAY_TIME = 16;
+    private static final int MSG_CHANGE_ANIMATION_STATUS = 100;
+    private static final int MSG_UPDATE_ANIMATION_NODE = 101;
+    private SparseArray<Animation> mAnimations;
+    private SparseArray<AnimationNode> mAnimationNodes;
+    private Handler mHandler;
+    private long mLastUpdateTime;
+    private Set<Integer> mNeedUpdateAnimationNodes;
+    private Set<AnimationNode> mWaitUpdateAnimationNodes;
 
 
-  public AnimationModule(HippyEngineContext context) {
-    super(context);
-  }
+    public AnimationModule(HippyEngineContext context) {
+        super(context);
+    }
 
-  @Override
-  public boolean handleMessage(Message msg) {
-    int what = msg.what;
-    switch (what) {
-      case MSG_CHANGE_ANIMATION_STATUS: {
-        if (!mHandler.hasMessages(MSG_UPDATE_ANIMATION_NODE)) {
-          long time = SystemClock.elapsedRealtime();
-          if (time - mLastUpdateTime >= ANIMATION_DELAY_TIME) {
-            doUpdateAnimationNodes();
-          } else {
+    @Override
+    public boolean handleMessage(Message msg) {
+        int what = msg.what;
+        switch (what) {
+            case MSG_CHANGE_ANIMATION_STATUS: {
+                if (!mHandler.hasMessages(MSG_UPDATE_ANIMATION_NODE)) {
+                    long time = SystemClock.elapsedRealtime();
+                    if (time - mLastUpdateTime >= ANIMATION_DELAY_TIME) {
+                        doUpdateAnimationNodes();
+                    } else {
 
-            mHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION_NODE, time - mLastUpdateTime);
-          }
+                        mHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION_NODE, time - mLastUpdateTime);
+                    }
+                }
+                break;
+            }
+            case MSG_UPDATE_ANIMATION_NODE: {
+                doUpdateAnimationNodes();
+                break;
+            }
         }
-        break;
-      }
-      case MSG_UPDATE_ANIMATION_NODE: {
-        doUpdateAnimationNodes();
-        break;
-      }
-    }
-    return true;
-  }
-
-  @Override
-  public void initialize() {
-    super.initialize();
-    mNeedUpdateAnimationNodes = Collections.synchronizedSet(new HashSet<Integer>());
-    mContext.addEngineLifecycleEventListener(this);
-    mHandler = new Handler(mContext.getThreadExecutor().getDomThread().getLooper(), this);
-    mAnimations = new SparseArray<>();
-    mAnimationNodes = new SparseArray<>();
-    if (mContext.getDomManager() != null) {
-      mContext.getDomManager().addActionInterceptor(this);
-    }
-  }
-
-  @Override
-  public void destroy() {
-    mContext.removeEngineLifecycleEventListener(this);
-    if (mContext.getDomManager() != null) {
-      mContext.getDomManager().removeActionInterceptor(this);
-    }
-    super.destroy();
-  }
-
-  @Override
-  public void onAnimationStart(Animation animation) {
-    mContext.getModuleManager().getJavaScriptModule(EventDispatcher.class)
-      .receiveNativeEvent(EVENT_NAME_ANIMATION_START, animation.getId());
-  }
-
-  @Override
-  public void onAnimationEnd(Animation animation) {
-    onAnimationUpdate(animation);
-    mContext.getModuleManager().getJavaScriptModule(EventDispatcher.class)
-      .receiveNativeEvent(EVENT_NAME_ANIMATION_END, animation.getId());
-  }
-
-  @Override
-  public void onAnimationCancel(Animation animation) {
-    mContext.getModuleManager().getJavaScriptModule(EventDispatcher.class)
-      .receiveNativeEvent(EVENT_NAME_ANIMATION_CANCEL, animation.getId());
-  }
-
-  @Override
-  public void onAnimationRepeat(Animation animation) {
-    mContext.getModuleManager().getJavaScriptModule(EventDispatcher.class)
-      .receiveNativeEvent(EVENT_NAME_ANIMATION_REPEAT, animation.getId());
-  }
-
-  @Override
-  public void onAnimationUpdate(Animation animation) {
-    if (animation == null) {
-      return;
-    }
-    CopyOnWriteArrayList<Integer> nodeIds = animation.getAnimationNodes();
-    if (nodeIds == null) {
-      return;
+        return true;
     }
 
-    for (int nodeId : nodeIds) {
-      mNeedUpdateAnimationNodes.add(nodeId);
-    }
-
-    if (!mHandler.hasMessages(MSG_CHANGE_ANIMATION_STATUS)) {
-      mHandler.sendEmptyMessage(MSG_CHANGE_ANIMATION_STATUS);
-    }
-  }
-
-  @HippyMethod(name = "createAnimation")
-  public void createAnimation(int animationId, String mode, HippyMap params) {
-    if (mAnimations.get(animationId) != null) {
-      return;
-    }
-    if (TextUtils.isEmpty(mode)) {
-      mAnimations.put(animationId, null);
-    }
-    try {
-      if (TextUtils.equals(mode, TIMING)) {
-        preprocessStartValue(params);
-        TimingAnimation animation = new TimingAnimation(animationId);
-        animation.addAnimationListener(this);
-        animation.parseFromData(params);
-        mAnimations.append(animationId, animation);
-      }
-    } catch (Throwable e) {
-      e.printStackTrace();
-    }
-  }
-
-  private void preprocessStartValue(HippyMap map) {
-    if (map == null) {
-      return;
-    }
-
-    if (map.containsKey("startValue")) {
-      Object obj = map.get("startValue");
-      if (obj instanceof HippyMap) {
-        int startValueAnimationId = ((HippyMap) obj).getInt(ANIMATION_ID);
-        map.remove("startValue");
-        map.pushObject("startValue",
-          mAnimations.get(startValueAnimationId).getAnimationSimpleValue());
-      }
-    }
-  }
-
-  @HippyMethod(name = "updateAnimation")
-  public void updateAnimation(int animationId, HippyMap params) {
-    LogUtils.d("shit", Thread.currentThread().getName());
-    Animation targetAnim = mAnimations.get(animationId);
-    if (targetAnim == null || (targetAnim.getAnimator() != null && targetAnim.getAnimator()
-      .isRunning())) {
-      LogUtils.d("AnimationModule",
-        "trying to update a unexisted animation or the animation has started");
-      return;
-    }
-
-    if (targetAnim instanceof TimingAnimation) {
-      preprocessStartValue(params);
-      ((TimingAnimation) targetAnim).parseFromData(params);
-      targetAnim.onAnimationUpdate(null);
-    }
-
-  }
-
-  @HippyMethod(name = "createAnimationSet")
-  public void createAnimationSet(int animationId, HippyMap mapParams) {
-    AnimationSet animatorSet = new AnimationSet(animationId);
-
-    animatorSet.addAnimationListener(this);
-    try {
-      if (mapParams != null) {
-        if (mapParams.containsKey(NodeProps.REPEAT_COUNT)) {
-          animatorSet.setRepeatCount(mapParams.getInt(NodeProps.REPEAT_COUNT));
+    @Override
+    public void initialize() {
+        super.initialize();
+        mNeedUpdateAnimationNodes = Collections.synchronizedSet(new HashSet<Integer>());
+        mContext.addEngineLifecycleEventListener(this);
+        mHandler = new Handler(mContext.getThreadExecutor().getDomThread().getLooper(), this);
+        mAnimations = new SparseArray<>();
+        mAnimationNodes = new SparseArray<>();
+        if (mContext.getDomManager() != null) {
+            mContext.getDomManager().addActionInterceptor(this);
         }
+    }
 
-        HippyArray params = mapParams.getArray("children");
-
-        int size = params.size();
-        HippyMap map;
-        int childId = 0;
-        boolean follow = false;
-        for (int i = 0; i < size; i++) {
-          map = params.getMap(i);
-          if (!map.containsKey(ANIMATION_ID)) {
-            break;
-          }
-          childId = map.getInt(ANIMATION_ID);
-          if (i != 0 && map.containsKey(FOLLOW)) {
-            follow = map.getBoolean(FOLLOW);
-          }
-          animatorSet.addAnimation(mAnimations.get(childId), follow);
+    @Override
+    public void destroy() {
+        mContext.removeEngineLifecycleEventListener(this);
+        if (mContext.getDomManager() != null) {
+            mContext.getDomManager().removeActionInterceptor(this);
         }
-      }
-    } catch (Throwable e) {
-
+        super.destroy();
     }
-    mAnimations.append(animationId, animatorSet);
-  }
 
-  @HippyMethod(name = "startAnimation")
-  public void startAnimation(int animationId) {
-    Animation animation = mAnimations.get(animationId);
-    if (animation != null) {
-      animation.start();
+    @Override
+    public void onAnimationStart(Animation animation) {
+        mContext.getModuleManager().getJavaScriptModule(EventDispatcher.class)
+                .receiveNativeEvent(EVENT_NAME_ANIMATION_START, animation.getId());
     }
-  }
 
-  @HippyMethod(name = "stopAnimation")
-  public void stopAnimation(int animationId) {
-    Animation animation = mAnimations.get(animationId);
-    if (animation != null) {
-      animation.stop();
+    @Override
+    public void onAnimationEnd(Animation animation) {
+        onAnimationUpdate(animation);
+        mContext.getModuleManager().getJavaScriptModule(EventDispatcher.class)
+                .receiveNativeEvent(EVENT_NAME_ANIMATION_END, animation.getId());
     }
-  }
 
-  // 暂停动画，xqkuang需求
-  @HippyMethod(name = "pauseAnimation")
-  public void pauseAnimation(int animationId) {
-    Animation animation = mAnimations.get(animationId);
-    if (animation != null) {
-      animation.pause();
+    @Override
+    public void onAnimationCancel(Animation animation) {
+        mContext.getModuleManager().getJavaScriptModule(EventDispatcher.class)
+                .receiveNativeEvent(EVENT_NAME_ANIMATION_CANCEL, animation.getId());
     }
-  }
 
-  // 继续动画，xqkuang需求
-  @HippyMethod(name = "resumeAnimation")
-  public void resumeAnimation(int animationId) {
-    Animation animation = mAnimations.get(animationId);
-    if (animation != null) {
-      animation.resume();
+    @Override
+    public void onAnimationRepeat(Animation animation) {
+        mContext.getModuleManager().getJavaScriptModule(EventDispatcher.class)
+                .receiveNativeEvent(EVENT_NAME_ANIMATION_REPEAT, animation.getId());
     }
-  }
 
-  @HippyMethod(name = "destroyAnimation")
-  public void destroyAnimation(int animationId) {
-    stopAnimation(animationId);
-    Animation animation = mAnimations.get(animationId);
-    if (animation != null && animation instanceof AnimationSet) {
-      ArrayList<Integer> childIds = ((AnimationSet) animation).getChildAnimationIds();
-      if (childIds != null) {
-        for (int childId : childIds) {
-          stopAnimation(childId);
-          mAnimations.remove(childId);
-        }
-      }
-    }
-    mAnimations.remove(animationId);
-  }
-
-  @Override
-  public HippyMap onCreateNode(int tagId, HippyRootView rootView, HippyMap props) {
-    return onUpdateAnimationProperty(tagId, rootView, props);
-  }
-
-  @Override
-  public HippyMap onUpdateNode(int tagId, HippyRootView rootView, HippyMap props) {
-    return onUpdateAnimationProperty(tagId, rootView, props);
-  }
-
-
-  @Override
-  public void onEngineResume() {
-    if (mHandler != null) {
-      mHandler.post(new Runnable() {
-        @Override
-        public void run() {
-          if (mAnimations == null) {
+    @Override
+    public void onAnimationUpdate(Animation animation) {
+        if (animation == null) {
             return;
-          }
-          int size = mAnimations.size();
-          Animation animation;
-          for (int i = 0; i < size; i++) {
-            animation = mAnimations.valueAt(i);
-            animation.resume();
-          }
         }
-      });
-    }
-  }
-
-  @Override
-  public void onEnginePause() {
-    if (mHandler != null) {
-      mHandler.post(new Runnable() {
-        @Override
-        public void run() {
-          if (mAnimations == null) {
+        CopyOnWriteArrayList<Integer> nodeIds = animation.getAnimationNodes();
+        if (nodeIds == null) {
             return;
-          }
-          int size = mAnimations.size();
-          Animation animation;
-          for (int i = 0; i < size; i++) {
-            animation = mAnimations.valueAt(i);
-            animation.pause();
-          }
         }
-      });
-    }
-  }
 
-  @Override
-  public void onDeleteNode(int tagId) {
-    dealAnimationNode(tagId, null, null, null);
-  }
-
-  private HippyMap onUpdateAnimationProperty(int tagId, HippyRootView rootView, HippyMap props) {
-    //		LogUtils.d("AnimationModule","dom  updateNode node id : "+tagId+" onUpdateAnimationProperty width:" +props.get("width"));
-    if (props == null) {
-      return props;
-    }
-    if (props.containsKey(HANDLE_MESSAGE_BY_ANIMATION) && props
-      .getBoolean(HANDLE_MESSAGE_BY_ANIMATION)) {
-      return props;
-    }
-    if (!props.containsKey(USE_ANIMATION)) {
-      dealAnimationNode(tagId, rootView, null, null);
-      return props;
-    }
-    try {
-      boolean useAnimation = props.getBoolean(USE_ANIMATION);
-      if (!useAnimation) {
-        dealAnimationNode(tagId, rootView, null, null);
-        return props;
-      }
-      HippyMap newProps = new HippyMap();
-      ArrayList<Integer> animations = new ArrayList<>();
-      copyAndDealPropertys(tagId, props, newProps, animations);
-
-      dealAnimationNode(tagId, rootView, props, animations);
-      newProps.pushBoolean(HANDLE_MESSAGE_BY_ANIMATION, true);
-      return newProps;
-    } catch (Throwable e) {
-      e.printStackTrace();
-    }
-    return props;
-  }
-
-  private void dealAnimationNode(int tagId, HippyRootView rootView, HippyMap newProps,
-    ArrayList<Integer> newAnimationIds) {
-    AnimationNode node = mAnimationNodes.get(tagId);
-    if (node != null) {
-      Iterator<Animation> iterator = node.getAnimations().iterator();
-      Animation animation;
-      while (iterator.hasNext()) {
-        animation = iterator.next();
-        if (animation != null && (newAnimationIds == null || !newAnimationIds
-          .contains(animation.mId))) {
-          animation.removeAnimationNode(tagId);
-          iterator.remove();
+        for (int nodeId : nodeIds) {
+            mNeedUpdateAnimationNodes.add(nodeId);
         }
-      }
+
+        if (!mHandler.hasMessages(MSG_CHANGE_ANIMATION_STATUS)) {
+            mHandler.sendEmptyMessage(MSG_CHANGE_ANIMATION_STATUS);
+        }
     }
 
-    if (newAnimationIds == null || newAnimationIds.size() <= 0) {
-      mAnimationNodes.remove(tagId);
-    } else {
-      if (node == null) {
-        node = new AnimationNode(tagId, rootView);
-        mAnimationNodes.append(tagId, node);
-      }
-      Animation animation;
-      for (Integer animationId : newAnimationIds) {
-        animation = mAnimations.get(animationId);
+    @HippyMethod(name = "createAnimation")
+    public void createAnimation(int animationId, String mode, HippyMap params) {
+        if (mAnimations.get(animationId) != null) {
+            return;
+        }
+        if (TextUtils.isEmpty(mode)) {
+            mAnimations.put(animationId, null);
+        }
+        try {
+            if (TextUtils.equals(mode, TIMING)) {
+                preprocessStartValue(params);
+                TimingAnimation animation = new TimingAnimation(animationId);
+                animation.addAnimationListener(this);
+                animation.parseFromData(params);
+                mAnimations.append(animationId, animation);
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void preprocessStartValue(HippyMap map) {
+        if (map == null) {
+            return;
+        }
+
+        if (map.containsKey("startValue")) {
+            Object obj = map.get("startValue");
+            if (obj instanceof HippyMap) {
+                int startValueAnimationId = ((HippyMap) obj).getInt(ANIMATION_ID);
+                map.remove("startValue");
+                map.pushObject("startValue",
+                        mAnimations.get(startValueAnimationId).getAnimationSimpleValue());
+            }
+        }
+    }
+
+    @HippyMethod(name = "updateAnimation")
+    public void updateAnimation(int animationId, HippyMap params) {
+        LogUtils.d("shit", Thread.currentThread().getName());
+        Animation targetAnim = mAnimations.get(animationId);
+        if (targetAnim == null || (targetAnim.getAnimator() != null && targetAnim.getAnimator()
+                .isRunning())) {
+            LogUtils.d("AnimationModule",
+                    "trying to update a unexisted animation or the animation has started");
+            return;
+        }
+
+        if (targetAnim instanceof TimingAnimation) {
+            preprocessStartValue(params);
+            ((TimingAnimation) targetAnim).parseFromData(params);
+            targetAnim.onAnimationUpdate(null);
+        }
+
+    }
+
+    @HippyMethod(name = "createAnimationSet")
+    public void createAnimationSet(int animationId, HippyMap mapParams) {
+        AnimationSet animatorSet = new AnimationSet(animationId);
+
+        animatorSet.addAnimationListener(this);
+        try {
+            if (mapParams != null) {
+                if (mapParams.containsKey(NodeProps.REPEAT_COUNT)) {
+                    animatorSet.setRepeatCount(mapParams.getInt(NodeProps.REPEAT_COUNT));
+                }
+
+                HippyArray params = mapParams.getArray("children");
+
+                int size = params.size();
+                HippyMap map;
+                int childId = 0;
+                boolean follow = false;
+                for (int i = 0; i < size; i++) {
+                    map = params.getMap(i);
+                    if (!map.containsKey(ANIMATION_ID)) {
+                        break;
+                    }
+                    childId = map.getInt(ANIMATION_ID);
+                    if (i != 0 && map.containsKey(FOLLOW)) {
+                        follow = map.getBoolean(FOLLOW);
+                    }
+                    animatorSet.addAnimation(mAnimations.get(childId), follow);
+                }
+            }
+        } catch (Throwable e) {
+
+        }
+        mAnimations.append(animationId, animatorSet);
+    }
+
+    @HippyMethod(name = "startAnimation")
+    public void startAnimation(int animationId) {
+        Animation animation = mAnimations.get(animationId);
         if (animation != null) {
-          node.addAnimation(animation);
-          animation.addAnimationNode(tagId);
+            animation.start();
         }
-      }
-      node.setProps(newProps);
-    }
-  }
-
-  private void copyAndDealPropertys(int tagId, HippyMap props, HippyMap newProps,
-    ArrayList<Integer> animations) {
-    if (props == null) {
-      return;
     }
 
-    Set<String> keys = props.keySet();
-    Object value;
-    for (String key : keys) {
-      value = props.get(key);
-      if (value instanceof HippyMap) {
-        boolean flag = isAnimationPropertys((HippyMap) value);
-        if (flag) {
-          int animationId = ((HippyMap) value).getInt(ANIMATION_ID);
-          if (animations != null) {
-            animations.add(animationId);
-          }
-          Object animationValue = findAnimationValue(tagId, animationId);
-          if (animationValue != null) {
-            newProps.pushObject(key, animationValue);
-          }
+    @HippyMethod(name = "stopAnimation")
+    public void stopAnimation(int animationId) {
+        Animation animation = mAnimations.get(animationId);
+        if (animation != null) {
+            animation.stop();
+        }
+    }
+
+    // 暂停动画，xqkuang需求
+    @HippyMethod(name = "pauseAnimation")
+    public void pauseAnimation(int animationId) {
+        Animation animation = mAnimations.get(animationId);
+        if (animation != null) {
+            animation.pause();
+        }
+    }
+
+    // 继续动画，xqkuang需求
+    @HippyMethod(name = "resumeAnimation")
+    public void resumeAnimation(int animationId) {
+        Animation animation = mAnimations.get(animationId);
+        if (animation != null) {
+            animation.resume();
+        }
+    }
+
+    @HippyMethod(name = "destroyAnimation")
+    public void destroyAnimation(int animationId) {
+        stopAnimation(animationId);
+        Animation animation = mAnimations.get(animationId);
+        if (animation != null && animation instanceof AnimationSet) {
+            ArrayList<Integer> childIds = ((AnimationSet) animation).getChildAnimationIds();
+            if (childIds != null) {
+                for (int childId : childIds) {
+                    stopAnimation(childId);
+                    mAnimations.remove(childId);
+                }
+            }
+        }
+        mAnimations.remove(animationId);
+    }
+
+    @Override
+    public HippyMap onCreateNode(int tagId, HippyRootView rootView, HippyMap props) {
+        return onUpdateAnimationProperty(tagId, rootView, props);
+    }
+
+    @Override
+    public HippyMap onUpdateNode(int tagId, HippyRootView rootView, HippyMap props) {
+        return onUpdateAnimationProperty(tagId, rootView, props);
+    }
+
+
+    @Override
+    public void onEngineResume() {
+        if (mHandler != null) {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mAnimations == null) {
+                        return;
+                    }
+                    int size = mAnimations.size();
+                    Animation animation;
+                    for (int i = 0; i < size; i++) {
+                        animation = mAnimations.valueAt(i);
+                        animation.resume();
+                    }
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onEnginePause() {
+        if (mHandler != null) {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mAnimations == null) {
+                        return;
+                    }
+                    int size = mAnimations.size();
+                    Animation animation;
+                    for (int i = 0; i < size; i++) {
+                        animation = mAnimations.valueAt(i);
+                        animation.pause();
+                    }
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onDeleteNode(int tagId) {
+        dealAnimationNode(tagId, null, null, null);
+    }
+
+    private HippyMap onUpdateAnimationProperty(int tagId, HippyRootView rootView, HippyMap props) {
+        //		LogUtils.d("AnimationModule","dom  updateNode node id : "+tagId+" onUpdateAnimationProperty width:" +props.get("width"));
+        if (props == null) {
+            return props;
+        }
+        if (props.containsKey(HANDLE_MESSAGE_BY_ANIMATION) && props
+                .getBoolean(HANDLE_MESSAGE_BY_ANIMATION)) {
+            return props;
+        }
+        if (!props.containsKey(USE_ANIMATION)) {
+            dealAnimationNode(tagId, rootView, null, null);
+            return props;
+        }
+        try {
+            boolean useAnimation = props.getBoolean(USE_ANIMATION);
+            if (!useAnimation) {
+                dealAnimationNode(tagId, rootView, null, null);
+                return props;
+            }
+            HippyMap newProps = new HippyMap();
+            ArrayList<Integer> animations = new ArrayList<>();
+            copyAndDealPropertys(tagId, props, newProps, animations);
+
+            dealAnimationNode(tagId, rootView, props, animations);
+            newProps.pushBoolean(HANDLE_MESSAGE_BY_ANIMATION, true);
+            return newProps;
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        return props;
+    }
+
+    private void dealAnimationNode(int tagId, HippyRootView rootView, HippyMap newProps,
+            ArrayList<Integer> newAnimationIds) {
+        AnimationNode node = mAnimationNodes.get(tagId);
+        if (node != null) {
+            Iterator<Animation> iterator = node.getAnimations().iterator();
+            Animation animation;
+            while (iterator.hasNext()) {
+                animation = iterator.next();
+                if (animation != null && (newAnimationIds == null || !newAnimationIds
+                        .contains(animation.mId))) {
+                    animation.removeAnimationNode(tagId);
+                    iterator.remove();
+                }
+            }
+        }
+
+        if (newAnimationIds == null || newAnimationIds.size() <= 0) {
+            mAnimationNodes.remove(tagId);
         } else {
-          HippyMap newChildProps = new HippyMap();
-          copyAndDealPropertys(tagId, (HippyMap) value, newChildProps, animations);
-          newProps.pushMap(key, newChildProps);
+            if (node == null) {
+                node = new AnimationNode(tagId, rootView);
+                mAnimationNodes.append(tagId, node);
+            }
+            Animation animation;
+            for (Integer animationId : newAnimationIds) {
+                animation = mAnimations.get(animationId);
+                if (animation != null) {
+                    node.addAnimation(animation);
+                    animation.addAnimationNode(tagId);
+                }
+            }
+            node.setProps(newProps);
         }
-      } else if (value instanceof HippyArray) {
-        HippyArray newChildProps = new HippyArray();
-        copyAndDealPropertys(tagId, (HippyArray) value, newChildProps, animations);
-        newProps.pushArray(key, newChildProps);
-      } else {
-        newProps.pushObject(key, value);
-      }
-    }
-  }
-
-  private void copyAndDealPropertys(int tagId, HippyArray props, HippyArray newProps,
-    ArrayList<Integer> animations) {
-    if (props == null) {
-      return;
     }
 
-    int size = props.size();
-    Object value;
-    for (int i = 0; i < size; i++) {
-      value = props.get(i);
-      if (value instanceof HippyMap) {
-        boolean flag = isAnimationPropertys((HippyMap) value);
-        if (flag) {
-          int animationId = ((HippyMap) value).getInt(ANIMATION_ID);
-          if (animations != null) {
-            animations.add(animationId);
-          }
-
-          Object animationValue = findAnimationValue(tagId, animationId);
-          if (animationValue != null) {
-            newProps.pushObject(animationValue);
-          }
-        } else {
-          HippyMap newChildProps = new HippyMap();
-          copyAndDealPropertys(tagId, (HippyMap) value, newChildProps, animations);
-          newProps.pushMap(newChildProps);
+    private void copyAndDealPropertys(int tagId, HippyMap props, HippyMap newProps,
+            ArrayList<Integer> animations) {
+        if (props == null) {
+            return;
         }
-      } else if (value instanceof HippyArray) {
-        HippyArray newChildProps = new HippyArray();
-        copyAndDealPropertys(tagId, (HippyArray) value, newChildProps, animations);
-        newProps.pushArray(newChildProps);
-      } else {
-        newProps.pushObject(value);
-      }
-    }
-  }
 
-  private boolean isAnimationPropertys(HippyMap props) {
-    if (props == null) {
-      return false;
-    }
-    if (props.containsKey(ANIMATION_ID) && props.size() == 1) {
-      return true;
-    }
-    return false;
-  }
-
-  private Object findAnimationValue(int tagId, int animationId) {
-    Animation anim = mAnimations.get(animationId);
-    if (anim != null) {
-      return anim.getAnimationValue();
-    }
-
-    AnimationNode node = mAnimationNodes.get(tagId);
-    if (node != null) {
-      ArrayList<Animation> animations = node.getAnimations();
-      for (Animation animation : animations) {
-        if (animation != null && animation.getId() == animationId) {
-          return animation.getAnimationValue();
+        Set<String> keys = props.keySet();
+        Object value;
+        for (String key : keys) {
+            value = props.get(key);
+            if (value instanceof HippyMap) {
+                boolean flag = isAnimationPropertys((HippyMap) value);
+                if (flag) {
+                    int animationId = ((HippyMap) value).getInt(ANIMATION_ID);
+                    if (animations != null) {
+                        animations.add(animationId);
+                    }
+                    Object animationValue = findAnimationValue(tagId, animationId);
+                    if (animationValue != null) {
+                        newProps.pushObject(key, animationValue);
+                    }
+                } else {
+                    HippyMap newChildProps = new HippyMap();
+                    copyAndDealPropertys(tagId, (HippyMap) value, newChildProps, animations);
+                    newProps.pushMap(key, newChildProps);
+                }
+            } else if (value instanceof HippyArray) {
+                HippyArray newChildProps = new HippyArray();
+                copyAndDealPropertys(tagId, (HippyArray) value, newChildProps, animations);
+                newProps.pushArray(key, newChildProps);
+            } else {
+                newProps.pushObject(key, value);
+            }
         }
-      }
     }
 
-    return Float.NaN;
-  }
+    private void copyAndDealPropertys(int tagId, HippyArray props, HippyArray newProps,
+            ArrayList<Integer> animations) {
+        if (props == null) {
+            return;
+        }
 
-  private void doUpdateAnimationNodes() {
-    mLastUpdateTime = SystemClock.elapsedRealtime();
-    if (mWaitUpdateAnimationNodes == null) {
-      mWaitUpdateAnimationNodes = new HashSet<>();
-    }
-    mWaitUpdateAnimationNodes.clear();
-    synchronized (mNeedUpdateAnimationNodes) {
-      Iterator<Integer> it = mNeedUpdateAnimationNodes.iterator();
-      int nodeId;
-      AnimationNode node;
-      while (it.hasNext()) {
-        nodeId = it.next();
-        node = mAnimationNodes.get(nodeId);
-        mWaitUpdateAnimationNodes.add(node);
-        it.remove();
-      }
+        int size = props.size();
+        Object value;
+        for (int i = 0; i < size; i++) {
+            value = props.get(i);
+            if (value instanceof HippyMap) {
+                boolean flag = isAnimationPropertys((HippyMap) value);
+                if (flag) {
+                    int animationId = ((HippyMap) value).getInt(ANIMATION_ID);
+                    if (animations != null) {
+                        animations.add(animationId);
+                    }
+
+                    Object animationValue = findAnimationValue(tagId, animationId);
+                    if (animationValue != null) {
+                        newProps.pushObject(animationValue);
+                    }
+                } else {
+                    HippyMap newChildProps = new HippyMap();
+                    copyAndDealPropertys(tagId, (HippyMap) value, newChildProps, animations);
+                    newProps.pushMap(newChildProps);
+                }
+            } else if (value instanceof HippyArray) {
+                HippyArray newChildProps = new HippyArray();
+                copyAndDealPropertys(tagId, (HippyArray) value, newChildProps, animations);
+                newProps.pushArray(newChildProps);
+            } else {
+                newProps.pushObject(value);
+            }
+        }
     }
 
-    Iterator<AnimationNode> it = mWaitUpdateAnimationNodes.iterator();
-    while (it.hasNext()) {
-      updateAnimationNodeProps(it.next());
-      it.remove();
+    private boolean isAnimationPropertys(HippyMap props) {
+        if (props == null) {
+            return false;
+        }
+        if (props.containsKey(ANIMATION_ID) && props.size() == 1) {
+            return true;
+        }
+        return false;
     }
-    if (mContext != null && mContext.getDomManager() != null) {
-      mContext.getDomManager().batchByAnimation();
-    }
-  }
 
-  private void updateAnimationNodeProps(AnimationNode node) {
-    if (node == null) {
-      return;
-    }
-    try {
-      HippyMap newProps = new HippyMap();
-      copyAndDealPropertys(node.getId(), node.getProps(), newProps, null);
-      newProps.pushBoolean(HANDLE_MESSAGE_BY_ANIMATION, true);
+    private Object findAnimationValue(int tagId, int animationId) {
+        Animation anim = mAnimations.get(animationId);
+        if (anim != null) {
+            return anim.getAnimationValue();
+        }
 
-      mContext.getDomManager().updateNode(node.getId(), newProps, node.getRootView());
-    } catch (Throwable e) {
+        AnimationNode node = mAnimationNodes.get(tagId);
+        if (node != null) {
+            ArrayList<Animation> animations = node.getAnimations();
+            for (Animation animation : animations) {
+                if (animation != null && animation.getId() == animationId) {
+                    return animation.getAnimationValue();
+                }
+            }
+        }
 
+        return Float.NaN;
     }
-  }
+
+    private void doUpdateAnimationNodes() {
+        mLastUpdateTime = SystemClock.elapsedRealtime();
+        if (mWaitUpdateAnimationNodes == null) {
+            mWaitUpdateAnimationNodes = new HashSet<>();
+        }
+        mWaitUpdateAnimationNodes.clear();
+        synchronized (mNeedUpdateAnimationNodes) {
+            Iterator<Integer> it = mNeedUpdateAnimationNodes.iterator();
+            int nodeId;
+            AnimationNode node;
+            while (it.hasNext()) {
+                nodeId = it.next();
+                node = mAnimationNodes.get(nodeId);
+                mWaitUpdateAnimationNodes.add(node);
+                it.remove();
+            }
+        }
+
+        Iterator<AnimationNode> it = mWaitUpdateAnimationNodes.iterator();
+        while (it.hasNext()) {
+            updateAnimationNodeProps(it.next());
+            it.remove();
+        }
+        if (mContext != null && mContext.getDomManager() != null) {
+            mContext.getDomManager().batchByAnimation();
+        }
+    }
+
+    private void updateAnimationNodeProps(AnimationNode node) {
+        if (node == null) {
+            return;
+        }
+        try {
+            HippyMap newProps = new HippyMap();
+            copyAndDealPropertys(node.getId(), node.getProps(), newProps, null);
+            newProps.pushBoolean(HANDLE_MESSAGE_BY_ANIMATION, true);
+
+            mContext.getDomManager().updateNode(node.getId(), newProps, node.getRootView());
+        } catch (Throwable e) {
+
+        }
+    }
 
 }

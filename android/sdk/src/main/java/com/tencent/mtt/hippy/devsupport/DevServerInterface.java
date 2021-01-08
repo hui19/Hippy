@@ -28,17 +28,17 @@ import com.tencent.mtt.hippy.HippyRootView;
 
 public interface DevServerInterface {
 
-  void reload(DevRemoteDebugProxy remoteDebugManager);
+    void reload(DevRemoteDebugProxy remoteDebugManager);
 
-  String createResourceUrl(String resName);
+    String createResourceUrl(String resName);
 
-  void loadRemoteResource(String url, DevServerCallBack serverCallBack);
+    void loadRemoteResource(String url, DevServerCallBack serverCallBack);
 
-  void setDevServerCallback(DevServerCallBack devServerCallback);
+    void setDevServerCallback(DevServerCallBack devServerCallback);
 
-  void attachToHost(HippyRootView view);
+    void attachToHost(HippyRootView view);
 
-  void detachFromHost(HippyRootView view);
+    void detachFromHost(HippyRootView view);
 
-  void handleException(Throwable throwable);
+    void handleException(Throwable throwable);
 }

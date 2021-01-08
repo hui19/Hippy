@@ -21,9 +21,22 @@ import com.tencent.mtt.hippy.common.HippyMap;
 
 public class PullFooterRenderNode extends ListItemRenderNode {
 
-  public PullFooterRenderNode(int mId, HippyMap mPropsToUpdate, String className,
-    HippyRootView mRootView, ControllerManager componentManager,
-    boolean isLazyLoad) {
-    super(mId, mPropsToUpdate, className, mRootView, componentManager, isLazyLoad);
-  }
+    public PullFooterRenderNode(int mId, HippyMap mPropsToUpdate, String className,
+            HippyRootView mRootView, ControllerManager componentManager,
+            boolean isLazyLoad) {
+        super(mId, mPropsToUpdate, className, mRootView, componentManager, isLazyLoad);
+    }
+
+    /**
+     * 通过类名的hashCode来定义type，计算出来是一个很大的值，几乎不会和前端类型重复
+     */
+    @Override
+    public int getItemViewType() {
+        return this.getClassName().hashCode();
+    }
+
+    @Override
+    public boolean isPullFooter() {
+        return true;
+    }
 }

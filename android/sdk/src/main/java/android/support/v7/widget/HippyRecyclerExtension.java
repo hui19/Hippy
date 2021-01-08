@@ -15,70 +15,70 @@ import java.util.ArrayList;
  */
 public class HippyRecyclerExtension extends RecyclerView.ViewCacheExtension {
 
-  private final HippyEngineContext hpContext;
-  private HippyRecyclerViewBase recyclerView;
-  private int currentPosition;
+    private final HippyEngineContext hpContext;
+    private HippyRecyclerViewBase recyclerView;
+    private int currentPosition;
 
-  public HippyRecyclerExtension(HippyRecyclerViewBase recyclerView, HippyEngineContext hpContext) {
-    this.recyclerView = recyclerView;
-    this.hpContext = hpContext;
-  }
-
-  public int getCurrentPosition() {
-    return currentPosition;
-  }
-
-  @Override
-  public View getViewForPositionAndType(Recycler recycler, int position, int type) {
-    currentPosition = position;
-    View bestView = findInAttachedScrap(recycler, position, type);
-    if (bestView == null) {
-      bestView = findInCachedScrap(recycler, position, type);
+    public HippyRecyclerExtension(HippyRecyclerViewBase recyclerView, HippyEngineContext hpContext) {
+        this.recyclerView = recyclerView;
+        this.hpContext = hpContext;
     }
-    return bestView;
-  }
 
-  private View findInCachedScrap(Recycler recycler, int position, int type) {
-    ViewHolder bestHolder = findBestHolder(recycler.mCachedViews, position, type);
-    if (bestHolder != null) {
-      recycler.mCachedViews.remove(bestHolder);
-      return bestHolder.itemView;
+    public int getCurrentPosition() {
+        return currentPosition;
     }
-    return null;
-  }
 
-  protected View findInAttachedScrap(Recycler recycler, int position, int type) {
-    ViewHolder bestHolder = findBestHolder(recycler.mAttachedScrap, position, type);
-    if (bestHolder != null) {
-      bestHolder.unScrap();
-      return bestHolder.itemView;
+    @Override
+    public View getViewForPositionAndType(Recycler recycler, int position, int type) {
+        currentPosition = position;
+        View bestView = findInAttachedScrap(recycler, position, type);
+        if (bestView == null) {
+            bestView = findInCachedScrap(recycler, position, type);
+        }
+        return bestView;
     }
-    return null;
-  }
 
-  private RecyclerView.ViewHolder findBestHolder(ArrayList<ViewHolder> viewHolders, int position,
-    int type) {
-    int scrapCount = viewHolders.size();
-    for (int i = 0; i < scrapCount; i++) {
-      final RecyclerView.ViewHolder holder = viewHolders.get(i);
-      if (isTheBestHolder(position, type, holder)) {
-        return holder;
-      }
+    private View findInCachedScrap(Recycler recycler, int position, int type) {
+        ViewHolder bestHolder = findBestHolder(recycler.mCachedViews, position, type);
+        if (bestHolder != null) {
+            recycler.mCachedViews.remove(bestHolder);
+            return bestHolder.itemView;
+        }
+        return null;
     }
-    return null;
-  }
 
-  /**
-   * 找到对应的bindNode
-   */
-  protected boolean isTheBestHolder(int position, int type, ViewHolder holder) {
-    if (holder.getAdapterPosition() != position || holder.isInvalid() || holder.isRemoved()) {
-      return false;
+    protected View findInAttachedScrap(Recycler recycler, int position, int type) {
+        ViewHolder bestHolder = findBestHolder(recycler.mAttachedScrap, position, type);
+        if (bestHolder != null) {
+            bestHolder.unScrap();
+            return bestHolder.itemView;
+        }
+        return null;
     }
-    if (holder.getItemViewType() == type && holder instanceof HippyRecyclerViewHolder) {
-      return ((HippyRecyclerViewHolder) holder).bindNode == hpContext.getRenderManager()
-        .getRenderNode(recyclerView.getId()).getChildAt(position);
+
+    private RecyclerView.ViewHolder findBestHolder(ArrayList<ViewHolder> viewHolders, int position,
+            int type) {
+        int scrapCount = viewHolders.size();
+        for (int i = 0; i < scrapCount; i++) {
+            final RecyclerView.ViewHolder holder = viewHolders.get(i);
+            if (isTheBestHolder(position, type, holder)) {
+                return holder;
+            }
+        }
+        return null;
     }
-    return false;
-  }
+
+    /**
+     * 找到对应的bindNode
+     */
+    protected boolean isTheBestHolder(int position, int type, ViewHolder holder) {
+        if (holder.getAdapterPosition() != position || holder.isInvalid() || holder.isRemoved()) {
+            return false;
+        }
+        if (holder.getItemViewType() == type && holder instanceof HippyRecyclerViewHolder) {
+            return ((HippyRecyclerViewHolder) holder).bindNode == hpContext.getRenderManager()
+                    .getRenderNode(recyclerView.getId()).getChildAt(position);
+        }
+        return false;
+    }
 }

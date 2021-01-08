@@ -31,17 +31,17 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(TYPE)
 public @interface HippyNativeModule {
 
-  public enum Thread {
-    BRIDGE,
-    MAIN,
-    DOM
-  }
+    public enum Thread {
+        BRIDGE,
+        MAIN,
+        DOM
+    }
 
-  String name();
+    String name();
 
-  String[] names() default {};
+    String[] names() default {};
 
-  Thread thread() default Thread.BRIDGE;
+    Thread thread() default Thread.BRIDGE;
 
-  boolean init() default false;
+    boolean init() default false;
 }

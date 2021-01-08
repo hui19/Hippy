@@ -24,7 +24,7 @@ package com.tencent.mtt.hippy.adapter.font;
 
 public interface HippyFontScaleAdapter {
 
-  float getFontScale();
+    float getFontScale();
 
-  CharSequence getEmoticonText(CharSequence text, int fontSize);
+    CharSequence getEmoticonText(CharSequence text, int fontSize);
 }

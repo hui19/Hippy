@@ -27,20 +27,20 @@ import android.view.View;
 
 public class HippyPageSelectedEvent extends HippyViewEvent {
 
-  public static final String EVENT_NAME = "onPageSelected";
+    public static final String EVENT_NAME = "onPageSelected";
 
-  private View mTarget;
+    private View mTarget;
 
-  public HippyPageSelectedEvent(View target) {
-    super(EVENT_NAME);
-    mTarget = target;
-  }
+    public HippyPageSelectedEvent(View target) {
+        super(EVENT_NAME);
+        mTarget = target;
+    }
 
-  public void send(int position) {
-    HippyMap map = new HippyMap();
-    map.pushInt("position", position);
-    super.send(mTarget, map);
-  }
+    public void send(int position) {
+        HippyMap map = new HippyMap();
+        map.pushInt("position", position);
+        super.send(mTarget, map);
+    }
 
 
 }

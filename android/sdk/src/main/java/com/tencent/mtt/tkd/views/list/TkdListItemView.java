@@ -30,7 +30,7 @@ import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
 public class TkdListItemView extends HippyListItemView {
 
-  public TkdListItemView(Context context) {
-    super(context);
-  }
+    public TkdListItemView(Context context) {
+        super(context);
+    }
 }

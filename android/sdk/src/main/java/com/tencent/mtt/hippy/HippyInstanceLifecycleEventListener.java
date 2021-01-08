@@ -23,11 +23,11 @@ package com.tencent.mtt.hippy;
  */
 public interface HippyInstanceLifecycleEventListener {
 
-  void onInstanceLoad(int instanceId);
+    void onInstanceLoad(int instanceId);
 
-  void onInstanceResume(int instanceId);
+    void onInstanceResume(int instanceId);
 
-  void onInstancePause(int instanceId);
+    void onInstancePause(int instanceId);
 
-  void onInstanceDestroy(int instanceId);
+    void onInstanceDestroy(int instanceId);
 }

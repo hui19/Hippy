@@ -26,12 +26,12 @@ import android.database.sqlite.SQLiteDatabase;
  */
 public interface IHippySQLiteHelper {
 
-  String COLUMN_KEY = "key";
-  String COLUMN_VALUE = "value";
+    String COLUMN_KEY = "key";
+    String COLUMN_VALUE = "value";
 
-  SQLiteDatabase getDatabase();
+    SQLiteDatabase getDatabase();
 
-  String getTableName();
+    String getTableName();
 
-  void onDestroy();
+    void onDestroy();
 }

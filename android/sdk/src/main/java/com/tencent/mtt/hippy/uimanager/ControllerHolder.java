@@ -24,13 +24,13 @@ package com.tencent.mtt.hippy.uimanager;
 
 public class ControllerHolder {
 
-  public HippyViewController hippyViewController;
-  public boolean isLazy;
+    public HippyViewController hippyViewController;
+    public boolean isLazy;
 
-  public ControllerHolder(HippyViewController hippyViewController, boolean isLazy) {
-    this.hippyViewController = hippyViewController;
-    this.isLazy = isLazy;
-  }
+    public ControllerHolder(HippyViewController hippyViewController, boolean isLazy) {
+        this.hippyViewController = hippyViewController;
+        this.isLazy = isLazy;
+    }
 
 
 }

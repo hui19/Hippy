@@ -35,10 +35,10 @@ import com.tencent.mtt.hippy.views.list.HippyListItemViewController;
 @HippyController(name = TkdListItemViewController.CLASS_NAME, isLazyLoad = true)
 public class TkdListItemViewController extends HippyListItemViewController {
 
-  public static final String CLASS_NAME = "tkdCell";
+    public static final String CLASS_NAME = "tkdCell";
 
-  @Override
-  protected View createViewImpl(Context context) {
-    return new TkdListItemView(context);
-  }
+    @Override
+    protected View createViewImpl(Context context) {
+        return new TkdListItemView(context);
+    }
 }

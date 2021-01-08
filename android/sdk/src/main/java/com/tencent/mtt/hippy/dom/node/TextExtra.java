@@ -24,20 +24,20 @@ package com.tencent.mtt.hippy.dom.node;
 
 public class TextExtra {
 
-  public Object mExtra;
-  public float mLeftPadding;
-  public float mRightPadding;
-  public float mBottomPadding;
-  public float mTopPadding;
+    public Object mExtra;
+    public float mLeftPadding;
+    public float mRightPadding;
+    public float mBottomPadding;
+    public float mTopPadding;
 
-  public TextExtra(Object extra, float mLeftPadding, float mRightPadding, float mBottomPadding,
-    float mTopPadding) {
-    this.mExtra = extra;
-    this.mLeftPadding = mLeftPadding;
-    this.mRightPadding = mRightPadding;
-    this.mBottomPadding = mBottomPadding;
-    this.mTopPadding = mTopPadding;
-  }
+    public TextExtra(Object extra, float mLeftPadding, float mRightPadding, float mBottomPadding,
+            float mTopPadding) {
+        this.mExtra = extra;
+        this.mLeftPadding = mLeftPadding;
+        this.mRightPadding = mRightPadding;
+        this.mBottomPadding = mBottomPadding;
+        this.mTopPadding = mTopPadding;
+    }
 
 
 }

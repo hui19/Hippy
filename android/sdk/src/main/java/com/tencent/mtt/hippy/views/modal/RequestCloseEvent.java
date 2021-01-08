@@ -23,11 +23,11 @@ import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
  */
 /* package */ class RequestCloseEvent extends HippyViewEvent {
 
-  public static final String EVENT_NAME = "onRequestClose";
+    public static final String EVENT_NAME = "onRequestClose";
 
-  protected RequestCloseEvent() {
-    super(EVENT_NAME);
-  }
+    protected RequestCloseEvent() {
+        super(EVENT_NAME);
+    }
 
 
 }

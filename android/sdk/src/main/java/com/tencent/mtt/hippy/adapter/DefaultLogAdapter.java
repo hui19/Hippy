@@ -23,20 +23,20 @@ package com.tencent.mtt.hippy.adapter;
  */
 public class DefaultLogAdapter implements HippyLogAdapter {
 
-  @Override
-  public void log(String tag, String msg) {
+    @Override
+    public void log(String tag, String msg) {
 
-  }
+    }
 
-  @Override
-  public void init(int rootId, String module) {
+    @Override
+    public void init(int rootId, String module) {
 
-  }
+    }
 
-  @Override
-  public void upload(callBack callBack) {
-    callBack.onSuccess();
-  }
+    @Override
+    public void upload(callBack callBack) {
+        callBack.onSuccess();
+    }
 
 
 }

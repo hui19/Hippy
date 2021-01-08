@@ -27,7 +27,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
 
 public interface HippyCustomViewCreator {
 
-  String HIPPY_CUSTOM_VIEW_CREATOR = "CustomViewCreator";
+    String HIPPY_CUSTOM_VIEW_CREATOR = "CustomViewCreator";
 
-  View createCustomView(String className, Context context, HippyMap initialProps);
+    View createCustomView(String className, Context context, HippyMap initialProps);
 }

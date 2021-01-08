@@ -4,16 +4,16 @@ import android.webkit.JavascriptInterface;
 
 class HippyWebViewBridge {
 
-  private HippyWebView hippyView;
+    private HippyWebView hippyView;
 
-  public HippyWebViewBridge(HippyWebView webView) {
-    hippyView = webView;
-  }
-
-  @JavascriptInterface
-  public void postMessage(String msg) {
-    if (hippyView != null) {
-      hippyView.postMessage(msg);
+    public HippyWebViewBridge(HippyWebView webView) {
+        hippyView = webView;
     }
-  }
+
+    @JavascriptInterface
+    public void postMessage(String msg) {
+        if (hippyView != null) {
+            hippyView.postMessage(msg);
+        }
+    }
 }

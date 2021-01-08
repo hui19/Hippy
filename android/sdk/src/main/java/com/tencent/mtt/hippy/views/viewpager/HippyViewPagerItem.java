@@ -25,7 +25,7 @@ import android.content.Context;
  */
 public class HippyViewPagerItem extends HippyViewGroup {
 
-  public HippyViewPagerItem(Context context) {
-    super(context);
-  }
+    public HippyViewPagerItem(Context context) {
+        super(context);
+    }
 }

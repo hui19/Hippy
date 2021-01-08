@@ -29,60 +29,60 @@ import com.tencent.mtt.hippy.common.HippyMap;
  */
 public class PromiseImpl implements Promise {
 
-  public static final int PROMISE_CODE_SUCCESS = 0;
-  public static final int PROMISE_CODE_NORMAN_ERROR = 1;
-  public static final int PROMISE_CODE_OTHER_ERROR = 2;
-  private static final String CALL_ID_NO_CALLBACK = "-1";
-  private HippyEngineContext mContext;
-  private String mModuleName;
-  private String mModuleFunc;
-  private String mCallId;
-  private boolean mNeedResolveBySelf = true;
+    public static final int PROMISE_CODE_SUCCESS = 0;
+    public static final int PROMISE_CODE_NORMAN_ERROR = 1;
+    public static final int PROMISE_CODE_OTHER_ERROR = 2;
+    private static final String CALL_ID_NO_CALLBACK = "-1";
+    private HippyEngineContext mContext;
+    private String mModuleName;
+    private String mModuleFunc;
+    private String mCallId;
+    private boolean mNeedResolveBySelf = true;
 
-  public PromiseImpl(HippyEngineContext context, String moduleName, String moduleFunc,
-    String callId) {
-    this.mContext = context;
-    this.mModuleName = moduleName;
-    this.mModuleFunc = moduleFunc;
-    this.mCallId = callId;
-  }
-
-  public String getCallId() {
-    return mCallId;
-  }
-
-  public boolean isCallback() {
-    return !TextUtils.equals(mCallId, CALL_ID_NO_CALLBACK);
-  }
-
-  @Override
-  public void resolve(Object value) {
-    doCallback(PROMISE_CODE_SUCCESS, value);
-  }
-
-  @Override
-  public void reject(Object error) {
-    doCallback(PROMISE_CODE_OTHER_ERROR, error);
-  }
-
-  public void setNeedResolveBySelf(boolean falg) {
-    mNeedResolveBySelf = falg;
-  }
-
-  public boolean needResolveBySelf() {
-    return mNeedResolveBySelf;
-  }
-
-  public void doCallback(int code, Object obj) {
-    if (TextUtils.equals(CALL_ID_NO_CALLBACK, mCallId)) {
-      return;
+    public PromiseImpl(HippyEngineContext context, String moduleName, String moduleFunc,
+            String callId) {
+        this.mContext = context;
+        this.mModuleName = moduleName;
+        this.mModuleFunc = moduleFunc;
+        this.mCallId = callId;
     }
-    HippyMap map = new HippyMap();
-    map.pushInt("result", code);
-    map.pushString("moduleName", mModuleName);
-    map.pushString("moduleFunc", mModuleFunc);
-    map.pushString("callId", mCallId);
-    map.pushObject("params", obj);
-    mContext.getBridgeManager().execCallback(map);
-  }
+
+    public String getCallId() {
+        return mCallId;
+    }
+
+    public boolean isCallback() {
+        return !TextUtils.equals(mCallId, CALL_ID_NO_CALLBACK);
+    }
+
+    @Override
+    public void resolve(Object value) {
+        doCallback(PROMISE_CODE_SUCCESS, value);
+    }
+
+    @Override
+    public void reject(Object error) {
+        doCallback(PROMISE_CODE_OTHER_ERROR, error);
+    }
+
+    public void setNeedResolveBySelf(boolean falg) {
+        mNeedResolveBySelf = falg;
+    }
+
+    public boolean needResolveBySelf() {
+        return mNeedResolveBySelf;
+    }
+
+    public void doCallback(int code, Object obj) {
+        if (TextUtils.equals(CALL_ID_NO_CALLBACK, mCallId)) {
+            return;
+        }
+        HippyMap map = new HippyMap();
+        map.pushInt("result", code);
+        map.pushString("moduleName", mModuleName);
+        map.pushString("moduleFunc", mModuleFunc);
+        map.pushString("callId", mCallId);
+        map.pushObject("params", obj);
+        mContext.getBridgeManager().execCallback(map);
+    }
 }

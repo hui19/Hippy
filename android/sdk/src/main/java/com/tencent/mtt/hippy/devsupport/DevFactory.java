@@ -26,12 +26,12 @@ import com.tencent.mtt.hippy.HippyGlobalConfigs;
 
 public class DevFactory {
 
-  public static DevServerInterface create(HippyGlobalConfigs configs, boolean enableDev,
-    String serverHost, String bundleName) {
-    if (enableDev) {
-      return new DevServerImpl(configs, serverHost, bundleName);
-    } else {
-      return new DevServerImplDisable();
+    public static DevServerInterface create(HippyGlobalConfigs configs, boolean enableDev,
+            String serverHost, String bundleName) {
+        if (enableDev) {
+            return new DevServerImpl(configs, serverHost, bundleName);
+        } else {
+            return new DevServerImplDisable();
+        }
     }
-  }
 }

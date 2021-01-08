@@ -24,7 +24,7 @@ package com.tencent.mtt.hippy.uimanager;
  */
 public interface HippyViewBase {
 
-  NativeGestureDispatcher getGestureDispatcher();
+    NativeGestureDispatcher getGestureDispatcher();
 
-  void setGestureDispatcher(NativeGestureDispatcher dispatcher);
+    void setGestureDispatcher(NativeGestureDispatcher dispatcher);
 }

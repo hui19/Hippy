@@ -34,23 +34,23 @@ import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 @HippyNativeModule(name = "AnimationFrameModule", thread = HippyNativeModule.Thread.MAIN)
 public class AnimationFrameModule extends HippyNativeModuleBase {
 
-  private static boolean IS_JELLY_BEAN = Build.VERSION.SDK_INT >= 16;
+    private static boolean IS_JELLY_BEAN = Build.VERSION.SDK_INT >= 16;
 
 
-  public AnimationFrameModule(HippyEngineContext context) {
-    super(context);
-  }
+    public AnimationFrameModule(HippyEngineContext context) {
+        super(context);
+    }
 
-  @HippyMethod(name = "requestAnimationFrame")
-  public void requestAnimationFrame(final Promise promise) {
-    ICSChoreographer.getInstance().postFrameCallback(new HippyChoreographer.FrameCallback() {
-      @Override
-      public void doFrame(long frameTimeNanos) {
-        if (promise != null) {
-          promise.resolve(null);
-        }
-      }
-    });
-  }
+    @HippyMethod(name = "requestAnimationFrame")
+    public void requestAnimationFrame(final Promise promise) {
+        ICSChoreographer.getInstance().postFrameCallback(new HippyChoreographer.FrameCallback() {
+            @Override
+            public void doFrame(long frameTimeNanos) {
+                if (promise != null) {
+                    promise.resolve(null);
+                }
+            }
+        });
+    }
 
 }

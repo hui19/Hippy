@@ -22,14 +22,14 @@ import com.tencent.mtt.hippy.views.scroll.HippyScrollViewEventHelper;
 
 public class TkdScrollViewEventHelper extends HippyScrollViewEventHelper {
 
-  public static final String EVENT_TYPE_END_REACHED = "onEndReached";
-  public static final String EVENT_TYPE_START_REACHED = "onStartReached";
+    public static final String EVENT_TYPE_END_REACHED = "onEndReached";
+    public static final String EVENT_TYPE_START_REACHED = "onStartReached";
 
-  public static void emitScrollEndReachedEvent(ViewGroup view) {
-    emitScrollEvent(view, EVENT_TYPE_END_REACHED);
-  }
+    public static void emitScrollEndReachedEvent(ViewGroup view) {
+        emitScrollEvent(view, EVENT_TYPE_END_REACHED);
+    }
 
-  public static void emitScrollStartReachedEvent(ViewGroup view) {
-    emitScrollEvent(view, EVENT_TYPE_START_REACHED);
-  }
+    public static void emitScrollStartReachedEvent(ViewGroup view) {
+        emitScrollEvent(view, EVENT_TYPE_START_REACHED);
+    }
 }

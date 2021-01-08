@@ -23,11 +23,11 @@ package com.tencent.mtt.hippy.modules;
  */
 public interface Promise {
 
-  void resolve(Object value);
+    void resolve(Object value);
 
-  void reject(Object error);
+    void reject(Object error);
 
-  boolean isCallback();
+    boolean isCallback();
 
-  String getCallId();
+    String getCallId();
 }

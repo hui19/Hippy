@@ -10,31 +10,31 @@ import com.tencent.mtt.hippy.common.HippyMap;
  */
 public interface HippyScrollView {
 
-  void setScrollEnabled(boolean enabled);
+    void setScrollEnabled(boolean enabled);
 
-  void showScrollIndicator(boolean showScrollIndicator);
+    void showScrollIndicator(boolean showScrollIndicator);
 
-  void setScrollEventEnable(boolean enable);
+    void setScrollEventEnable(boolean enable);
 
-  void setScrollBeginDragEventEnable(boolean enable);
+    void setScrollBeginDragEventEnable(boolean enable);
 
-  void setScrollEndDragEventEnable(boolean enable);
+    void setScrollEndDragEventEnable(boolean enable);
 
-  void setMomentumScrollBeginEventEnable(boolean enable);
+    void setMomentumScrollBeginEventEnable(boolean enable);
 
-  void setMomentumScrollEndEventEnable(boolean enable);
+    void setMomentumScrollEndEventEnable(boolean enable);
 
-  void setScrollAnimationEndEventEnable(boolean enable);
+    void setScrollAnimationEndEventEnable(boolean enable);
 
-  void setFlingEnabled(boolean flag);
+    void setFlingEnabled(boolean flag);
 
-  void setContentOffset4Reuse(HippyMap offsetMap);
+    void setContentOffset4Reuse(HippyMap offsetMap);
 
-  void setPagingEnabled(boolean pagingEnabled);
+    void setPagingEnabled(boolean pagingEnabled);
 
-  void setScrollEventThrottle(int scrollEventThrottle);
+    void setScrollEventThrottle(int scrollEventThrottle);
 
-  void callSmoothScrollTo(int x, int y, int duration);
+    void callSmoothScrollTo(int x, int y, int duration);
 
-  void setScrollMinOffset(int scrollMinOffset);
+    void setScrollMinOffset(int scrollMinOffset);
 }

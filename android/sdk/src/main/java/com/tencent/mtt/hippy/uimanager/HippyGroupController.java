@@ -26,25 +26,25 @@ import com.tencent.mtt.hippy.dom.node.NodeProps;
  */
 
 public abstract class HippyGroupController<T extends ViewGroup & HippyViewBase> extends
-  HippyViewController<T> {
+        HippyViewController<T> {
 
-  /**
-   * touch/click intercept
-   **/
-  @HippyControllerProps(name = NodeProps.ON_INTERCEPT_TOUCH_EVENT, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-  public void setInterceptTouch(T viewGroup, boolean flag) {
-    if (!handleGestureBySelf()) {
-      setGestureType(viewGroup, NodeProps.ON_INTERCEPT_TOUCH_EVENT, flag);
+    /**
+     * touch/click intercept
+     **/
+    @HippyControllerProps(name = NodeProps.ON_INTERCEPT_TOUCH_EVENT, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    public void setInterceptTouch(T viewGroup, boolean flag) {
+        if (!handleGestureBySelf()) {
+            setGestureType(viewGroup, NodeProps.ON_INTERCEPT_TOUCH_EVENT, flag);
+        }
     }
-  }
 
-  /**
-   * touch/click intercept
-   **/
-  @HippyControllerProps(name = NodeProps.ON_INTERCEPT_PULL_UP_EVENT, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-  public void setInterceptPullUp(T viewGroup, boolean flag) {
-    if (!handleGestureBySelf()) {
-      setGestureType(viewGroup, NodeProps.ON_INTERCEPT_PULL_UP_EVENT, flag);
+    /**
+     * touch/click intercept
+     **/
+    @HippyControllerProps(name = NodeProps.ON_INTERCEPT_PULL_UP_EVENT, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    public void setInterceptPullUp(T viewGroup, boolean flag) {
+        if (!handleGestureBySelf()) {
+            setGestureType(viewGroup, NodeProps.ON_INTERCEPT_PULL_UP_EVENT, flag);
+        }
     }
-  }
 }

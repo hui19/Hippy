@@ -24,24 +24,24 @@ package com.tencent.mtt.hippy.common;
  */
 public abstract class HippyThreadRunnable<T extends Object> implements Runnable {
 
-  private T mParam;
+    private T mParam;
 
-  public HippyThreadRunnable() {
+    public HippyThreadRunnable() {
 
-  }
-
-  public HippyThreadRunnable(T param) {
-    mParam = param;
-  }
-
-  @Override
-  public void run() {
-    try {
-      run(mParam);
-    } catch (Throwable e) {
-      throw e;
     }
-  }
 
-  public abstract void run(T param);
+    public HippyThreadRunnable(T param) {
+        mParam = param;
+    }
+
+    @Override
+    public void run() {
+        try {
+            run(mParam);
+        } catch (Throwable e) {
+            throw e;
+        }
+    }
+
+    public abstract void run(T param);
 }

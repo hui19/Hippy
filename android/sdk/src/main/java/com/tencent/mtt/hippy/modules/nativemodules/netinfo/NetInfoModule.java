@@ -38,131 +38,131 @@ import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 @HippyNativeModule(name = "NetInfo")
 public class NetInfoModule extends HippyNativeModuleBase {
 
-  private static final String CONNECTION_TYPE_NONE = "NONE";
-  private static final String CONNECTION_TYPE_UNKNOWN = "UNKNOWN";
-  private static final String MISSING_PERMISSION_MESSAGE =
-    "To use NetInfo on Android, add the following to your AndroidManifest.xml:\n"
-      + "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" />";
+    private static final String CONNECTION_TYPE_NONE = "NONE";
+    private static final String CONNECTION_TYPE_UNKNOWN = "UNKNOWN";
+    private static final String MISSING_PERMISSION_MESSAGE =
+            "To use NetInfo on Android, add the following to your AndroidManifest.xml:\n"
+                    + "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" />";
 
-  private ConnectivityReceiver mConnectivityReceiver;
+    private ConnectivityReceiver mConnectivityReceiver;
 
-  private final ConnectivityManager mConnectivityManager;
+    private final ConnectivityManager mConnectivityManager;
 
-  private boolean mNoNetworkPermission = false;
+    private boolean mNoNetworkPermission = false;
 
-  public NetInfoModule(HippyEngineContext context) {
-    super(context);
-    mConnectivityManager = (ConnectivityManager) context.getGlobalConfigs().getContext()
-      .getSystemService(Context.CONNECTIVITY_SERVICE);
-  }
-
-  @Override
-  public void destroy() {
-    super.destroy();
-    unregisterReceiver();
-  }
-
-  @HippyMethod(name = "getCurrentConnectivity")
-  public void getCurrentConnectivity(Promise promise) {
-    if (mNoNetworkPermission) {
-      promise.reject(MISSING_PERMISSION_MESSAGE);
-      return;
-    }
-    String currentConnectivity = getCurrentConnectionType();
-    HippyMap data = new HippyMap();
-    data.pushString("network_info", currentConnectivity);
-    promise.resolve(data);
-  }
-
-  @Override
-  public void handleAddListener(String name) {
-    registerReceiver();
-  }
-
-  @Override
-  public void handleRemoveListener(String name) {
-    unregisterReceiver();
-  }
-
-  private String getCurrentConnectionType() {
-    try {
-      NetworkInfo networkInfo = mConnectivityManager.getActiveNetworkInfo();
-      if (networkInfo == null || !networkInfo.isConnected()) {
-        return CONNECTION_TYPE_NONE;
-      } else if (ConnectivityManager.isNetworkTypeValid(networkInfo.getType())) {
-        return networkInfo.getTypeName().toUpperCase();
-      } else {
-        return CONNECTION_TYPE_UNKNOWN;
-      }
-    } catch (Exception e) {
-      mNoNetworkPermission = true;
-      return CONNECTION_TYPE_UNKNOWN;
-    }
-  }
-
-  private void registerReceiver() {
-    if (mConnectivityReceiver == null) {
-      mConnectivityReceiver = new ConnectivityReceiver();
-    }
-
-    if (!mConnectivityReceiver.isRegistered()) {
-      try {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        mContext.getGlobalConfigs().getContext().registerReceiver(mConnectivityReceiver, filter);
-        mConnectivityReceiver.setRegistered(true);
-      } catch (Throwable e) {
-      }
-    }
-  }
-
-  private void unregisterReceiver() {
-    try {
-      if (mConnectivityReceiver != null && mConnectivityReceiver.isRegistered()) {
-        mContext.getGlobalConfigs().getContext().unregisterReceiver(mConnectivityReceiver);
-        mConnectivityReceiver.setRegistered(false);
-        mConnectivityReceiver = null;
-      }
-    } catch (Throwable e) {
-    }
-  }
-
-  private class ConnectivityReceiver extends BroadcastReceiver {
-
-    private final String EVENT_NAME = "networkStatusDidChange";
-    private boolean isRegistered = false;
-    private String mCurrentConnectivity;
-
-    public boolean isRegistered() {
-      return isRegistered;
-    }
-
-    public void setRegistered(boolean registered) {
-      isRegistered = registered;
+    public NetInfoModule(HippyEngineContext context) {
+        super(context);
+        mConnectivityManager = (ConnectivityManager) context.getGlobalConfigs().getContext()
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
     }
 
     @Override
-    public void onReceive(Context context, Intent intent) {
-      if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
-        mContext.getGlobalConfigs().getExecutorSupplierAdapter().getBackgroundTaskExecutor()
-          .execute(new Runnable() {
-            @Override
-            public void run() {
-              String currentConnectivity = getCurrentConnectionType();
-              if (!currentConnectivity.equalsIgnoreCase(mCurrentConnectivity)) {
-                try {
-                  mCurrentConnectivity = currentConnectivity;
-                  HippyMap data = new HippyMap();
-                  data.pushString("network_info", mCurrentConnectivity);
-                  mContext.getModuleManager().getJavaScriptModule(EventDispatcher.class)
-                    .receiveNativeEvent(EVENT_NAME, data);
-                } catch (Throwable e) {
-
-                }
-              }
-            }
-          });
-      }
+    public void destroy() {
+        super.destroy();
+        unregisterReceiver();
     }
-  }
+
+    @HippyMethod(name = "getCurrentConnectivity")
+    public void getCurrentConnectivity(Promise promise) {
+        if (mNoNetworkPermission) {
+            promise.reject(MISSING_PERMISSION_MESSAGE);
+            return;
+        }
+        String currentConnectivity = getCurrentConnectionType();
+        HippyMap data = new HippyMap();
+        data.pushString("network_info", currentConnectivity);
+        promise.resolve(data);
+    }
+
+    @Override
+    public void handleAddListener(String name) {
+        registerReceiver();
+    }
+
+    @Override
+    public void handleRemoveListener(String name) {
+        unregisterReceiver();
+    }
+
+    private String getCurrentConnectionType() {
+        try {
+            NetworkInfo networkInfo = mConnectivityManager.getActiveNetworkInfo();
+            if (networkInfo == null || !networkInfo.isConnected()) {
+                return CONNECTION_TYPE_NONE;
+            } else if (ConnectivityManager.isNetworkTypeValid(networkInfo.getType())) {
+                return networkInfo.getTypeName().toUpperCase();
+            } else {
+                return CONNECTION_TYPE_UNKNOWN;
+            }
+        } catch (Exception e) {
+            mNoNetworkPermission = true;
+            return CONNECTION_TYPE_UNKNOWN;
+        }
+    }
+
+    private void registerReceiver() {
+        if (mConnectivityReceiver == null) {
+            mConnectivityReceiver = new ConnectivityReceiver();
+        }
+
+        if (!mConnectivityReceiver.isRegistered()) {
+            try {
+                IntentFilter filter = new IntentFilter();
+                filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+                mContext.getGlobalConfigs().getContext().registerReceiver(mConnectivityReceiver, filter);
+                mConnectivityReceiver.setRegistered(true);
+            } catch (Throwable e) {
+            }
+        }
+    }
+
+    private void unregisterReceiver() {
+        try {
+            if (mConnectivityReceiver != null && mConnectivityReceiver.isRegistered()) {
+                mContext.getGlobalConfigs().getContext().unregisterReceiver(mConnectivityReceiver);
+                mConnectivityReceiver.setRegistered(false);
+                mConnectivityReceiver = null;
+            }
+        } catch (Throwable e) {
+        }
+    }
+
+    private class ConnectivityReceiver extends BroadcastReceiver {
+
+        private final String EVENT_NAME = "networkStatusDidChange";
+        private boolean isRegistered = false;
+        private String mCurrentConnectivity;
+
+        public boolean isRegistered() {
+            return isRegistered;
+        }
+
+        public void setRegistered(boolean registered) {
+            isRegistered = registered;
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
+                mContext.getGlobalConfigs().getExecutorSupplierAdapter().getBackgroundTaskExecutor()
+                        .execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                String currentConnectivity = getCurrentConnectionType();
+                                if (!currentConnectivity.equalsIgnoreCase(mCurrentConnectivity)) {
+                                    try {
+                                        mCurrentConnectivity = currentConnectivity;
+                                        HippyMap data = new HippyMap();
+                                        data.pushString("network_info", mCurrentConnectivity);
+                                        mContext.getModuleManager().getJavaScriptModule(EventDispatcher.class)
+                                                .receiveNativeEvent(EVENT_NAME, data);
+                                    } catch (Throwable e) {
+
+                                    }
+                                }
+                            }
+                        });
+            }
+        }
+    }
 }

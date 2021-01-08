@@ -26,51 +26,51 @@ import com.tencent.mtt.hippy.common.HippyArray;
  */
 public class ValueTransformer {
 
-  protected HippyArray mInputRange;
-  protected HippyArray mOutputRange;
+    protected HippyArray mInputRange;
+    protected HippyArray mOutputRange;
 
-  public ValueTransformer(HippyArray input, HippyArray output) {
-    this.mInputRange = input;
-    this.mOutputRange = output;
-  }
-
-  public Object transform(Number value) {
-    if (mInputRange == null) {
-      return null;
-    }
-    if (mOutputRange == null) {
-      return null;
-    }
-    int size = mInputRange.size();
-    if (size != mOutputRange.size()) {
-      return null;
-    }
-    if (size == 0) {
-      return null;
+    public ValueTransformer(HippyArray input, HippyArray output) {
+        this.mInputRange = input;
+        this.mOutputRange = output;
     }
 
-    int bestIndex = 0;
-    double bestSpacing = -1;
-    Object obj;
-    double rangeValue;
-    double transformValue = value.doubleValue();
-    double spacing = 0;
-    for (int i = 0; i < size; i++) {
-      obj = mInputRange.get(i);
-      if (obj == null || !(obj instanceof Number)) {
-        return null;
-      }
-
-      rangeValue = ((Number) obj).doubleValue();
-      if (rangeValue <= transformValue) {
-        spacing = Math.abs(transformValue - rangeValue);
-        if (spacing < bestSpacing || bestSpacing == -1) {
-          bestIndex = i;
-          bestSpacing = spacing;
+    public Object transform(Number value) {
+        if (mInputRange == null) {
+            return null;
         }
-      }
-    }
+        if (mOutputRange == null) {
+            return null;
+        }
+        int size = mInputRange.size();
+        if (size != mOutputRange.size()) {
+            return null;
+        }
+        if (size == 0) {
+            return null;
+        }
 
-    return mOutputRange.get(bestIndex);
-  }
+        int bestIndex = 0;
+        double bestSpacing = -1;
+        Object obj;
+        double rangeValue;
+        double transformValue = value.doubleValue();
+        double spacing = 0;
+        for (int i = 0; i < size; i++) {
+            obj = mInputRange.get(i);
+            if (obj == null || !(obj instanceof Number)) {
+                return null;
+            }
+
+            rangeValue = ((Number) obj).doubleValue();
+            if (rangeValue <= transformValue) {
+                spacing = Math.abs(transformValue - rangeValue);
+                if (spacing < bestSpacing || bestSpacing == -1) {
+                    bestIndex = i;
+                    bestSpacing = spacing;
+                }
+            }
+        }
+
+        return mOutputRange.get(bestIndex);
+    }
 }

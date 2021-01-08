@@ -17,20 +17,20 @@
 package com.tencent.mtt.hippy.dom.flex;
 
 public enum FlexMeasureMode {
-  UNDEFINED,
-  EXACTLY,
-  AT_MOST;
+    UNDEFINED,
+    EXACTLY,
+    AT_MOST;
 
-  public static FlexMeasureMode fromInt(int value) {
-    switch (value) {
-      case 0:
-        return UNDEFINED;
-      case 1:
-        return EXACTLY;
-      case 2:
-        return AT_MOST;
-      default:
-        throw new IllegalArgumentException("Unknown enum value: " + value);
+    public static FlexMeasureMode fromInt(int value) {
+        switch (value) {
+            case 0:
+                return UNDEFINED;
+            case 1:
+                return EXACTLY;
+            case 2:
+                return AT_MOST;
+            default:
+                throw new IllegalArgumentException("Unknown enum value: " + value);
+        }
     }
-  }
 }

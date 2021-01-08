@@ -28,40 +28,40 @@ import android.os.HandlerThread;
 
 public class HippyHandlerThread extends HandlerThread {
 
-  Handler mHandler;
+    Handler mHandler;
 
-  public HippyHandlerThread(String name) {
-    super(name);
-    setPriority(Thread.MAX_PRIORITY);
-    start();
-    mHandler = new Handler(getLooper());
-  }
-
-  public boolean isThreadAlive() {
-    return (mHandler != null && getLooper() != null && isAlive());
-  }
-
-  @Override
-  public boolean quit() {
-    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2) {
-      return super.quitSafely();
-    } else {
-      mHandler.post(new Runnable() {
-        @Override
-        public void run() {
-          HippyHandlerThread.super.quit();
-        }
-      });
+    public HippyHandlerThread(String name) {
+        super(name);
+        setPriority(Thread.MAX_PRIORITY);
+        start();
+        mHandler = new Handler(getLooper());
     }
-    return true;
-  }
 
-  public Handler getHandler() {
-    return mHandler;
-  }
+    public boolean isThreadAlive() {
+        return (mHandler != null && getLooper() != null && isAlive());
+    }
 
-  public void runOnQueue(Runnable runnable) {
-    mHandler.post(runnable);
-  }
+    @Override
+    public boolean quit() {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            return super.quitSafely();
+        } else {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    HippyHandlerThread.super.quit();
+                }
+            });
+        }
+        return true;
+    }
+
+    public Handler getHandler() {
+        return mHandler;
+    }
+
+    public void runOnQueue(Runnable runnable) {
+        mHandler.post(runnable);
+    }
 
 }

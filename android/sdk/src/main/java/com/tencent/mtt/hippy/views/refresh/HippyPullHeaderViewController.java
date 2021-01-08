@@ -32,36 +32,36 @@ import com.tencent.mtt.hippy.views.list.HippyListView;
 @HippyController(name = HippyPullHeaderViewController.CLASS_NAME, isLazyLoad = true)
 public class HippyPullHeaderViewController extends HippyViewController<HippyPullHeaderView> {
 
-  public static final String CLASS_NAME = "PullHeaderView";
+    public static final String CLASS_NAME = "PullHeaderView";
 
-  @Override
-  protected View createViewImpl(Context context) {
-    return new HippyPullHeaderView(context);
-  }
-
-  @Override
-  public RenderNode createRenderNode(int id, HippyMap props, String className,
-    HippyRootView hippyRootView, ControllerManager controllerManager, boolean lazy) {
-    return new PullHeaderRenderNode(id, props, className, hippyRootView, controllerManager, lazy);
-  }
-
-  @Override
-  public void dispatchFunction(HippyPullHeaderView view, String functionName,
-    HippyArray dataArray) {
-    super.dispatchFunction(view, functionName, dataArray);
-    View parent = view.getParentView();
-    if (parent != null && parent instanceof HippyListView) {
-      switch (functionName) {
-        case "collapsePullHeader": {
-          ((HippyListView) parent).onHeaderRefreshFinish();
-          break;
-        }
-
-        case "expandPullHeader": {
-          ((HippyListView) parent).onHeaderRefresh();
-          break;
-        }
-      }
+    @Override
+    protected View createViewImpl(Context context) {
+        return new HippyPullHeaderView(context);
     }
-  }
+
+    @Override
+    public RenderNode createRenderNode(int id, HippyMap props, String className,
+            HippyRootView hippyRootView, ControllerManager controllerManager, boolean lazy) {
+        return new PullHeaderRenderNode(id, props, className, hippyRootView, controllerManager, lazy);
+    }
+
+    @Override
+    public void dispatchFunction(HippyPullHeaderView view, String functionName,
+            HippyArray dataArray) {
+        super.dispatchFunction(view, functionName, dataArray);
+        View parent = view.getParentView();
+        if (parent != null && parent instanceof HippyListView) {
+            switch (functionName) {
+                case "collapsePullHeader": {
+                    ((HippyListView) parent).onHeaderRefreshFinish();
+                    break;
+                }
+
+                case "expandPullHeader": {
+                    ((HippyListView) parent).onHeaderRefresh();
+                    break;
+                }
+            }
+        }
+    }
 }

@@ -28,38 +28,38 @@ import com.tencent.mtt.hippy.HippyRootView;
 
 public class DevServerImplDisable implements DevServerInterface {
 
-  @Override
-  public void reload(DevRemoteDebugProxy proxy) {
+    @Override
+    public void reload(DevRemoteDebugProxy proxy) {
 
-  }
+    }
 
-  @Override
-  public String createResourceUrl(String resName) {
-    return null;
-  }
+    @Override
+    public String createResourceUrl(String resName) {
+        return null;
+    }
 
-  @Override
-  public void loadRemoteResource(String url, DevServerCallBack serverCallBack) {
+    @Override
+    public void loadRemoteResource(String url, DevServerCallBack serverCallBack) {
 
-  }
+    }
 
-  @Override
-  public void setDevServerCallback(DevServerCallBack devServerCallback) {
+    @Override
+    public void setDevServerCallback(DevServerCallBack devServerCallback) {
 
-  }
+    }
 
-  @Override
-  public void attachToHost(HippyRootView view) {
+    @Override
+    public void attachToHost(HippyRootView view) {
 
-  }
+    }
 
-  @Override
-  public void detachFromHost(HippyRootView view) {
+    @Override
+    public void detachFromHost(HippyRootView view) {
 
-  }
+    }
 
-  @Override
-  public void handleException(Throwable exception) {
+    @Override
+    public void handleException(Throwable exception) {
 
-  }
+    }
 }

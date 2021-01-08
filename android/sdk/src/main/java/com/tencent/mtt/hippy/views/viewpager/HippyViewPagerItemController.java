@@ -28,18 +28,18 @@ import android.view.View;
 @HippyController(name = HippyViewPagerItemController.CLASS_NAME)
 public class HippyViewPagerItemController extends HippyViewController<HippyViewPagerItem> {
 
-  public static final String CLASS_NAME = "ViewPagerItem";
+    public static final String CLASS_NAME = "ViewPagerItem";
 
-  private static final String TAG = "ViewPagerItem";
+    private static final String TAG = "ViewPagerItem";
 
-  @Override
-  protected View createViewImpl(Context context) {
-    return new HippyViewPagerItem(context);
-  }
+    @Override
+    protected View createViewImpl(Context context) {
+        return new HippyViewPagerItem(context);
+    }
 
-  @Override
-  protected boolean shouldInterceptLayout(View view, int x, int y, int width, int height) {
-    return true;
-  }
+    @Override
+    protected boolean shouldInterceptLayout(View view, int x, int y, int width, int height) {
+        return true;
+    }
 
 }

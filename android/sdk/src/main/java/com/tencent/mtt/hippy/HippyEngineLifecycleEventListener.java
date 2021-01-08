@@ -23,7 +23,7 @@ package com.tencent.mtt.hippy;
  */
 public interface HippyEngineLifecycleEventListener {
 
-  void onEngineResume();
+    void onEngineResume();
 
-  void onEnginePause();
+    void onEnginePause();
 }

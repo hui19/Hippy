@@ -24,11 +24,11 @@ import com.tencent.smtt.flexbox.FlexNode;
 
 class ModalStyleNode extends StyleNode {
 
-  @Override
-  public void addChildAt(FlexNode child, int i) {
-    super.addChildAt(child, i);
-    Point modalSize = ModalHostHelper.getModalHostSize(ContextHolder.getAppContext());
-    child.setStyleWidth(modalSize.x);
-    child.setStyleHeight(modalSize.y);
-  }
+    @Override
+    public void addChildAt(FlexNode child, int i) {
+        super.addChildAt(child, i);
+        Point modalSize = ModalHostHelper.getModalHostSize(ContextHolder.getAppContext());
+        child.setStyleWidth(modalSize.x);
+        child.setStyleHeight(modalSize.y);
+    }
 }

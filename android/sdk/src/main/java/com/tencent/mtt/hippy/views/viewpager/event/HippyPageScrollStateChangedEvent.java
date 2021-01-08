@@ -27,20 +27,20 @@ import android.view.View;
 
 public class HippyPageScrollStateChangedEvent extends HippyViewEvent {
 
-  public static final String EVENT_NAME = "onPageScrollStateChanged";
+    public static final String EVENT_NAME = "onPageScrollStateChanged";
 
-  private View mTarget;
+    private View mTarget;
 
-  public HippyPageScrollStateChangedEvent(View target) {
-    super(EVENT_NAME);
-    mTarget = target;
-  }
+    public HippyPageScrollStateChangedEvent(View target) {
+        super(EVENT_NAME);
+        mTarget = target;
+    }
 
-  public void send(String pageScrollState) {
-    HippyMap map = new HippyMap();
-    map.pushString("pageScrollState", pageScrollState);
-    super.send(mTarget, map);
-  }
+    public void send(String pageScrollState) {
+        HippyMap map = new HippyMap();
+        map.pushString("pageScrollState", pageScrollState);
+        super.send(mTarget, map);
+    }
 
 
 }

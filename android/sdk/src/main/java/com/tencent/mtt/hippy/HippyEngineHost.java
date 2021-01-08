@@ -33,97 +33,97 @@ import java.util.List;
 @Deprecated
 public abstract class HippyEngineHost {
 
-  /**
-   * Application
-   */
-  private Application mApplication;
+    /**
+     * Application
+     */
+    private Application mApplication;
 
 
-  public HippyEngineHost(Application application) {
-    mApplication = application;
-    ContextHolder.initAppContext(mApplication);
-  }
+    public HippyEngineHost(Application application) {
+        mApplication = application;
+        ContextHolder.initAppContext(mApplication);
+    }
 
-  /**
-   * Create non-debug engine manager
-   *
-   * @return
-   */
-  public HippyEngineManager createHippyEngineManager() {
-    return createHippyEngineManager(null);
-  }
+    /**
+     * Create non-debug engine manager
+     *
+     * @return
+     */
+    public HippyEngineManager createHippyEngineManager() {
+        return createHippyEngineManager(null);
+    }
 
-  /**
-   * Create non-debug engine manager
-   *
-   * @param preloadBundleLoader --- After the engine is loaded successfully, the bundle is loaded
-   *   directly
-   * @return
-   */
-  public HippyEngineManager createHippyEngineManager(HippyBundleLoader preloadBundleLoader) {
-    HippyEngineManager.Builder builder = new HippyEngineManager.Builder();
-    builder.setHippyGlobalConfigs(getHippyGlobalConfigs())
-      .setCoreBundleLoader(getCoreBundleLoader()).setPreloadBundleLoader(preloadBundleLoader)
-      .setPackages(getPackages()).setSupportDev(false).setDebugJs("")
-      .setEnableHippyBuffer(enableHippyBufferBridge()).setGroupId(getGroupId());
+    /**
+     * Create non-debug engine manager
+     *
+     * @param preloadBundleLoader --- After the engine is loaded successfully, the bundle is loaded
+     *         directly
+     * @return
+     */
+    public HippyEngineManager createHippyEngineManager(HippyBundleLoader preloadBundleLoader) {
+        HippyEngineManager.Builder builder = new HippyEngineManager.Builder();
+        builder.setHippyGlobalConfigs(getHippyGlobalConfigs())
+                .setCoreBundleLoader(getCoreBundleLoader()).setPreloadBundleLoader(preloadBundleLoader)
+                .setPackages(getPackages()).setSupportDev(false).setDebugJs("")
+                .setEnableHippyBuffer(enableHippyBufferBridge()).setGroupId(getGroupId());
 
-    HippyEngineManager engineManager = builder.build();
-    return engineManager;
-  }
+        HippyEngineManager engineManager = builder.build();
+        return engineManager;
+    }
 
-  /**
-   * Create debug engine manager
-   *
-   * @param debugJs -- debug js path
-   * @return
-   */
-  public HippyEngineManager createDebugHippyEngineManager(String debugJs) {
-    HippyEngineManager.Builder builder = new HippyEngineManager.Builder();
-    builder.setHippyGlobalConfigs(getHippyGlobalConfigs()).setCoreBundleLoader(null)
-      .setPackages(getPackages()).setSupportDev(true)
-      .setDebugJs(debugJs).setGroupId(getGroupId());
+    /**
+     * Create debug engine manager
+     *
+     * @param debugJs -- debug js path
+     * @return
+     */
+    public HippyEngineManager createDebugHippyEngineManager(String debugJs) {
+        HippyEngineManager.Builder builder = new HippyEngineManager.Builder();
+        builder.setHippyGlobalConfigs(getHippyGlobalConfigs()).setCoreBundleLoader(null)
+                .setPackages(getPackages()).setSupportDev(true)
+                .setDebugJs(debugJs).setGroupId(getGroupId());
 
-    HippyEngineManager engineManager = builder.build();
-    return engineManager;
-  }
+        HippyEngineManager engineManager = builder.build();
+        return engineManager;
+    }
 
-  /**
-   * Engine global configuration
-   *
-   * @return
-   */
-  public HippyGlobalConfigs getHippyGlobalConfigs() {
-    return new HippyGlobalConfigs.Builder().setContext(mApplication).build();
-  }
+    /**
+     * Engine global configuration
+     *
+     * @return
+     */
+    public HippyGlobalConfigs getHippyGlobalConfigs() {
+        return new HippyGlobalConfigs.Builder().setContext(mApplication).build();
+    }
 
-  /**
-   * Register the providers you need
-   *
-   * @return
-   */
-  protected abstract List<HippyAPIProvider> getPackages();
+    /**
+     * Register the providers you need
+     *
+     * @return
+     */
+    protected abstract List<HippyAPIProvider> getPackages();
 
-  /**
-   * Engine core bundle loader
-   *
-   * @return
-   */
-  protected HippyBundleLoader getCoreBundleLoader() {
-    return null;
-  }
+    /**
+     * Engine core bundle loader
+     *
+     * @return
+     */
+    protected HippyBundleLoader getCoreBundleLoader() {
+        return null;
+    }
 
-  protected boolean enableHippyBufferBridge() {
-    return false;
-  }
+    protected boolean enableHippyBufferBridge() {
+        return false;
+    }
 
-  /**
-   * business override getGroupId， valid group id must >= 0. if value <= -1, means not in any group.
-   *
-   * @return
-   * @see int
-   */
-  protected int getGroupId() {
-    return -1;
-  }
+    /**
+     * business override getGroupId， valid group id must >= 0. if value <= -1, means not in any group.
+     *
+     * @return
+     * @see int
+     */
+    protected int getGroupId() {
+        return -1;
+    }
 
 }

@@ -22,7 +22,7 @@ package com.tencent.mtt.hippy.uimanager;
 
 public interface IHippyZIndexViewGroup {
 
-  int getZIndexMappedChildIndex(int index);
+    int getZIndexMappedChildIndex(int index);
 
-  void updateDrawingOrder();
+    void updateDrawingOrder();
 }

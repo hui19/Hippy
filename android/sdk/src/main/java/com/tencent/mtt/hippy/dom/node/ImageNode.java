@@ -26,123 +26,123 @@ import java.util.ArrayList;
 
 public class ImageNode extends StyleNode {
 
-  public static final String PROP_VERTICAL_ALIGNMENT = "verticalAlignment";
+    public static final String PROP_VERTICAL_ALIGNMENT = "verticalAlignment";
 
-  private boolean mIsVirtual;
-  private HippyImageSpan mImageSpan = null;
-  private int mVerticalAlignment = ImageSpan.ALIGN_BASELINE;
+    private boolean mIsVirtual;
+    private HippyImageSpan mImageSpan = null;
+    private int mVerticalAlignment = ImageSpan.ALIGN_BASELINE;
 
-  private ArrayList<String> mGestureTypes = null;
+    private ArrayList<String> mGestureTypes = null;
 
-  public ImageNode(boolean mIsVirtual) {
-    this.mIsVirtual = mIsVirtual;
-  }
-
-  public void setImageSpan(HippyImageSpan imageSpan) {
-    mImageSpan = imageSpan;
-  }
-
-  public int getVerticalAlignment() {
-    return mVerticalAlignment;
-  }
-
-  public boolean isVirtual() {
-    return mIsVirtual;
-  }
-
-  public ArrayList<String> getGestureTypes() {
-    return mGestureTypes;
-  }
-
-  @HippyControllerProps(name = NodeProps.ON_CLICK, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-  public void clickEnable(boolean flag) {
-    if (flag) {
-      if (mGestureTypes == null) {
-        mGestureTypes = new ArrayList<>();
-      }
-      mGestureTypes.add(NodeProps.ON_CLICK);
+    public ImageNode(boolean mIsVirtual) {
+        this.mIsVirtual = mIsVirtual;
     }
-  }
 
-  @HippyControllerProps(name = NodeProps.ON_LONG_CLICK, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-  public void longClickEnable(boolean flag) {
-    if (flag) {
-      if (mGestureTypes == null) {
-        mGestureTypes = new ArrayList<>();
-      }
-      mGestureTypes.add(NodeProps.ON_LONG_CLICK);
+    public void setImageSpan(HippyImageSpan imageSpan) {
+        mImageSpan = imageSpan;
     }
-  }
 
-  @HippyControllerProps(name = NodeProps.ON_PRESS_IN, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-  public void pressInEnable(boolean flag) {
-    if (flag) {
-      if (mGestureTypes == null) {
-        mGestureTypes = new ArrayList<>();
-      }
-      mGestureTypes.add(NodeProps.ON_PRESS_IN);
+    public int getVerticalAlignment() {
+        return mVerticalAlignment;
     }
-  }
 
-  @HippyControllerProps(name = NodeProps.ON_PRESS_OUT)
-  public void pressOutEnable(boolean flag) {
-    if (flag) {
-      if (mGestureTypes == null) {
-        mGestureTypes = new ArrayList<>();
-      }
-      mGestureTypes.add(NodeProps.ON_PRESS_OUT);
+    public boolean isVirtual() {
+        return mIsVirtual;
     }
-  }
 
-  @HippyControllerProps(name = NodeProps.ON_TOUCH_DOWN, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-  public void touchDownEnable(boolean flag) {
-    if (flag) {
-      if (mGestureTypes == null) {
-        mGestureTypes = new ArrayList<>();
-      }
-      mGestureTypes.add(NodeProps.ON_TOUCH_DOWN);
+    public ArrayList<String> getGestureTypes() {
+        return mGestureTypes;
     }
-  }
 
-  @HippyControllerProps(name = NodeProps.ON_TOUCH_MOVE, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-  public void touchUpEnable(boolean flag) {
-    if (flag) {
-      if (mGestureTypes == null) {
-        mGestureTypes = new ArrayList<>();
-      }
-      mGestureTypes.add(NodeProps.ON_TOUCH_MOVE);
+    @HippyControllerProps(name = NodeProps.ON_CLICK, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    public void clickEnable(boolean flag) {
+        if (flag) {
+            if (mGestureTypes == null) {
+                mGestureTypes = new ArrayList<>();
+            }
+            mGestureTypes.add(NodeProps.ON_CLICK);
+        }
     }
-  }
 
-  @HippyControllerProps(name = NodeProps.ON_TOUCH_END, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-  public void touchEndEnable(boolean flag) {
-    if (flag) {
-      if (mGestureTypes == null) {
-        mGestureTypes = new ArrayList<>();
-      }
-      mGestureTypes.add(NodeProps.ON_TOUCH_END);
+    @HippyControllerProps(name = NodeProps.ON_LONG_CLICK, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    public void longClickEnable(boolean flag) {
+        if (flag) {
+            if (mGestureTypes == null) {
+                mGestureTypes = new ArrayList<>();
+            }
+            mGestureTypes.add(NodeProps.ON_LONG_CLICK);
+        }
     }
-  }
 
-  @HippyControllerProps(name = NodeProps.ON_TOUCH_CANCEL, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-  public void touchCancelable(boolean flag) {
-    if (flag) {
-      if (mGestureTypes == null) {
-        mGestureTypes = new ArrayList<>();
-      }
-      mGestureTypes.add(NodeProps.ON_TOUCH_CANCEL);
+    @HippyControllerProps(name = NodeProps.ON_PRESS_IN, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    public void pressInEnable(boolean flag) {
+        if (flag) {
+            if (mGestureTypes == null) {
+                mGestureTypes = new ArrayList<>();
+            }
+            mGestureTypes.add(NodeProps.ON_PRESS_IN);
+        }
     }
-  }
 
-  @HippyControllerProps(name = PROP_VERTICAL_ALIGNMENT, defaultType = HippyControllerProps.NUMBER, defaultNumber = ImageSpan.ALIGN_BASELINE)
-  public void setVerticalAlignment(int verticalAlignment) {
-    mVerticalAlignment = verticalAlignment;
-  }
-
-  @HippyControllerProps(name = "src", defaultType = HippyControllerProps.STRING, defaultString = "")
-  public void setUrl(String url) {
-    if (mImageSpan != null) {
-      mImageSpan.setUrl(url);
+    @HippyControllerProps(name = NodeProps.ON_PRESS_OUT)
+    public void pressOutEnable(boolean flag) {
+        if (flag) {
+            if (mGestureTypes == null) {
+                mGestureTypes = new ArrayList<>();
+            }
+            mGestureTypes.add(NodeProps.ON_PRESS_OUT);
+        }
     }
-  }
+
+    @HippyControllerProps(name = NodeProps.ON_TOUCH_DOWN, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    public void touchDownEnable(boolean flag) {
+        if (flag) {
+            if (mGestureTypes == null) {
+                mGestureTypes = new ArrayList<>();
+            }
+            mGestureTypes.add(NodeProps.ON_TOUCH_DOWN);
+        }
+    }
+
+    @HippyControllerProps(name = NodeProps.ON_TOUCH_MOVE, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    public void touchUpEnable(boolean flag) {
+        if (flag) {
+            if (mGestureTypes == null) {
+                mGestureTypes = new ArrayList<>();
+            }
+            mGestureTypes.add(NodeProps.ON_TOUCH_MOVE);
+        }
+    }
+
+    @HippyControllerProps(name = NodeProps.ON_TOUCH_END, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    public void touchEndEnable(boolean flag) {
+        if (flag) {
+            if (mGestureTypes == null) {
+                mGestureTypes = new ArrayList<>();
+            }
+            mGestureTypes.add(NodeProps.ON_TOUCH_END);
+        }
+    }
+
+    @HippyControllerProps(name = NodeProps.ON_TOUCH_CANCEL, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    public void touchCancelable(boolean flag) {
+        if (flag) {
+            if (mGestureTypes == null) {
+                mGestureTypes = new ArrayList<>();
+            }
+            mGestureTypes.add(NodeProps.ON_TOUCH_CANCEL);
+        }
+    }
+
+    @HippyControllerProps(name = PROP_VERTICAL_ALIGNMENT, defaultType = HippyControllerProps.NUMBER, defaultNumber = ImageSpan.ALIGN_BASELINE)
+    public void setVerticalAlignment(int verticalAlignment) {
+        mVerticalAlignment = verticalAlignment;
+    }
+
+    @HippyControllerProps(name = "src", defaultType = HippyControllerProps.STRING, defaultString = "")
+    public void setUrl(String url) {
+        if (mImageSpan != null) {
+            mImageSpan.setUrl(url);
+        }
+    }
 }

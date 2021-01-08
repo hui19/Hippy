@@ -22,15 +22,15 @@ package com.tencent.mtt.hippy.common;
 
 public class HippyJsException extends Exception {
 
-  private final String mStack;
-  private String[] mStackTrace;
+    private final String mStack;
+    private String[] mStackTrace;
 
-  public HippyJsException(String message, String stack) {
-    super(message);
-    mStack = stack;
-  }
+    public HippyJsException(String message, String stack) {
+        super(message);
+        mStack = stack;
+    }
 
-  public String getStack() {
-    return mStack;
-  }
+    public String getStack() {
+        return mStack;
+    }
 }

@@ -24,19 +24,19 @@ import com.tencent.mtt.supportui.views.IBorder;
 
 public interface CommonBorder extends IBorder {
 
-  enum BorderRadiusDirection {
-    ALL,
-    TOP_LEFT,
-    TOP_RIGHT,
-    BOTTOM_RIGHT,
-    BOTTOM_LEFT
-  }
+    enum BorderRadiusDirection {
+        ALL,
+        TOP_LEFT,
+        TOP_RIGHT,
+        BOTTOM_RIGHT,
+        BOTTOM_LEFT
+    }
 
-  enum BorderWidthDirection {
-    ALL,
-    LEFT,
-    TOP,
-    RIGHT,
-    BOTTOM
-  }
+    enum BorderWidthDirection {
+        ALL,
+        LEFT,
+        TOP,
+        RIGHT,
+        BOTTOM
+    }
 }

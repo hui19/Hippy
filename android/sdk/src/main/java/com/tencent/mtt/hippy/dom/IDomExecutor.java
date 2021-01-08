@@ -24,5 +24,5 @@ package com.tencent.mtt.hippy.dom;
 
 public interface IDomExecutor {
 
-  public void exec();
+    public void exec();
 }

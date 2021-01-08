@@ -27,21 +27,21 @@ import android.view.View;
 
 public class HippyPageScrollEvent extends HippyViewEvent {
 
-  public static final String EVENT_NAME = "onPageScroll";
+    public static final String EVENT_NAME = "onPageScroll";
 
-  private View mTarget;
+    private View mTarget;
 
-  public HippyPageScrollEvent(View target) {
-    super(EVENT_NAME);
-    mTarget = target;
-  }
+    public HippyPageScrollEvent(View target) {
+        super(EVENT_NAME);
+        mTarget = target;
+    }
 
-  public void send(int position, float offset) {
-    HippyMap map = new HippyMap();
-    map.pushInt("position", position);
-    map.pushDouble("offset", offset);
-    super.send(mTarget, map);
-  }
+    public void send(int position, float offset) {
+        HippyMap map = new HippyMap();
+        map.pushInt("position", position);
+        map.pushDouble("offset", offset);
+        super.send(mTarget, map);
+    }
 
 
 }

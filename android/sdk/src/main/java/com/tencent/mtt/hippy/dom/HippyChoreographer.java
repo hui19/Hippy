@@ -29,72 +29,72 @@ import java.util.ArrayDeque;
  */
 public class HippyChoreographer {
 
-  public interface FrameCallback {
+    public interface FrameCallback {
 
-    void doFrame(long frameTimeNanos);
-  }
-
-
-  private static HippyChoreographer sInstance;
-
-  public static HippyChoreographer getInstance() {
-    if (sInstance == null) {
-      sInstance = new HippyChoreographer();
+        void doFrame(long frameTimeNanos);
     }
-    return sInstance;
-  }
 
-  private final HippyChoreographerDispatcher mReactChoreographerDispatcher;
-  final ArrayDeque<FrameCallback> mCallbackQueues;
 
-  int mTotalCallbacks = 0;
-  boolean mHasPostedCallback = false;
+    private static HippyChoreographer sInstance;
 
-  private HippyChoreographer() {
-    mReactChoreographerDispatcher = new HippyChoreographerDispatcher();
-    mCallbackQueues = new ArrayDeque<>();
-  }
-
-  public void postFrameCallback(FrameCallback frameCallback) {
-    if (!mCallbackQueues.contains(frameCallback)) {
-      mCallbackQueues.addLast(frameCallback);
-      mTotalCallbacks++;
-      if (!mHasPostedCallback) {
-        try {
-          ChoreographerCompat.getInstance().postFrameCallback(mReactChoreographerDispatcher);
-          mHasPostedCallback = true;
-        } catch (Exception e) {
-
+    public static HippyChoreographer getInstance() {
+        if (sInstance == null) {
+            sInstance = new HippyChoreographer();
         }
-      }
+        return sInstance;
     }
-  }
 
-  public void removeFrameCallback(FrameCallback frameCallback) {
-    if (mCallbackQueues.removeFirstOccurrence(frameCallback)) {
-      mTotalCallbacks--;
-      maybeRemoveFrameCallback();
+    private final HippyChoreographerDispatcher mReactChoreographerDispatcher;
+    final ArrayDeque<FrameCallback> mCallbackQueues;
+
+    int mTotalCallbacks = 0;
+    boolean mHasPostedCallback = false;
+
+    private HippyChoreographer() {
+        mReactChoreographerDispatcher = new HippyChoreographerDispatcher();
+        mCallbackQueues = new ArrayDeque<>();
     }
-  }
 
-  void maybeRemoveFrameCallback() {
-    if (mTotalCallbacks == 0 && mHasPostedCallback) {
-      ChoreographerCompat.getInstance().removeFrameCallback(mReactChoreographerDispatcher);
-      mHasPostedCallback = false;
+    public void postFrameCallback(FrameCallback frameCallback) {
+        if (!mCallbackQueues.contains(frameCallback)) {
+            mCallbackQueues.addLast(frameCallback);
+            mTotalCallbacks++;
+            if (!mHasPostedCallback) {
+                try {
+                    ChoreographerCompat.getInstance().postFrameCallback(mReactChoreographerDispatcher);
+                    mHasPostedCallback = true;
+                } catch (Exception e) {
+
+                }
+            }
+        }
     }
-  }
 
-  private class HippyChoreographerDispatcher implements FrameCallback {
-
-    @Override
-    public void doFrame(long frameTimeNanos) {
-      mHasPostedCallback = false;
-      int initialLength = mCallbackQueues.size();
-      for (int callback = 0; callback < initialLength; callback++) {
-        mCallbackQueues.removeFirst().doFrame(frameTimeNanos);
-        mTotalCallbacks--;
-      }
-      maybeRemoveFrameCallback();
+    public void removeFrameCallback(FrameCallback frameCallback) {
+        if (mCallbackQueues.removeFirstOccurrence(frameCallback)) {
+            mTotalCallbacks--;
+            maybeRemoveFrameCallback();
+        }
     }
-  }
+
+    void maybeRemoveFrameCallback() {
+        if (mTotalCallbacks == 0 && mHasPostedCallback) {
+            ChoreographerCompat.getInstance().removeFrameCallback(mReactChoreographerDispatcher);
+            mHasPostedCallback = false;
+        }
+    }
+
+    private class HippyChoreographerDispatcher implements FrameCallback {
+
+        @Override
+        public void doFrame(long frameTimeNanos) {
+            mHasPostedCallback = false;
+            int initialLength = mCallbackQueues.size();
+            for (int callback = 0; callback < initialLength; callback++) {
+                mCallbackQueues.removeFirst().doFrame(frameTimeNanos);
+                mTotalCallbacks--;
+            }
+            maybeRemoveFrameCallback();
+        }
+    }
 }

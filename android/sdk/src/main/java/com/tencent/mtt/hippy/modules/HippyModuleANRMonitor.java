@@ -31,107 +31,107 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class HippyModuleANRMonitor {
 
-  static final int ANR_TIME = 100;
-  static final int MONITOR_ID_NAN = 0;
-  static int MONITOR_ID = 0;
-  HippyEngineContext mContext;
-  boolean mNeedReportBridgeANR = false;
-  HippyEngineMonitorAdapter mEngineMonitorAdapter;
-  ConcurrentHashMap<Integer, MonitorMessage> mMonitorMessages;
+    static final int ANR_TIME = 100;
+    static final int MONITOR_ID_NAN = 0;
+    static int MONITOR_ID = 0;
+    HippyEngineContext mContext;
+    boolean mNeedReportBridgeANR = false;
+    HippyEngineMonitorAdapter mEngineMonitorAdapter;
+    ConcurrentHashMap<Integer, MonitorMessage> mMonitorMessages;
 
-  public HippyModuleANRMonitor(HippyEngineContext context) {
-    this.mContext = context;
-    if (mContext != null) {
-      this.mEngineMonitorAdapter = mContext.getGlobalConfigs().getEngineMonitorAdapter();
-      this.mNeedReportBridgeANR = mEngineMonitorAdapter.needReportBridgeANR();
-      if (mNeedReportBridgeANR) {
-        mMonitorMessages = new ConcurrentHashMap();
-      }
-    }
-  }
-
-  public int startMonitor(String parms1, String parms2) {
-    if (!mNeedReportBridgeANR) {
-      return MONITOR_ID_NAN;
-    }
-    MonitorMessage message = MonitorMessage.obtain(parms1, parms2, SystemClock.elapsedRealtime());
-    int id = ++MONITOR_ID;
-    if (id == MONITOR_ID_NAN) {
-      id = ++MONITOR_ID;
-    }
-    mMonitorMessages.put(id, message);
-    return id;
-  }
-
-  public void endMonitor(int id) {
-    if (!mNeedReportBridgeANR) {
-      return;
-    }
-    MonitorMessage message = mMonitorMessages.get(id);
-    if (message == null) {
-      return;
-    }
-    long currentTime = SystemClock.elapsedRealtime();
-    if (currentTime - message.startTime > ANR_TIME) {
-      if (mEngineMonitorAdapter != null) {
-        mEngineMonitorAdapter.reportBridgeANR(message.param1 + " | " + message.param2);
-      }
-    }
-    mMonitorMessages.remove(id);
-    message.onDispose();
-  }
-
-  public void checkMonitor() {
-    if (mMonitorMessages == null) {
-      return;
-    }
-    for (Map.Entry<Integer, MonitorMessage> entry : mMonitorMessages.entrySet()) {
-      MonitorMessage monitorMessage = entry.getValue();
-      if (monitorMessage != null) {
-        long currentTime = SystemClock.elapsedRealtime();
-        if (currentTime - monitorMessage.startTime > ANR_TIME) {
-          if (mEngineMonitorAdapter != null) {
-            mEngineMonitorAdapter
-              .reportBridgeANR(monitorMessage.param1 + " | " + monitorMessage.param2);
-          }
-          mMonitorMessages.remove(entry.getKey());
-          monitorMessage.onDispose();
+    public HippyModuleANRMonitor(HippyEngineContext context) {
+        this.mContext = context;
+        if (mContext != null) {
+            this.mEngineMonitorAdapter = mContext.getGlobalConfigs().getEngineMonitorAdapter();
+            this.mNeedReportBridgeANR = mEngineMonitorAdapter.needReportBridgeANR();
+            if (mNeedReportBridgeANR) {
+                mMonitorMessages = new ConcurrentHashMap();
+            }
         }
-      }
-    }
-  }
-
-  static class MonitorMessage {
-
-    private static final int POOL_SIZE = 20;
-    private static final Pools.SynchronizedPool<MonitorMessage> INSTANCE_POOL = new Pools.SynchronizedPool<>(
-      POOL_SIZE);
-
-    public String param1;
-    public String param2;
-    public long startTime;
-
-    public static MonitorMessage obtain(String param1, String param2, long startTime) {
-      MonitorMessage instance = INSTANCE_POOL.acquire();
-      if (instance == null) {
-        instance = new MonitorMessage();
-      }
-      instance.init(param1, param2, startTime);
-      return instance;
     }
 
-    private void init(String param1, String param2, long startTime) {
-      this.param1 = param1;
-      this.param2 = param2;
-      this.startTime = startTime;
+    public int startMonitor(String parms1, String parms2) {
+        if (!mNeedReportBridgeANR) {
+            return MONITOR_ID_NAN;
+        }
+        MonitorMessage message = MonitorMessage.obtain(parms1, parms2, SystemClock.elapsedRealtime());
+        int id = ++MONITOR_ID;
+        if (id == MONITOR_ID_NAN) {
+            id = ++MONITOR_ID;
+        }
+        mMonitorMessages.put(id, message);
+        return id;
     }
 
-    public void onDispose() {
-      try {
-        INSTANCE_POOL.release(this);
-      } catch (Throwable e) {
-
-      }
+    public void endMonitor(int id) {
+        if (!mNeedReportBridgeANR) {
+            return;
+        }
+        MonitorMessage message = mMonitorMessages.get(id);
+        if (message == null) {
+            return;
+        }
+        long currentTime = SystemClock.elapsedRealtime();
+        if (currentTime - message.startTime > ANR_TIME) {
+            if (mEngineMonitorAdapter != null) {
+                mEngineMonitorAdapter.reportBridgeANR(message.param1 + " | " + message.param2);
+            }
+        }
+        mMonitorMessages.remove(id);
+        message.onDispose();
     }
-  }
+
+    public void checkMonitor() {
+        if (mMonitorMessages == null) {
+            return;
+        }
+        for (Map.Entry<Integer, MonitorMessage> entry : mMonitorMessages.entrySet()) {
+            MonitorMessage monitorMessage = entry.getValue();
+            if (monitorMessage != null) {
+                long currentTime = SystemClock.elapsedRealtime();
+                if (currentTime - monitorMessage.startTime > ANR_TIME) {
+                    if (mEngineMonitorAdapter != null) {
+                        mEngineMonitorAdapter
+                                .reportBridgeANR(monitorMessage.param1 + " | " + monitorMessage.param2);
+                    }
+                    mMonitorMessages.remove(entry.getKey());
+                    monitorMessage.onDispose();
+                }
+            }
+        }
+    }
+
+    static class MonitorMessage {
+
+        private static final int POOL_SIZE = 20;
+        private static final Pools.SynchronizedPool<MonitorMessage> INSTANCE_POOL = new Pools.SynchronizedPool<>(
+                POOL_SIZE);
+
+        public String param1;
+        public String param2;
+        public long startTime;
+
+        public static MonitorMessage obtain(String param1, String param2, long startTime) {
+            MonitorMessage instance = INSTANCE_POOL.acquire();
+            if (instance == null) {
+                instance = new MonitorMessage();
+            }
+            instance.init(param1, param2, startTime);
+            return instance;
+        }
+
+        private void init(String param1, String param2, long startTime) {
+            this.param1 = param1;
+            this.param2 = param2;
+            this.startTime = startTime;
+        }
+
+        public void onDispose() {
+            try {
+                INSTANCE_POOL.release(this);
+            } catch (Throwable e) {
+
+            }
+        }
+    }
 }

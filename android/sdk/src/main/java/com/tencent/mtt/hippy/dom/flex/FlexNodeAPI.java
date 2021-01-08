@@ -20,147 +20,147 @@ import com.tencent.smtt.flexbox.FlexNodeStyle;
 
 public interface FlexNodeAPI<FlexNodeType extends FlexNodeAPI> {
 
-  interface MeasureFunction {
+    interface MeasureFunction {
 
-    long measure(
-      FlexNodeAPI node,
-      float width,
-      FlexMeasureMode widthMode,
-      float height,
-      FlexMeasureMode heightMode);
-  }
+        long measure(
+                FlexNodeAPI node,
+                float width,
+                FlexMeasureMode widthMode,
+                float height,
+                FlexMeasureMode heightMode);
+    }
 
-  int getChildCount();
+    int getChildCount();
 
-  FlexNodeType getChildAt(int i);
+    FlexNodeType getChildAt(int i);
 
-  void addChildAt(FlexNodeType child, int i);
+    void addChildAt(FlexNodeType child, int i);
 
-  FlexNodeType removeChildAt(int i);
+    FlexNodeType removeChildAt(int i);
 
-  FlexNodeType getParent();
+    FlexNodeType getParent();
 
-  int indexOf(FlexNodeType child);
+    int indexOf(FlexNodeType child);
 
-  void setMeasureFunction(MeasureFunction measureFunction);
+    void setMeasureFunction(MeasureFunction measureFunction);
 
-  boolean isMeasureDefined();
+    boolean isMeasureDefined();
 
-  void calculateLayout();
+    void calculateLayout();
 
-  boolean isDirty();
+    boolean isDirty();
 
-  boolean hasNewLayout();
+    boolean hasNewLayout();
 
-  void dirty();
+    void dirty();
 
-  void markLayoutSeen();
+    void markLayoutSeen();
 
-  boolean valuesEqual(float f1, float f2);
+    boolean valuesEqual(float f1, float f2);
 
-  FlexDirection getStyleDirection();
+    FlexDirection getStyleDirection();
 
-  void setDirection(FlexDirection direction);
+    void setDirection(FlexDirection direction);
 
-  FlexCSSDirection getFlexDirection();
+    FlexCSSDirection getFlexDirection();
 
-  void setFlexDirection(FlexCSSDirection flexDirection);
+    void setFlexDirection(FlexCSSDirection flexDirection);
 
-  FlexJustify getJustifyContent();
+    FlexJustify getJustifyContent();
 
-  void setJustifyContent(FlexJustify justifyContent);
+    void setJustifyContent(FlexJustify justifyContent);
 
-  FlexAlign getAlignItems();
+    FlexAlign getAlignItems();
 
-  void setAlignItems(FlexAlign alignItems);
+    void setAlignItems(FlexAlign alignItems);
 
-  FlexAlign getAlignSelf();
+    FlexAlign getAlignSelf();
 
-  void setAlignSelf(FlexAlign alignSelf);
+    void setAlignSelf(FlexAlign alignSelf);
 
-  FlexAlign getAlignContent();
+    FlexAlign getAlignContent();
 
-  void setAlignContent(FlexAlign alignContent);
+    void setAlignContent(FlexAlign alignContent);
 
-  FlexPositionType getPositionType();
+    FlexPositionType getPositionType();
 
-  void setPositionType(FlexPositionType positionType);
+    void setPositionType(FlexPositionType positionType);
 
-  void setWrap(FlexWrap flexWrap);
+    void setWrap(FlexWrap flexWrap);
 
-  void setFlex(float flex);
+    void setFlex(float flex);
 
-  void setDisplay(FlexNodeStyle.Display display);
+    void setDisplay(FlexNodeStyle.Display display);
 
-  float getFlexGrow();
+    float getFlexGrow();
 
-  void setFlexGrow(float flexGrow);
+    void setFlexGrow(float flexGrow);
 
-  float getFlexShrink();
+    float getFlexShrink();
 
-  void setFlexShrink(float flexShrink);
+    void setFlexShrink(float flexShrink);
 
-  float getFlexBasis();
+    float getFlexBasis();
 
-  void setFlexBasis(float flexBasis);
+    void setFlexBasis(float flexBasis);
 
-  float getMargin(int spacingType);
+    float getMargin(int spacingType);
 
-  void setMargin(int spacingType, float margin);
+    void setMargin(int spacingType, float margin);
 
-  float getPadding(int spacingType);
+    float getPadding(int spacingType);
 
-  void setPadding(int spacingType, float padding);
+    void setPadding(int spacingType, float padding);
 
-  float getBorder(int spacingType);
+    float getBorder(int spacingType);
 
-  void setBorder(int spacingType, float border);
+    void setBorder(int spacingType, float border);
 
-  float getPosition(int spacingType);
+    float getPosition(int spacingType);
 
-  void setPosition(int spacingType, float position);
+    void setPosition(int spacingType, float position);
 
-  float getStyleWidth();
+    float getStyleWidth();
 
-  void setStyleWidth(float width);
+    void setStyleWidth(float width);
 
-  float getStyleHeight();
+    float getStyleHeight();
 
-  void setStyleHeight(float height);
+    void setStyleHeight(float height);
 
-  float getStyleMaxWidth();
+    float getStyleMaxWidth();
 
-  void setStyleMaxWidth(float maxWidth);
+    void setStyleMaxWidth(float maxWidth);
 
-  float getStyleMinWidth();
+    float getStyleMinWidth();
 
-  void setStyleMinWidth(float minWidth);
+    void setStyleMinWidth(float minWidth);
 
-  float getStyleMaxHeight();
+    float getStyleMaxHeight();
 
-  void setStyleMaxHeight(float maxHeight);
+    void setStyleMaxHeight(float maxHeight);
 
-  float getStyleMinHeight();
+    float getStyleMinHeight();
 
-  void setStyleMinHeight(float minHeight);
+    void setStyleMinHeight(float minHeight);
 
-  float getLayoutX();
+    float getLayoutX();
 
-  float getLayoutY();
+    float getLayoutY();
 
-  float getLayoutWidth();
+    float getLayoutWidth();
 
-  float getLayoutHeight();
+    float getLayoutHeight();
 
-  FlexDirection getLayoutDirection();
+    FlexDirection getLayoutDirection();
 
-  FlexOverflow getOverflow();
+    FlexOverflow getOverflow();
 
-  void setOverflow(FlexOverflow overflow);
+    void setOverflow(FlexOverflow overflow);
 
-  void setData(Object data);
+    void setData(Object data);
 
-  Object getData();
+    Object getData();
 
-  void reset();
+    void reset();
 }

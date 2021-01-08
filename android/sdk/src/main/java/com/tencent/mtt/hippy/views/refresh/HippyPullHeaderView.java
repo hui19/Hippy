@@ -23,18 +23,18 @@ import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
 public class HippyPullHeaderView extends HippyViewGroup {
 
-  private View mParentView;
+    private View mParentView;
 
-  public HippyPullHeaderView(Context context) {
-    super(context);
-  }
+    public HippyPullHeaderView(Context context) {
+        super(context);
+    }
 
-  public void setParentView(View parentView) {
-    mParentView = parentView;
-  }
+    public void setParentView(View parentView) {
+        mParentView = parentView;
+    }
 
-  public View getParentView() {
-    return mParentView;
-  }
+    public View getParentView() {
+        return mParentView;
+    }
 
 }

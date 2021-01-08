@@ -31,24 +31,24 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(ElementType.METHOD)
 public @interface HippyControllerProps {
 
-  String NUMBER = "number";
-  String BOOLEAN = "boolean";
-  String STRING = "string";
-  String DEFAULT = "";
-  String ARRAY = "array";
-  String MAP = "map";
+    String NUMBER = "number";
+    String BOOLEAN = "boolean";
+    String STRING = "string";
+    String DEFAULT = "";
+    String ARRAY = "array";
+    String MAP = "map";
 
-  String name() default "name";
+    String name() default "name";
 
-  /*
-   * defaultType Number boolean string else default is do not check
-   */
-  String defaultType() default DEFAULT;
+    /*
+     * defaultType Number boolean string else default is do not check
+     */
+    String defaultType() default DEFAULT;
 
-  double defaultNumber() default 0.0;
+    double defaultNumber() default 0.0;
 
-  boolean defaultBoolean() default false;
+    boolean defaultBoolean() default false;
 
-  String defaultString() default DEFAULT;
+    String defaultString() default DEFAULT;
 
 }

@@ -23,5 +23,5 @@ package com.tencent.mtt.hippy.adapter.soloader;
  */
 public interface HippySoLoaderAdapter {
 
-  String loadSoPath(String soName);
+    String loadSoPath(String soName);
 }

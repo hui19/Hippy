@@ -24,18 +24,18 @@ import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase;
 
 public class TkdListViewAdapter extends HippyListAdapter {
 
-  public TkdListViewAdapter(RecyclerView recyclerView, HippyEngineContext HippyContext) {
-    super(recyclerView, HippyContext);
-  }
-
-  @Override
-  public void notifyEndReached() {
-    if (mParentRecyclerView instanceof TkdListView) {
-      TkdListView listView = (TkdListView) mParentRecyclerView;
-      if (!listView.isLoading() && listView.shouldEmitEndReachedEvent()) {
-        getOnEndReachedEvent().send(mParentRecyclerView, null);
-        listView.setIsLoading(true);
-      }
+    public TkdListViewAdapter(RecyclerView recyclerView, HippyEngineContext HippyContext) {
+        super(recyclerView, HippyContext);
     }
-  }
+
+    @Override
+    public void notifyEndReached() {
+        if (mParentRecyclerView instanceof TkdListView) {
+            TkdListView listView = (TkdListView) mParentRecyclerView;
+            if (!listView.isLoading() && listView.shouldEmitEndReachedEvent()) {
+                getOnEndReachedEvent().send(mParentRecyclerView, null);
+                listView.setIsLoading(true);
+            }
+        }
+    }
 }

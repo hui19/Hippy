@@ -32,79 +32,79 @@ import com.tencent.mtt.hippy.bridge.NativeCallback;
  */
 public class HippyAssetBundleLoader implements HippyBundleLoader {
 
-  private static final String ASSETS_STR = "assets://";
-  private Context mContext;
+    private static final String ASSETS_STR = "assets://";
+    private Context mContext;
 
-  private String mAssetPath;
+    private String mAssetPath;
 
-  private boolean mCanUseCodeCache;
+    private boolean mCanUseCodeCache;
 
-  private String mCodeCacheTag;
+    private String mCodeCacheTag;
 
-  public HippyAssetBundleLoader(Context context, String assetName) {
-    this(context, assetName, false, "");
-  }
-
-  public HippyAssetBundleLoader(Context context, String assetName, boolean canUseCodeCache,
-    String codeCacheTag) {
-    this.mContext = context;
-    this.mAssetPath = assetName;
-    this.mCanUseCodeCache = canUseCodeCache;
-    this.mCodeCacheTag = codeCacheTag;
-  }
-
-  public void setCodeCache(boolean canUseCodeCache, String codeCacheTag) {
-    this.mCanUseCodeCache = canUseCodeCache;
-    this.mCodeCacheTag = codeCacheTag;
-  }
-
-  @Override
-  public boolean load(HippyBridge bridge, NativeCallback callback) {
-    if (TextUtils.isEmpty(mAssetPath)) {
-      return false;
+    public HippyAssetBundleLoader(Context context, String assetName) {
+        this(context, assetName, false, "");
     }
 
-    AssetManager assetManager = mContext.getAssets();
-    String uri = mAssetPath;
-    if (!mAssetPath.startsWith(URI_SCHEME_ASSETS)) {
-      if (mAssetPath.startsWith("/")) {
-        uri = URI_SCHEME_ASSETS + mAssetPath;
-      } else {
-        uri = URI_SCHEME_ASSETS + "/" + mAssetPath;
-      }
+    public HippyAssetBundleLoader(Context context, String assetName, boolean canUseCodeCache,
+            String codeCacheTag) {
+        this.mContext = context;
+        this.mAssetPath = assetName;
+        this.mCanUseCodeCache = canUseCodeCache;
+        this.mCodeCacheTag = codeCacheTag;
     }
 
-    return bridge.runScriptFromUri(uri, assetManager, mCanUseCodeCache, mCodeCacheTag, callback);
-    //return bridge.runScriptFromAssets(mAssetPath, assetManager,mCanUseCodeCache,mCodeCacheTag, callback);
-  }
-
-  @Override
-  public String getPath() {
-    if (mAssetPath != null && !mAssetPath.startsWith(ASSETS_STR)) {
-      return ASSETS_STR + mAssetPath;
-    } else {
-      return mAssetPath;
+    public void setCodeCache(boolean canUseCodeCache, String codeCacheTag) {
+        this.mCanUseCodeCache = canUseCodeCache;
+        this.mCodeCacheTag = codeCacheTag;
     }
-  }
 
-  @Override
-  public String getRawPath() {
-    return mAssetPath;
-  }
+    @Override
+    public boolean load(HippyBridge bridge, NativeCallback callback) {
+        if (TextUtils.isEmpty(mAssetPath)) {
+            return false;
+        }
 
-  @Override
-  public String getBundleUniKey() {
-    return getPath();
-  }
+        AssetManager assetManager = mContext.getAssets();
+        String uri = mAssetPath;
+        if (!mAssetPath.startsWith(URI_SCHEME_ASSETS)) {
+            if (mAssetPath.startsWith("/")) {
+                uri = URI_SCHEME_ASSETS + mAssetPath;
+            } else {
+                uri = URI_SCHEME_ASSETS + "/" + mAssetPath;
+            }
+        }
 
-  @Override
-  public boolean canUseCodeCache() {
-    return mCanUseCodeCache;
-  }
+        return bridge.runScriptFromUri(uri, assetManager, mCanUseCodeCache, mCodeCacheTag, callback);
+        //return bridge.runScriptFromAssets(mAssetPath, assetManager,mCanUseCodeCache,mCodeCacheTag, callback);
+    }
 
-  @Override
-  public String getCodeCacheTag() {
-    return mCodeCacheTag;
-  }
+    @Override
+    public String getPath() {
+        if (mAssetPath != null && !mAssetPath.startsWith(ASSETS_STR)) {
+            return ASSETS_STR + mAssetPath;
+        } else {
+            return mAssetPath;
+        }
+    }
+
+    @Override
+    public String getRawPath() {
+        return mAssetPath;
+    }
+
+    @Override
+    public String getBundleUniKey() {
+        return getPath();
+    }
+
+    @Override
+    public boolean canUseCodeCache() {
+        return mCanUseCodeCache;
+    }
+
+    @Override
+    public String getCodeCacheTag() {
+        return mCodeCacheTag;
+    }
 
 }

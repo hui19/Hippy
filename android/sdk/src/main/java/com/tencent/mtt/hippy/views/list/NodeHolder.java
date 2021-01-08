@@ -26,14 +26,14 @@ import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase;
 
 public class NodeHolder extends ContentHolder {
 
-  public RenderNode mBindNode;
-  public boolean isCreated = true;
+    public RenderNode mBindNode;
+    public boolean isCreated = true;
 
-  @Override
-  public void inTraversals(int traversalPurpose, int position, RecyclerViewBase recyclerView) {
-    super.inTraversals(traversalPurpose, position, recyclerView);
-    if (recyclerView instanceof RecyclerViewBase) {
-      recyclerView.handleInTraversal(traversalPurpose, position, mContentView);
+    @Override
+    public void inTraversals(int traversalPurpose, int position, RecyclerViewBase recyclerView) {
+        super.inTraversals(traversalPurpose, position, recyclerView);
+        if (recyclerView instanceof RecyclerViewBase) {
+            recyclerView.handleInTraversal(traversalPurpose, position, mContentView);
+        }
     }
-  }
 }

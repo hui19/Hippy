@@ -12,11 +12,11 @@ import com.tencent.mtt.hippy.views.scroll.HippyScrollView;
  */
 public interface TkdScrollView extends HippyScrollView {
 
-  void setPreloadDistance(int preloadDistance);
+    void setPreloadDistance(int preloadDistance);
 
-  void callLoadMoreFinish();
+    void callLoadMoreFinish();
 
-  void callScrollToTop(boolean isSmoothScroll);
+    void callScrollToTop(boolean isSmoothScroll);
 
-  void callScrollToPosition(int distance, int duration, Promise promise);
+    void callScrollToPosition(int distance, int duration, Promise promise);
 }

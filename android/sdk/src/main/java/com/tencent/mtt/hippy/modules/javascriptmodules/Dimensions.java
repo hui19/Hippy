@@ -24,5 +24,5 @@ import com.tencent.mtt.hippy.common.HippyMap;
 
 public interface Dimensions extends HippyJavaScriptModule {
 
-  void set(HippyMap dimension);
+    void set(HippyMap dimension);
 }

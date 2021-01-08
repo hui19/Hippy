@@ -30,23 +30,23 @@ import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 @HippyNativeModule(name = ExceptionModule.HIPPY_CLASS)
 public class ExceptionModule extends HippyNativeModuleBase {
 
-  public final static String HIPPY_CLASS = "ExceptionModule";
+    public final static String HIPPY_CLASS = "ExceptionModule";
 
-  public ExceptionModule(HippyEngineContext context) {
-    super(context);
-  }
-
-  @HippyMethod(name = "handleException")
-  public void handleException(String title, String details, int exceptionId) {
-    if (mContext != null) {
-      mContext.handleException(new HippyJsException(title, details));
+    public ExceptionModule(HippyEngineContext context) {
+        super(context);
     }
-  }
 
-  @HippyMethod(name = "handleBackgroundTracing")
-  public void handleBackgroundTracing(String details) {
-    if (mContext != null && mContext.getGlobalConfigs() != null) {
-      mContext.getGlobalConfigs().getExceptionHandler().handleBackgroundTracing(details);
+    @HippyMethod(name = "handleException")
+    public void handleException(String title, String details, int exceptionId) {
+        if (mContext != null) {
+            mContext.handleException(new HippyJsException(title, details));
+        }
     }
-  }
+
+    @HippyMethod(name = "handleBackgroundTracing")
+    public void handleBackgroundTracing(String details) {
+        if (mContext != null && mContext.getGlobalConfigs() != null) {
+            mContext.getGlobalConfigs().getExceptionHandler().handleBackgroundTracing(details);
+        }
+    }
 }

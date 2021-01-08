@@ -39,171 +39,171 @@ import java.util.ArrayList;
  */
 public class HippyNativeGestureSpan implements NativeGestureProcessor.Callback {
 
-  static final int LONG_CLICK = 3;
-  private static final int LONGPRESS_TIMEOUT = ViewConfiguration.getLongPressTimeout();
-  private static final int TAP_TIMEOUT = ViewConfiguration.getTapTimeout();
-  boolean mInLongPress = false;
-  int mTagId;
-  private ArrayList<String> mGestureTypes = null;
-  private int startX = 0;
-  private int startY = 0;
-  private int lastX = 0;
-  private int lastY = 0;
-  private int mViewId;
+    static final int LONG_CLICK = 3;
+    private static final int LONGPRESS_TIMEOUT = ViewConfiguration.getLongPressTimeout();
+    private static final int TAP_TIMEOUT = ViewConfiguration.getTapTimeout();
+    boolean mInLongPress = false;
+    int mTagId;
+    private ArrayList<String> mGestureTypes = null;
+    private int startX = 0;
+    private int startY = 0;
+    private int lastX = 0;
+    private int lastY = 0;
+    private int mViewId;
 
-  private NativeGestureProcessor mGestureProcessor;
-  private Handler mHandler;
-  private HippyEngineContext mContext;
+    private NativeGestureProcessor mGestureProcessor;
+    private Handler mHandler;
+    private HippyEngineContext mContext;
 
-  private boolean mIsVirtual;
+    private boolean mIsVirtual;
 
-  HippyNativeGestureSpan(int tagId, boolean isVirtual) {
-    this.mTagId = tagId;
-    this.mIsVirtual = isVirtual;
-    mGestureTypes = new ArrayList<>();
-  }
-
-  public boolean isVirtual() {
-    return mIsVirtual;
-  }
-
-  public void addGestureTypes(ArrayList types) {
-    mGestureTypes = types;
-  }
-
-  public boolean handleTouchEvent(View view, MotionEvent event) {
-
-    if (mGestureProcessor == null) {
-      mGestureProcessor = new NativeGestureProcessor(HippyNativeGestureSpan.this);
-    }
-    mViewId = view.getId();
-    return mGestureProcessor.onTouchEvent(event);
-  }
-
-  public boolean handleDispatchTouchEvent(View view, MotionEvent event) {
-    if (mContext == null) {
-      if (view.getContext() instanceof HippyInstanceContext) {
-        mContext = ((HippyInstanceContext) view.getContext()).getEngineContext();
-      }
-
+    HippyNativeGestureSpan(int tagId, boolean isVirtual) {
+        this.mTagId = tagId;
+        this.mIsVirtual = isVirtual;
+        mGestureTypes = new ArrayList<>();
     }
 
-    mViewId = view.getId();
-    int action = event.getAction();
-    boolean handle = false;
-    int x = (int) event.getX();
-    int y = (int) event.getY();
-    switch (action) {
-      case MotionEvent.ACTION_DOWN: {
-        startX = x;
-        startY = y;
+    public boolean isVirtual() {
+        return mIsVirtual;
+    }
 
-        handle = true;
-        mInLongPress = false;
-        if (mGestureTypes.contains(NodeProps.ON_LONG_CLICK)) {
-          if (mHandler == null) {
-            mHandler = new GestureHandler();
-          }
-          mHandler.sendEmptyMessageAtTime(LONG_CLICK,
-            event.getDownTime() + TAP_TIMEOUT + LONGPRESS_TIMEOUT);
+    public void addGestureTypes(ArrayList types) {
+        mGestureTypes = types;
+    }
+
+    public boolean handleTouchEvent(View view, MotionEvent event) {
+
+        if (mGestureProcessor == null) {
+            mGestureProcessor = new NativeGestureProcessor(HippyNativeGestureSpan.this);
         }
-        break;
-      }
-      case MotionEvent.ACTION_MOVE: {
-        if (mGestureTypes.contains(NodeProps.ON_CLICK) || mGestureTypes
-          .contains(NodeProps.ON_LONG_CLICK)) {
-          if (Math.abs(x - lastX) < ViewConfiguration.getTouchSlop()
-            && Math.abs(y - lastY) < ViewConfiguration.getTouchSlop()) {
-            handle = true;
-          }
-        }
-        break;
-      }
-      case MotionEvent.ACTION_UP: {
-        if (mGestureTypes.contains(NodeProps.ON_CLICK) || mGestureTypes
-          .contains(NodeProps.ON_LONG_CLICK)) {
-          if (Math.abs(x - lastX) < ViewConfiguration.getTouchSlop()
-            && Math.abs(y - lastY) < ViewConfiguration.getTouchSlop()) {
-            handle = true;
-            if (mGestureTypes.contains(NodeProps.ON_LONG_CLICK) && mInLongPress) {
-              NativeGestureDispatcher.handleLongClick(mContext, mTagId);
-            } else {
-              NativeGestureDispatcher.handleClick(mContext, mTagId);
-              reportCustomClickEvent(view);
+        mViewId = view.getId();
+        return mGestureProcessor.onTouchEvent(event);
+    }
+
+    public boolean handleDispatchTouchEvent(View view, MotionEvent event) {
+        if (mContext == null) {
+            if (view.getContext() instanceof HippyInstanceContext) {
+                mContext = ((HippyInstanceContext) view.getContext()).getEngineContext();
             }
-          }
+
         }
-        if (mHandler != null) {
-          mHandler.removeMessages(LONG_CLICK);
+
+        mViewId = view.getId();
+        int action = event.getAction();
+        boolean handle = false;
+        int x = (int) event.getX();
+        int y = (int) event.getY();
+        switch (action) {
+            case MotionEvent.ACTION_DOWN: {
+                startX = x;
+                startY = y;
+
+                handle = true;
+                mInLongPress = false;
+                if (mGestureTypes.contains(NodeProps.ON_LONG_CLICK)) {
+                    if (mHandler == null) {
+                        mHandler = new GestureHandler();
+                    }
+                    mHandler.sendEmptyMessageAtTime(LONG_CLICK,
+                            event.getDownTime() + TAP_TIMEOUT + LONGPRESS_TIMEOUT);
+                }
+                break;
+            }
+            case MotionEvent.ACTION_MOVE: {
+                if (mGestureTypes.contains(NodeProps.ON_CLICK) || mGestureTypes
+                        .contains(NodeProps.ON_LONG_CLICK)) {
+                    if (Math.abs(x - lastX) < ViewConfiguration.getTouchSlop()
+                            && Math.abs(y - lastY) < ViewConfiguration.getTouchSlop()) {
+                        handle = true;
+                    }
+                }
+                break;
+            }
+            case MotionEvent.ACTION_UP: {
+                if (mGestureTypes.contains(NodeProps.ON_CLICK) || mGestureTypes
+                        .contains(NodeProps.ON_LONG_CLICK)) {
+                    if (Math.abs(x - lastX) < ViewConfiguration.getTouchSlop()
+                            && Math.abs(y - lastY) < ViewConfiguration.getTouchSlop()) {
+                        handle = true;
+                        if (mGestureTypes.contains(NodeProps.ON_LONG_CLICK) && mInLongPress) {
+                            NativeGestureDispatcher.handleLongClick(mContext, mTagId);
+                        } else {
+                            NativeGestureDispatcher.handleClick(mContext, mTagId);
+                            reportCustomClickEvent(view);
+                        }
+                    }
+                }
+                if (mHandler != null) {
+                    mHandler.removeMessages(LONG_CLICK);
+                }
+                break;
+            }
+            case MotionEvent.ACTION_CANCEL:
+            case MotionEvent.ACTION_OUTSIDE: {
+                if (mHandler != null) {
+                    mHandler.removeMessages(LONG_CLICK);
+                }
+                if (mGestureTypes.contains(NodeProps.ON_CLICK) || mGestureTypes
+                        .contains(NodeProps.ON_LONG_CLICK)) {
+                    handle = true;
+                }
+                break;
+            }
         }
-        break;
-      }
-      case MotionEvent.ACTION_CANCEL:
-      case MotionEvent.ACTION_OUTSIDE: {
-        if (mHandler != null) {
-          mHandler.removeMessages(LONG_CLICK);
+        lastX = x;
+        lastY = y;
+        return handle;
+
+    }
+
+    private void reportCustomClickEvent(View view) {
+        if (mContext != null && view != null) {
+            IHippyDtCollectAdapter collectAdapter = mContext.getGlobalConfigs().getDtCollectAdapter();
+            if (collectAdapter != null) {
+                collectAdapter.reportClickEvent(view);
+            }
         }
-        if (mGestureTypes.contains(NodeProps.ON_CLICK) || mGestureTypes
-          .contains(NodeProps.ON_LONG_CLICK)) {
-          handle = true;
-        }
-        break;
-      }
-    }
-    lastX = x;
-    lastY = y;
-    return handle;
-
-  }
-
-  private void reportCustomClickEvent(View view) {
-    if (mContext != null && view != null) {
-      IHippyDtCollectAdapter collectAdapter = mContext.getGlobalConfigs().getDtCollectAdapter();
-      if (collectAdapter != null) {
-        collectAdapter.reportClickEvent(view);
-      }
-    }
-  }
-
-  @Override
-  public boolean needHandle(String type) {
-    if (mGestureTypes != null) {
-      return mGestureTypes.contains(type);
-    }
-    return false;
-  }
-
-  @Override
-  public void handle(String type, float x, float y) {
-    if (TextUtils.equals(type, NodeProps.ON_PRESS_IN)) {
-      NativeGestureDispatcher.handlePressIn(mContext, mTagId);
-    } else if (TextUtils.equals(type, NodeProps.ON_PRESS_OUT)) {
-      NativeGestureDispatcher.handlePressOut(mContext, mTagId);
-    } else if (TextUtils.equals(type, NodeProps.ON_TOUCH_DOWN)) {
-      NativeGestureDispatcher.handleTouchDown(mContext, mTagId, x, y, mViewId);
-    } else if (TextUtils.equals(type, NodeProps.ON_TOUCH_MOVE)) {
-      NativeGestureDispatcher.handleTouchMove(mContext, mTagId, x, y, mViewId);
-    } else if (TextUtils.equals(type, NodeProps.ON_TOUCH_END)) {
-      NativeGestureDispatcher.handleTouchEnd(mContext, mTagId, x, y, mViewId);
-    } else if (TextUtils.equals(type, NodeProps.ON_TOUCH_CANCEL)) {
-      NativeGestureDispatcher.handleTouchCancel(mContext, mTagId, x, y, mViewId);
-    }
-  }
-
-  private class GestureHandler extends Handler {
-
-    public GestureHandler() {
-      super(Looper.getMainLooper());
     }
 
     @Override
-    public void handleMessage(Message msg) {
-      switch (msg.what) {
-        case LONG_CLICK: {
-          mInLongPress = true;
-          break;
+    public boolean needHandle(String type) {
+        if (mGestureTypes != null) {
+            return mGestureTypes.contains(type);
         }
-      }
+        return false;
     }
-  }
+
+    @Override
+    public void handle(String type, float x, float y) {
+        if (TextUtils.equals(type, NodeProps.ON_PRESS_IN)) {
+            NativeGestureDispatcher.handlePressIn(mContext, mTagId);
+        } else if (TextUtils.equals(type, NodeProps.ON_PRESS_OUT)) {
+            NativeGestureDispatcher.handlePressOut(mContext, mTagId);
+        } else if (TextUtils.equals(type, NodeProps.ON_TOUCH_DOWN)) {
+            NativeGestureDispatcher.handleTouchDown(mContext, mTagId, x, y, mViewId);
+        } else if (TextUtils.equals(type, NodeProps.ON_TOUCH_MOVE)) {
+            NativeGestureDispatcher.handleTouchMove(mContext, mTagId, x, y, mViewId);
+        } else if (TextUtils.equals(type, NodeProps.ON_TOUCH_END)) {
+            NativeGestureDispatcher.handleTouchEnd(mContext, mTagId, x, y, mViewId);
+        } else if (TextUtils.equals(type, NodeProps.ON_TOUCH_CANCEL)) {
+            NativeGestureDispatcher.handleTouchCancel(mContext, mTagId, x, y, mViewId);
+        }
+    }
+
+    private class GestureHandler extends Handler {
+
+        public GestureHandler() {
+            super(Looper.getMainLooper());
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case LONG_CLICK: {
+                    mInLongPress = true;
+                    break;
+                }
+            }
+        }
+    }
 }

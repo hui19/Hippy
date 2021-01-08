@@ -23,5 +23,5 @@ package com.tencent.mtt.hippy.common;
  */
 public interface Callback<T extends Object> {
 
-  public void callback(T param, Throwable e);
+    public void callback(T param, Throwable e);
 }

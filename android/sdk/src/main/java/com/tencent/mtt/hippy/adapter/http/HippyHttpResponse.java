@@ -32,90 +32,90 @@ import java.util.Map;
  */
 public class HippyHttpResponse {
 
-  public static final Integer UNKNOWN_STATUS = new Integer(-1);
+    public static final Integer UNKNOWN_STATUS = new Integer(-1);
 
-  private Integer mStatusCode = UNKNOWN_STATUS;
+    private Integer mStatusCode = UNKNOWN_STATUS;
 
-  private String mResponseMessage;
+    private String mResponseMessage;
 
-  private Map<String, List<String>> mRspHeaderMap = null;
+    private Map<String, List<String>> mRspHeaderMap = null;
 
-  private InputStream mInputStream;
+    private InputStream mInputStream;
 
-  private InputStream mErrorStream;
+    private InputStream mErrorStream;
 
-  public Integer getStatusCode() {
-    return mStatusCode != null ? mStatusCode : UNKNOWN_STATUS;
-  }
-
-  public void setStatusCode(Integer statusCode) {
-    this.mStatusCode = statusCode;
-  }
-
-  public void setRspHeaderMap(Map<String, List<String>> headerMap) {
-    mRspHeaderMap = headerMap;
-  }
-
-  public Map<String, List<String>> getRspHeaderMaps() {
-    return mRspHeaderMap;
-  }
-
-  public List<String> getHeaderFields(String name) {
-    if (TextUtils.isEmpty(name) || mRspHeaderMap == null) {
-      return null;
+    public Integer getStatusCode() {
+        return mStatusCode != null ? mStatusCode : UNKNOWN_STATUS;
     }
 
-    return mRspHeaderMap.get(name);
-  }
-
-  public String getHeaderField(String name) {
-    if (TextUtils.isEmpty(name) || mRspHeaderMap == null) {
-      return null;
+    public void setStatusCode(Integer statusCode) {
+        this.mStatusCode = statusCode;
     }
 
-    List<String> fields = mRspHeaderMap.get(name);
-    return fields != null && fields.size() > 0 ? fields.get(0) : null;
-  }
-
-  public InputStream getInputStream() {
-    return mInputStream;
-  }
-
-  public void setInputStream(InputStream inputStream) {
-    this.mInputStream = inputStream;
-  }
-
-  public InputStream getErrorStream() {
-    return mErrorStream;
-  }
-
-  public void setErrorStream(InputStream errorStream) {
-    this.mErrorStream = errorStream;
-  }
-
-  public void setResponseMessage(String message) {
-    this.mResponseMessage = message;
-  }
-
-  public String getResponseMessage() {
-    return mResponseMessage;
-  }
-
-  public void close() {
-    if (mInputStream != null) {
-      try {
-        mInputStream.close();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+    public void setRspHeaderMap(Map<String, List<String>> headerMap) {
+        mRspHeaderMap = headerMap;
     }
 
-    if (mErrorStream != null) {
-      try {
-        mErrorStream.close();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+    public Map<String, List<String>> getRspHeaderMaps() {
+        return mRspHeaderMap;
     }
-  }
+
+    public List<String> getHeaderFields(String name) {
+        if (TextUtils.isEmpty(name) || mRspHeaderMap == null) {
+            return null;
+        }
+
+        return mRspHeaderMap.get(name);
+    }
+
+    public String getHeaderField(String name) {
+        if (TextUtils.isEmpty(name) || mRspHeaderMap == null) {
+            return null;
+        }
+
+        List<String> fields = mRspHeaderMap.get(name);
+        return fields != null && fields.size() > 0 ? fields.get(0) : null;
+    }
+
+    public InputStream getInputStream() {
+        return mInputStream;
+    }
+
+    public void setInputStream(InputStream inputStream) {
+        this.mInputStream = inputStream;
+    }
+
+    public InputStream getErrorStream() {
+        return mErrorStream;
+    }
+
+    public void setErrorStream(InputStream errorStream) {
+        this.mErrorStream = errorStream;
+    }
+
+    public void setResponseMessage(String message) {
+        this.mResponseMessage = message;
+    }
+
+    public String getResponseMessage() {
+        return mResponseMessage;
+    }
+
+    public void close() {
+        if (mInputStream != null) {
+            try {
+                mInputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (mErrorStream != null) {
+            try {
+                mErrorStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

@@ -26,5 +26,5 @@ import android.content.SharedPreferences;
  */
 public interface HippySharedPreferencesAdapter {
 
-  public SharedPreferences getSharedPreferences();
+    public SharedPreferences getSharedPreferences();
 }

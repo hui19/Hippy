@@ -28,6 +28,6 @@ import com.tencent.mtt.hippy.common.HippyMap;
 
 public interface HippyDeviceAdapter {
 
-  void reviseDimensionIfNeed(Context context, HippyMap dimensionMap, boolean shouldUseScreenDisplay,
-    boolean systemUiVisibilityChanged);
+    void reviseDimensionIfNeed(Context context, HippyMap dimensionMap, boolean shouldUseScreenDisplay,
+            boolean systemUiVisibilityChanged);
 }

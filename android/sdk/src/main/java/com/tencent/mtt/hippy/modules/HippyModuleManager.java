@@ -28,11 +28,11 @@ import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
  */
 public interface HippyModuleManager {
 
-  void callNatives(HippyCallNativeParams params);
+    void callNatives(HippyCallNativeParams params);
 
-  void destroy();
+    void destroy();
 
-  <T extends HippyJavaScriptModule> T getJavaScriptModule(Class<T> cls);
+    <T extends HippyJavaScriptModule> T getJavaScriptModule(Class<T> cls);
 
-  <T extends HippyNativeModuleBase> T getNativeModule(Class<T> cls);
+    <T extends HippyNativeModuleBase> T getNativeModule(Class<T> cls);
 }

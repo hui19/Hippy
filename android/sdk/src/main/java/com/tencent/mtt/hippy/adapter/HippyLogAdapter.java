@@ -23,14 +23,14 @@ package com.tencent.mtt.hippy.adapter;
  */
 public interface HippyLogAdapter {
 
-  void log(String tag, String msg);
+    void log(String tag, String msg);
 
-  void init(int rootId, String module);
+    void init(int rootId, String module);
 
-  void upload(callBack callBack);
+    void upload(callBack callBack);
 
-  public interface callBack {
+    public interface callBack {
 
-    void onSuccess();
-  }
+        void onSuccess();
+    }
 }

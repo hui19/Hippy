@@ -29,40 +29,40 @@ import java.util.List;
  */
 public class DefaultEngineMonitorAdapter implements HippyEngineMonitorAdapter {
 
-  @Override
-  public void reportEngineLoadStart() {
+    @Override
+    public void reportEngineLoadStart() {
 
-  }
+    }
 
-  @Override
-  public void reportEngineLoadResult(int code, int loadTime,
-    List<HippyEngineMonitorEvent> loadEvents, Throwable e) {
+    @Override
+    public void reportEngineLoadResult(int code, int loadTime,
+            List<HippyEngineMonitorEvent> loadEvents, Throwable e) {
 
-  }
+    }
 
-  @Override
-  public void reportModuleLoadComplete(HippyRootView rootView, int loadTime,
-    List<HippyEngineMonitorEvent> loadEvents) {
+    @Override
+    public void reportModuleLoadComplete(HippyRootView rootView, int loadTime,
+            List<HippyEngineMonitorEvent> loadEvents) {
 
-  }
+    }
 
-  @Override
-  public boolean needReportBridgeANR() {
-    return false;
-  }
+    @Override
+    public boolean needReportBridgeANR() {
+        return false;
+    }
 
-  @Override
-  public void reportBridgeANR(String message) {
+    @Override
+    public void reportBridgeANR(String message) {
 
-  }
+    }
 
-  @Override
-  public void reportDoCallNatives(String moduleName, String moduleFunc) {
+    @Override
+    public void reportDoCallNatives(String moduleName, String moduleFunc) {
 
-  }
+    }
 
-  @Override
-  public void reportGestureEventCallStack(String funcName, String msg) {
+    @Override
+    public void reportGestureEventCallStack(String funcName, String msg) {
 
-  }
+    }
 }

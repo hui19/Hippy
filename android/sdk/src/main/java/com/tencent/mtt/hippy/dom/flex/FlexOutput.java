@@ -18,19 +18,19 @@ package com.tencent.mtt.hippy.dom.flex;
 
 public class FlexOutput {
 
-  public static long make(float width, float height) {
-    return make((int) width, (int) height);
-  }
+    public static long make(float width, float height) {
+        return make((int) width, (int) height);
+    }
 
-  public static long make(int width, int height) {
-    return ((long) width) << 32 | ((long) height);
-  }
+    public static long make(int width, int height) {
+        return ((long) width) << 32 | ((long) height);
+    }
 
-  public static int getWidth(long measureOutput) {
-    return (int) (0xFFFFFFFF & (measureOutput >> 32));
-  }
+    public static int getWidth(long measureOutput) {
+        return (int) (0xFFFFFFFF & (measureOutput >> 32));
+    }
 
-  public static int getHeight(long measureOutput) {
-    return (int) (0xFFFFFFFF & measureOutput);
-  }
+    public static int getHeight(long measureOutput) {
+        return (int) (0xFFFFFFFF & measureOutput);
+    }
 }

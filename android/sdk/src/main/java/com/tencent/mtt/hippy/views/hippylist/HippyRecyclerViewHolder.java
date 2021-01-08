@@ -11,11 +11,11 @@ import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
  */
 public class HippyRecyclerViewHolder extends ViewHolder {
 
-  public ListItemRenderNode bindNode;
-  public boolean isCreated = true;
+    public ListItemRenderNode bindNode;
+    public boolean isCreated = true;
 
-  public HippyRecyclerViewHolder(@NonNull View itemView, ListItemRenderNode renderNode) {
-    super(itemView);
-    bindNode = renderNode;
-  }
+    public HippyRecyclerViewHolder(@NonNull View itemView, ListItemRenderNode renderNode) {
+        super(itemView);
+        bindNode = renderNode;
+    }
 }

@@ -25,23 +25,23 @@ import android.view.WindowManager;
 
 /*package*/ class ModalHostHelper {
 
-  private static final Point MIN_POINT = new Point();
-  private static final Point MAX_POINT = new Point();
-  private static final Point SIZE_POINT = new Point();
+    private static final Point MIN_POINT = new Point();
+    private static final Point MAX_POINT = new Point();
+    private static final Point SIZE_POINT = new Point();
 
 
-  @TargetApi(16)
-  public static Point getModalHostSize(Context context) {
-    WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-    Display display = wm.getDefaultDisplay();
-    if (Build.VERSION.SDK_INT >= 16) {
-      display.getCurrentSizeRange(MIN_POINT, MAX_POINT);
+    @TargetApi(16)
+    public static Point getModalHostSize(Context context) {
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        if (Build.VERSION.SDK_INT >= 16) {
+            display.getCurrentSizeRange(MIN_POINT, MAX_POINT);
+        }
+        display.getSize(SIZE_POINT);
+        if (SIZE_POINT.x < SIZE_POINT.y) {
+            return new Point(MIN_POINT.x, MAX_POINT.y);
+        } else {
+            return new Point(MAX_POINT.x, MIN_POINT.y);
+        }
     }
-    display.getSize(SIZE_POINT);
-    if (SIZE_POINT.x < SIZE_POINT.y) {
-      return new Point(MIN_POINT.x, MAX_POINT.y);
-    } else {
-      return new Point(MAX_POINT.x, MIN_POINT.y);
-    }
-  }
 }

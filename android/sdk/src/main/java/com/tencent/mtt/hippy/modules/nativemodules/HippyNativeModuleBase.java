@@ -28,59 +28,59 @@ import java.util.HashMap;
  */
 public class HippyNativeModuleBase {
 
-  protected HippyEngineContext mContext;
+    protected HippyEngineContext mContext;
 
-  private HashMap<String, Integer> mEventMaps;
+    private HashMap<String, Integer> mEventMaps;
 
-  public HippyNativeModuleBase(HippyEngineContext context) {
-    this.mContext = context;
-  }
-
-  @HippyMethod(name = "addListener")
-  public void addListener(String name) {
-    if (mEventMaps == null) {
-      mEventMaps = new HashMap<>();
+    public HippyNativeModuleBase(HippyEngineContext context) {
+        this.mContext = context;
     }
-    int count = 0;
-    if (mEventMaps.containsKey(name)) {
-      count = mEventMaps.get(name);
+
+    @HippyMethod(name = "addListener")
+    public void addListener(String name) {
+        if (mEventMaps == null) {
+            mEventMaps = new HashMap<>();
+        }
+        int count = 0;
+        if (mEventMaps.containsKey(name)) {
+            count = mEventMaps.get(name);
+        }
+        count++;
+
+        if (count == 1) {
+            handleAddListener(name);
+        }
+        mEventMaps.remove(name);
+        mEventMaps.put(name, count);
     }
-    count++;
 
-    if (count == 1) {
-      handleAddListener(name);
+    @HippyMethod(name = "removeListener")
+    public void removeListener(String name) {
+        if (mEventMaps == null || !mEventMaps.containsKey(name)) {
+            return;
+        }
+        int count = mEventMaps.get(name);
+        if (count == 1) {
+            handleRemoveListener(name);
+            mEventMaps.remove(name);
+        } else {
+            count--;
+            mEventMaps.remove(name);
+            mEventMaps.put(name, count);
+        }
     }
-    mEventMaps.remove(name);
-    mEventMaps.put(name, count);
-  }
 
-  @HippyMethod(name = "removeListener")
-  public void removeListener(String name) {
-    if (mEventMaps == null || !mEventMaps.containsKey(name)) {
-      return;
+    public void handleAddListener(String name) {
+
     }
-    int count = mEventMaps.get(name);
-    if (count == 1) {
-      handleRemoveListener(name);
-      mEventMaps.remove(name);
-    } else {
-      count--;
-      mEventMaps.remove(name);
-      mEventMaps.put(name, count);
+
+    public void handleRemoveListener(String name) {
+
     }
-  }
 
-  public void handleAddListener(String name) {
+    public void initialize() {
+    }
 
-  }
-
-  public void handleRemoveListener(String name) {
-
-  }
-
-  public void initialize() {
-  }
-
-  public void destroy() {
-  }
+    public void destroy() {
+    }
 }

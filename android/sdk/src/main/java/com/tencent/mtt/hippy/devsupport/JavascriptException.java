@@ -24,7 +24,7 @@ package com.tencent.mtt.hippy.devsupport;
 
 class JavascriptException extends RuntimeException {
 
-  public JavascriptException(String error) {
-    super(error);
-  }
+    public JavascriptException(String error) {
+        super(error);
+    }
 }

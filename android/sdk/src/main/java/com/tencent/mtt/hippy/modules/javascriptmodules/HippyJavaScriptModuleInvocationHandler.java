@@ -30,29 +30,29 @@ import java.lang.reflect.Method;
  */
 public class HippyJavaScriptModuleInvocationHandler implements InvocationHandler {
 
-  private HippyEngineContext mHippyContext;
-  private String mName;
+    private HippyEngineContext mHippyContext;
+    private String mName;
 
-  public HippyJavaScriptModuleInvocationHandler(HippyEngineContext context, String name) {
-    mHippyContext = context;
-    this.mName = name;
-  }
-
-  @Override
-  public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-    if (proxy instanceof HippyJavaScriptModule) {
-      Object params = null;
-      if (args != null && args.length == 1) {
-        params = args[0];
-      } else {
-        params = ArgumentUtils.fromJavaArgs(args);
-      }
-
-      if (mHippyContext != null && mHippyContext.getBridgeManager() != null) {
-        mHippyContext.getBridgeManager().callJavaScriptModule(mName, method.getName(), params);
-      }
+    public HippyJavaScriptModuleInvocationHandler(HippyEngineContext context, String name) {
+        mHippyContext = context;
+        this.mName = name;
     }
-    return null;
-  }
+
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        if (proxy instanceof HippyJavaScriptModule) {
+            Object params = null;
+            if (args != null && args.length == 1) {
+                params = args[0];
+            } else {
+                params = ArgumentUtils.fromJavaArgs(args);
+            }
+
+            if (mHippyContext != null && mHippyContext.getBridgeManager() != null) {
+                mHippyContext.getBridgeManager().callJavaScriptModule(mName, method.getName(), params);
+            }
+        }
+        return null;
+    }
 
 }

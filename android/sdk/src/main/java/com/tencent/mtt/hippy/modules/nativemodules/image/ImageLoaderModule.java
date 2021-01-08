@@ -34,64 +34,64 @@ import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 @HippyNativeModule(name = "ImageLoaderModule")
 public class ImageLoaderModule extends HippyNativeModuleBase {
 
-  HippyImageLoader mImageAdapter;
+    HippyImageLoader mImageAdapter;
 
-  public ImageLoaderModule(HippyEngineContext context) {
-    super(context);
-    mImageAdapter = context.getGlobalConfigs().getImageLoaderAdapter();
-  }
-
-  @HippyMethod(name = "getSize")
-  public void getSize(final String url, final Promise promise) {
-    if (mImageAdapter != null) {
-      mImageAdapter.fetchImage(url, new HippyImageLoader.Callback() {
-        @Override
-        public void onRequestStart(HippyDrawable hippyDrawable) {
-        }
-
-        @Override
-        public void onRequestSuccess(HippyDrawable hippyDrawable) {
-          if (hippyDrawable != null) {
-            Bitmap bitmap = hippyDrawable.getBitmap();
-            if (bitmap != null) {
-              int width = bitmap.getWidth();
-              int height = bitmap.getHeight();
-              HippyMap resultMap = new HippyMap();
-              resultMap.pushInt("width", width);
-              resultMap.pushInt("height", height);
-              promise.resolve(resultMap);
-            } else {
-              promise.reject("bitmap is null " + hippyDrawable.getSource());
-            }
-            hippyDrawable.onDrawableDetached();
-          } else {
-            promise.reject("fetch image fail " + url);
-          }
-        }
-
-        @Override
-        public void onRequestFail(Throwable throwable, String source) {
-          promise.reject("fetch image fail " + source);
-        }
-      }, null);
+    public ImageLoaderModule(HippyEngineContext context) {
+        super(context);
+        mImageAdapter = context.getGlobalConfigs().getImageLoaderAdapter();
     }
-  }
 
-  @HippyMethod(name = "prefetch")
-  public void prefetch(String url) {
-    mImageAdapter.fetchImage(url, new HippyImageLoader.Callback() {
-      @Override
-      public void onRequestStart(HippyDrawable hippyDrawable) {
-      }
+    @HippyMethod(name = "getSize")
+    public void getSize(final String url, final Promise promise) {
+        if (mImageAdapter != null) {
+            mImageAdapter.fetchImage(url, new HippyImageLoader.Callback() {
+                @Override
+                public void onRequestStart(HippyDrawable hippyDrawable) {
+                }
 
-      @Override
-      public void onRequestSuccess(HippyDrawable hippyDrawable) {
-        hippyDrawable.onDrawableDetached();
-      }
+                @Override
+                public void onRequestSuccess(HippyDrawable hippyDrawable) {
+                    if (hippyDrawable != null) {
+                        Bitmap bitmap = hippyDrawable.getBitmap();
+                        if (bitmap != null) {
+                            int width = bitmap.getWidth();
+                            int height = bitmap.getHeight();
+                            HippyMap resultMap = new HippyMap();
+                            resultMap.pushInt("width", width);
+                            resultMap.pushInt("height", height);
+                            promise.resolve(resultMap);
+                        } else {
+                            promise.reject("bitmap is null " + hippyDrawable.getSource());
+                        }
+                        hippyDrawable.onDrawableDetached();
+                    } else {
+                        promise.reject("fetch image fail " + url);
+                    }
+                }
 
-      @Override
-      public void onRequestFail(Throwable throwable, String source) {
-      }
-    }, null);
-  }
+                @Override
+                public void onRequestFail(Throwable throwable, String source) {
+                    promise.reject("fetch image fail " + source);
+                }
+            }, null);
+        }
+    }
+
+    @HippyMethod(name = "prefetch")
+    public void prefetch(String url) {
+        mImageAdapter.fetchImage(url, new HippyImageLoader.Callback() {
+            @Override
+            public void onRequestStart(HippyDrawable hippyDrawable) {
+            }
+
+            @Override
+            public void onRequestSuccess(HippyDrawable hippyDrawable) {
+                hippyDrawable.onDrawableDetached();
+            }
+
+            @Override
+            public void onRequestFail(Throwable throwable, String source) {
+            }
+        }, null);
+    }
 }

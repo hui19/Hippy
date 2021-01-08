@@ -29,75 +29,75 @@ import com.tencent.mtt.hippy.bridge.NativeCallback;
  */
 public class HippyFileBundleLoader implements HippyBundleLoader {
 
-  private static final String FILE_STR = "file://";
+    private static final String FILE_STR = "file://";
 
-  String mFilePath;
+    String mFilePath;
 
-  boolean mIsDebugMode = false;
+    boolean mIsDebugMode = false;
 
-  private boolean mCanUseCodeCache;
+    private boolean mCanUseCodeCache;
 
-  private String mCodeCacheTag;
+    private String mCodeCacheTag;
 
-  public HippyFileBundleLoader(String filePath) {
-    this(filePath, false, "");
-  }
-
-  public HippyFileBundleLoader(String filePath, boolean canUseCodeCache, String codeCacheTag) {
-    this.mFilePath = filePath;
-    this.mCanUseCodeCache = canUseCodeCache;
-    this.mCodeCacheTag = codeCacheTag;
-  }
-
-  public void setCodeCache(boolean canUseCodeCache, String codeCacheTag) {
-    this.mCanUseCodeCache = canUseCodeCache;
-    this.mCodeCacheTag = codeCacheTag;
-  }
-
-  public void setIsDebugMode(boolean debugMode) {
-    mIsDebugMode = debugMode;
-  }
-
-  @Override
-  public boolean load(HippyBridge bridge, NativeCallback callback) {
-    if (TextUtils.isEmpty(mFilePath)) {
-      return false;
+    public HippyFileBundleLoader(String filePath) {
+        this(filePath, false, "");
     }
 
-    String uri =
-      (!mFilePath.startsWith(URI_SCHEME_FILE)) ? (URI_SCHEME_FILE + mFilePath) : mFilePath;
-    return bridge.runScriptFromUri(uri, null, mCanUseCodeCache, mCodeCacheTag, callback);
-    //return bridge.runScriptFromFile(mFilePath, mFilePath,mCanUseCodeCache,mCodeCacheTag, callback);
-  }
-
-  @Override
-  public String getPath() {
-    if (mFilePath != null && !mFilePath.startsWith(FILE_STR)) {
-      return FILE_STR + mFilePath;
-    } else {
-      return mFilePath;
+    public HippyFileBundleLoader(String filePath, boolean canUseCodeCache, String codeCacheTag) {
+        this.mFilePath = filePath;
+        this.mCanUseCodeCache = canUseCodeCache;
+        this.mCodeCacheTag = codeCacheTag;
     }
-  }
 
-  @Override
-  public String getRawPath() {
-    return mFilePath;
-  }
+    public void setCodeCache(boolean canUseCodeCache, String codeCacheTag) {
+        this.mCanUseCodeCache = canUseCodeCache;
+        this.mCodeCacheTag = codeCacheTag;
+    }
 
-  @Override
-  public String getBundleUniKey() {
-    return getPath();
-  }
+    public void setIsDebugMode(boolean debugMode) {
+        mIsDebugMode = debugMode;
+    }
 
-  @Override
-  public boolean canUseCodeCache() {
-    return mCanUseCodeCache;
-  }
+    @Override
+    public boolean load(HippyBridge bridge, NativeCallback callback) {
+        if (TextUtils.isEmpty(mFilePath)) {
+            return false;
+        }
 
-  @Override
-  public String getCodeCacheTag() {
-    return mCodeCacheTag;
-  }
+        String uri =
+                (!mFilePath.startsWith(URI_SCHEME_FILE)) ? (URI_SCHEME_FILE + mFilePath) : mFilePath;
+        return bridge.runScriptFromUri(uri, null, mCanUseCodeCache, mCodeCacheTag, callback);
+        //return bridge.runScriptFromFile(mFilePath, mFilePath,mCanUseCodeCache,mCodeCacheTag, callback);
+    }
+
+    @Override
+    public String getPath() {
+        if (mFilePath != null && !mFilePath.startsWith(FILE_STR)) {
+            return FILE_STR + mFilePath;
+        } else {
+            return mFilePath;
+        }
+    }
+
+    @Override
+    public String getRawPath() {
+        return mFilePath;
+    }
+
+    @Override
+    public String getBundleUniKey() {
+        return getPath();
+    }
+
+    @Override
+    public boolean canUseCodeCache() {
+        return mCanUseCodeCache;
+    }
+
+    @Override
+    public String getCodeCacheTag() {
+        return mCodeCacheTag;
+    }
 
 
 }

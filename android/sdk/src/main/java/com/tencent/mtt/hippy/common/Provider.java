@@ -23,5 +23,5 @@ package com.tencent.mtt.hippy.common;
  */
 public interface Provider<T> {
 
-  T get();
+    T get();
 }

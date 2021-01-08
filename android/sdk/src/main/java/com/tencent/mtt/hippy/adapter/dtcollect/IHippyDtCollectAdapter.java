@@ -18,31 +18,31 @@ package com.tencent.mtt.hippy.adapter.dtcollect;
 
 public interface IHippyDtCollectAdapter {
 
-  void setPageId(Object object, String pageId);
+    void setPageId(Object object, String pageId);
 
-  void setPageContentId(Object object, String pgContentId);
+    void setPageContentId(Object object, String pgContentId);
 
-  void setPageParams(Object object, String params);
+    void setPageParams(Object object, String params);
 
-  void setElementId(Object object, String elementId);
+    void setElementId(Object object, String elementId);
 
-  void setElementParams(Object object, String params);
+    void setElementParams(Object object, String params);
 
-  void setReportPolicy(Object object, String policy);
+    void setReportPolicy(Object object, String policy);
 
-  void setElementBizLeafIdentifier(Object object, String elementBizLeafId);
+    void setElementBizLeafIdentifier(Object object, String elementBizLeafId);
 
-  void setElementInteractPolicy(Object view, String param);
+    void setElementInteractPolicy(Object view, String param);
 
-  void setElementExposePolicy(Object view, String param);
+    void setElementExposePolicy(Object view, String param);
 
-  void setElementEndExposePolicy(Object view, String param);
+    void setElementEndExposePolicy(Object view, String param);
 
-  void reportClickEvent(Object object);
+    void reportClickEvent(Object object);
 
-  //page主动曝光
-  void pageExposeure(Object object);
+    //page主动曝光
+    void pageExposeure(Object object);
 
-  //Elemet主动曝光
-  void elementExposeure(Object object);
+    //Elemet主动曝光
+    void elementExposeure(Object object);
 }

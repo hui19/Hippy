@@ -21,12 +21,12 @@ import java.io.InputStream;
 
 public interface DevServerCallBack {
 
-  //The bundle is loaded successfully callback
-  void onDevBundleLoadReady(File bundle);
+    //The bundle is loaded successfully callback
+    void onDevBundleLoadReady(File bundle);
 
-  void onDevBundleLoadReady(InputStream inputStream);
+    void onDevBundleLoadReady(InputStream inputStream);
 
-  void onInitDevError(Throwable e);
+    void onInitDevError(Throwable e);
 
-  void onDevBundleReLoad();
+    void onDevBundleReLoad();
 }

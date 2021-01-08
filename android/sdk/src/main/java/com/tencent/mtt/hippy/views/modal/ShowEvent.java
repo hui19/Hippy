@@ -23,10 +23,10 @@ import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
  */
 /* package */ class ShowEvent extends HippyViewEvent {
 
-  public static final String EVENT_NAME = "onShow";
+    public static final String EVENT_NAME = "onShow";
 
-  protected ShowEvent() {
-    super(EVENT_NAME);
-  }
+    protected ShowEvent() {
+        super(EVENT_NAME);
+    }
 
 }
