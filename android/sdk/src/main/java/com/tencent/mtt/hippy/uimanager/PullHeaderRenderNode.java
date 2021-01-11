@@ -39,4 +39,13 @@ public class PullHeaderRenderNode extends ListItemRenderNode {
     public boolean isPullHeader() {
         return true;
     }
+
+    public int getHeaderHeight() {
+        return super.getHeight();
+    }
+
+    @Override
+    public int getHeight() {
+        return 0;
+    }
 }

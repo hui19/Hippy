@@ -30,6 +30,7 @@ import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.uimanager.DiffUtils;
 import com.tencent.mtt.hippy.uimanager.DiffUtils.PatchType;
 import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
+import com.tencent.mtt.hippy.uimanager.PullHeaderRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.views.list.IRecycleItemTypeChange;
 import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IStickyItemsProvider;
@@ -71,7 +72,7 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
         renderNode.setLazy(false);
         View renderView = renderNode.createViewRecursive();
         if (isPullHeader(positionToCreateHolder)) {
-            initPullHeadEventHelper(renderNode, renderView);
+            initPullHeadEventHelper((PullHeaderRenderNode) renderNode, renderView);
             return new HippyRecyclerViewHolder(headerEventHelper.getView(), renderNode);
         } else if (isStickyPosition(positionToCreateHolder)) {
             return new HippyRecyclerViewHolder(getStickyContainer(parent, renderView), renderNode);
@@ -88,7 +89,7 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
         return container;
     }
 
-    private void initPullHeadEventHelper(ListItemRenderNode renderNode, View renderView) {
+    private void initPullHeadEventHelper(PullHeaderRenderNode renderNode, View renderView) {
         if (headerEventHelper == null) {
             headerEventHelper = new PullHeaderEventHelper(hippyRecyclerView, renderNode);
         }

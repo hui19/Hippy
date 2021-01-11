@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.views.hippylist;
 
 import android.view.Gravity;
@@ -21,45 +22,52 @@ import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
+import com.tencent.mtt.hippy.uimanager.PullHeaderRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.nxeasy.recyclerview.helper.header.HeaderRefreshHelper;
 import com.tencent.mtt.nxeasy.recyclerview.helper.header.IHeaderRefreshListener;
 import com.tencent.mtt.nxeasy.recyclerview.helper.header.IHeaderRefreshView;
+import com.tencent.mtt.nxeasy.recyclerview.helper.header.ILayoutRequester;
 
 /**
  * Created by niuniuyang on 2021/1/8.
  * Description
  */
-class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRefreshView {
+class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRefreshView, ILayoutRequester {
 
     public static final String EVENT_TYPE_HEADER_PULLING = "onHeaderPulling";
     public static final String EVENT_TYPE_HEADER_RELEASED = "onHeaderReleased";
-    private final RenderNode renderNode;
+    private final PullHeaderRenderNode renderNode;
     private HippyRecyclerView recyclerView;
     private View renderNodeView;
     private LinearLayout headerContainer;
     private LayoutParams contentLayoutParams;
     private HeaderRefreshHelper headerRefreshHelper;
 
-    PullHeaderEventHelper(HippyRecyclerView recyclerView, RenderNode renderNode) {
+    PullHeaderEventHelper(HippyRecyclerView recyclerView, PullHeaderRenderNode renderNode) {
         this.recyclerView = recyclerView;
         this.renderNode = renderNode;
         headerContainer = new LinearLayout(recyclerView.getContext());
         headerRefreshHelper = new HeaderRefreshHelper();
         headerRefreshHelper.setHeaderRefreshView(this);
         headerRefreshHelper.setHeaderRefreshListener(this);
+        headerRefreshHelper.setLayoutRequester(this);
+        recyclerView.setOnTouchListener(headerRefreshHelper);
+
+
     }
 
     public void setRenderNodeView(View renderNodeView) {
         if (this.renderNodeView != renderNodeView) {
             this.renderNodeView = renderNodeView;
             headerContainer.removeAllViews();
-            contentLayoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, renderNode.getHeight());
+            contentLayoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, renderNode.getHeaderHeight());
             contentLayoutParams.gravity = Gravity.BOTTOM;
             headerContainer.addView(renderNodeView, contentLayoutParams);
         }
     }
+
 
     public View getView() {
         return headerContainer;
@@ -79,7 +87,7 @@ class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRefreshVie
 
     @Override
     public int getContentHeight() {
-        return renderNode.getHeight();
+        return renderNode.getHeaderHeight();
     }
 
     @Override
@@ -97,5 +105,10 @@ class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRefreshVie
 
     public void onHeaderRefresh() {
         headerRefreshHelper.triggerRefresh();
+    }
+
+    @Override
+    public void requestLayout() {
+        recyclerView.dispatchLayout();
     }
 }
