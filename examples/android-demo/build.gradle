@@ -18,7 +18,11 @@ buildscript {
 }
 
 allprojects {
+
     repositories {
+        maven {
+            url "https://mirrors.tencent.com/repository/maven/thirdparty/"
+        }
         google()
         jcenter()
     }
@@ -34,7 +38,7 @@ task clean(type: Delete) {
 
 project.afterEvaluate {
     delete 'example/src/main/assets'
-    copy{
+    copy {
         from "res"
         into "example/src/main/assets"
     }
