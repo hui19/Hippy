@@ -13,18 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.views.hippylist;
 
 import android.content.Context;
+import android.os.Build.VERSION_CODES;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v7.widget.HippyRecyclerExtension;
 import android.support.v7.widget.HippyRecyclerPool;
 import android.view.View;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.FrameLayout;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
+import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IHeaderHost;
 
 /**
  * Created by niuniuyang on 2020/12/29.
@@ -33,7 +38,7 @@ import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
  * 系统RecyclerView做吸顶功能最简单的实现的是在RecyclerView的父亲覆盖一个View，
  * 这样不会影响RecyclerView的Layout的排版，否则就需要重写LayoutManager，重新layoutManager也是后面要考虑的。
  */
-public class HippyRecyclerViewWrapper extends FrameLayout implements HippyViewBase {
+public class HippyRecyclerViewWrapper extends FrameLayout implements HippyViewBase, IHeaderHost {
 
     private final HippyEngineContext hpContext;
     private HippyRecyclerView recyclerView;
@@ -46,7 +51,11 @@ public class HippyRecyclerViewWrapper extends FrameLayout implements HippyViewBa
         hpContext = ((HippyInstanceContext) context).getEngineContext();
         HippyRecyclerExtension cacheExtension = new HippyRecyclerExtension(recyclerView, hpContext);
         recyclerView.setViewCacheExtension(cacheExtension);
-        recyclerView.setRecycledViewPool(new HippyRecyclerPool(hpContext, this, cacheExtension));
+        recyclerView.setHeaderHost(this);
+        HippyRecyclerPool pool = new HippyRecyclerPool(hpContext, this, cacheExtension);
+        pool.setViewAboundListener(recyclerView);
+        recyclerView.setRecycledViewPool(pool);
+
     }
 
     @Override
@@ -98,5 +107,25 @@ public class HippyRecyclerViewWrapper extends FrameLayout implements HippyViewBa
 
     public HippyRecyclerView getRecyclerView() {
         return recyclerView;
+    }
+
+    /**
+     * 将HeaderView放到RecyclerView到父亲View上面
+     */
+    @Override
+    public void attachHeader(View headerView, LayoutParams layoutParams) {
+        addView(headerView, layoutParams);
+        layout(getLeft(), getTop(), getRight(), getBottom());
+        getViewTreeObserver().dispatchOnGlobalLayout();
+    }
+
+    @Override
+    public void addOnLayoutListener(OnGlobalLayoutListener listener) {
+        getViewTreeObserver().addOnGlobalLayoutListener(listener);
+    }
+
+    @RequiresApi(api = VERSION_CODES.JELLY_BEAN) @Override
+    public void removeOnLayoutListener(OnGlobalLayoutListener listener) {
+        getViewTreeObserver().removeOnGlobalLayoutListener(listener);
     }
 }

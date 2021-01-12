@@ -23,7 +23,6 @@ import android.widget.LinearLayout.LayoutParams;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.uimanager.PullHeaderRenderNode;
-import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.nxeasy.recyclerview.helper.header.HeaderRefreshHelper;
 import com.tencent.mtt.nxeasy.recyclerview.helper.header.IHeaderRefreshListener;
@@ -54,8 +53,6 @@ class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRefreshVie
         headerRefreshHelper.setHeaderRefreshListener(this);
         headerRefreshHelper.setLayoutRequester(this);
         recyclerView.setOnTouchListener(headerRefreshHelper);
-
-
     }
 
     public void setRenderNodeView(View renderNodeView) {
@@ -80,6 +77,11 @@ class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRefreshVie
         sendPullHeaderEvent(EVENT_TYPE_HEADER_PULLING, params);
     }
 
+    /**
+     * 如果Hippy前端有需要，下拉刷新更加具体的状态，这里可以通知给前端see {@link IHeaderRefreshView}
+     *
+     * @param headerStatusLoading 当前的header的状态
+     */
     @Override
     public void setLoadingStatus(int headerStatusLoading) {
 
@@ -90,6 +92,9 @@ class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRefreshVie
         return renderNode.getHeaderHeight();
     }
 
+    /**
+     * 松手后，触发的刷新回调，需要通知Hippy前端业务进行数据的刷新操作
+     */
     @Override
     public void onHeaderLoadMore() {
         sendPullHeaderEvent(EVENT_TYPE_HEADER_RELEASED, new HippyMap());
@@ -99,10 +104,16 @@ class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRefreshVie
         new HippyViewEvent(eventName).send(renderNodeView, param);
     }
 
+    /**
+     * Hippy前端业务通知数据已经刷新完毕，这里通知给headerRefreshHelper，进行header的收起功能
+     */
     public void onHeaderRefreshFinish() {
         headerRefreshHelper.onRefreshDone();
     }
 
+    /**
+     * Hippy前端业务调用主动刷新功能，这款需要通知headerRefreshHelper进行自动下拉刷新
+     */
     public void onHeaderRefresh() {
         headerRefreshHelper.triggerRefresh();
     }

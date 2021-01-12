@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package android.support.v7.widget;
 
 import android.support.v7.widget.RecyclerView.ViewHolder;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import com.tencent.mtt.hippy.HippyEngineContext;
@@ -25,18 +27,27 @@ import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewHolder;
 /**
  * Created by niuniuyang on 2021/1/4.
  * Description
+ *
+ * 继承RecycledViewPool，主要用于renderNode节点的精确命中，不能从RecycledViewPool里面随意取一个node
+ * 所有重写了getRecycledView方法；putRecycledView也需要检测缓存是否会抛弃viewHolder，如果抛弃需要把
+ * 事件同步给RenderManager进行相应的节点删除。
  */
 public class HippyRecyclerPool extends RecyclerView.RecycledViewPool {
 
     private final View recyclerView;
     private final HippyRecyclerExtension viewCacheExtension;
     private final HippyEngineContext hpContext;
+    private IHippyViewAboundListener viewAboundListener;
 
     public HippyRecyclerPool(HippyEngineContext hpContext, View recyclerView,
             HippyRecyclerExtension viewCacheExtension) {
         this.hpContext = hpContext;
         this.recyclerView = recyclerView;
         this.viewCacheExtension = viewCacheExtension;
+    }
+
+    public void setViewAboundListener(IHippyViewAboundListener viewAboundListener) {
+        this.viewAboundListener = viewAboundListener;
     }
 
     /**
@@ -92,22 +103,7 @@ public class HippyRecyclerPool extends RecyclerView.RecycledViewPool {
         int viewType = scrap.getItemViewType();
         ScrapData scrapData = this.mScrap.get(viewType);
         if (scrapData != null && scrapData.mScrapHeap.size() >= scrapData.mMaxScrap) {
-            onViewAbound((HippyRecyclerViewHolder) scrap);
-        }
-    }
-
-    /**
-     * 同步删除RenderNode对应注册的View，deleteChild是递归删除RenderNode创建的所有的view
-     */
-    private void onViewAbound(HippyRecyclerViewHolder viewHolder) {
-        if (viewHolder.bindNode != null && !viewHolder.bindNode.isDelete()) {
-            viewHolder.bindNode.setLazy(true);
-            RenderNode parentNode = viewHolder.bindNode.getParent();
-            if (parentNode != null) {
-                hpContext.getRenderManager().getControllerManager()
-                        .deleteChild(parentNode.getId(), viewHolder.bindNode.getId());
-            }
-            viewHolder.bindNode.setRecycleItemTypeChangeListener(null);
+            viewAboundListener.onViewAbound((HippyRecyclerViewHolder) scrap);
         }
     }
 

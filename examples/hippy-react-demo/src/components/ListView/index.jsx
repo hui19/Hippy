@@ -60,6 +60,9 @@ const styles = StyleSheet.create({
     color: '#aaaaaa',
     alignSelf: 'center',
   },
+  footerContainer: {
+    backgroundColor: 'green',
+  },
 });
 
 
@@ -93,6 +96,7 @@ export default class ListExample extends React.Component {
     this.state = {
       dataSource: mockDataArray,
       fetchingDataFlag: false,
+      footerLoadingText: '正在加载...',
     };
     this.fetchTimes = 0;
     this.mockFetchData = this.mockFetchData.bind(this);
@@ -100,21 +104,34 @@ export default class ListExample extends React.Component {
     this.onEndReached = this.onEndReached.bind(this);
     this.getRowType = this.getRowType.bind(this);
     this.getRowKey = this.getRowKey.bind(this);
+    this.renderPullFooter = this.renderPullFooter.bind(this);
+  }
+
+  /**
+   * 渲染 footer 组件
+   */
+  renderPullFooter() {
+    const { footerLoadingText } = this.state;
+    return (
+      <View style={styles.container}>
+        <Text style={styles.loading}>Loading now...</Text>
+      </View>
+    );
   }
 
   async onEndReached() {
     const { dataSource, fetchingDataFlag } = this.state;
     // ensure that only one fetching task would be running
     if (fetchingDataFlag) return;
-    this.setState({
-      fetchingDataFlag: true,
-      dataSource: dataSource.concat([{ style: STYLE_LOADING }]),
-    });
+    // this.setState({
+    //   fetchingDataFlag: true,
+    //   dataSource: dataSource.concat([{ style: STYLE_LOADING }]),
+    // });
     const newData = await this.mockFetchData();
-    const lastLineItem = dataSource[dataSource.length - 1];
-    if (lastLineItem && lastLineItem.style === STYLE_LOADING) {
-      dataSource.pop();
-    }
+    // const lastLineItem = dataSource[dataSource.length - 1];
+    // if (lastLineItem && lastLineItem.style === STYLE_LOADING) {
+    //   dataSource.pop();
+    // }
     const newDataSource = dataSource.concat(newData);
     this.setState({ dataSource: newDataSource });
   }
@@ -136,6 +153,9 @@ export default class ListExample extends React.Component {
   }
 
   getRowType(index) {
+    if(this.isStickyItem(index)){ 
+           return 99;
+    }
     const self = this;
     const item = self.state.dataSource[index];
     return item.style;
@@ -191,7 +211,9 @@ export default class ListExample extends React.Component {
       }, 1000);
     });
   }
-
+  isStickyItem(index) {
+    return index%10 ===0;
+  }
   render() {
     const { dataSource } = this.state;
     return (
@@ -202,8 +224,9 @@ export default class ListExample extends React.Component {
         onEndReached={this.onEndReached}
         getRowType={this.getRowType}
         getRowKey={this.getRowKey}
-        initialListSize={15}
-        rowShouldSticky={index => index === 2}
+        renderPullFooter={this.renderPullFooter}
+        initialListSize={500}
+        rowShouldSticky={index =>this.isStickyItem(index)}
         onAppear={index => this.onAppear(index)}
         onDisappear={index => this.onDisappear(index)}
       />

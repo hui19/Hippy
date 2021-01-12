@@ -23,6 +23,7 @@ import android.support.v7.widget.HippyItemTypeHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.support.v7.widget.RecyclerView.LayoutParams;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -39,7 +40,8 @@ import java.util.ArrayList;
 /**
  * Created by niuniuyang on 2020/12≥/22.
  * Description
- * RecyclerView的子View，直接是前端的RenderNode节点，没有之前包装的那层RecyclerViewItem。
+ * RecyclerView的子View直接是前端的RenderNode节点，没有之前包装的那层RecyclerViewItem。
+ * 对于特殊的renderNode，比如header和sticky的节点，我们进行了不同的处理。
  */
 public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> implements
         IRecycleItemTypeChange, IStickyItemsProvider {
@@ -84,6 +86,7 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
     private FrameLayout getStickyContainer(ViewGroup parent, View renderView) {
         FrameLayout container = new FrameLayout(parent.getContext());
         if (renderView != null) {
+            Log.d("returnHeader", "positionToCreateHolder:" + positionToCreateHolder);
             container.addView(renderView, new FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT));
         }
         return container;
@@ -96,6 +99,14 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
         headerEventHelper.setRenderNodeView(renderView);
     }
 
+    /**
+     * 绑定数据
+     * 对于全新的viewHolder，isCreated 为true，调用updateViewRecursive进行物理树的创建，以及数据的绑定
+     * 对于非全新创建的viewHolder，进行view树的diff，然后在把数据绑定到view树上面
+     *
+     * @param hippyRecyclerViewHolder position当前的viewHolder
+     * @param position 绑定数据的节点位置
+     */
     @Override
     public void onBindViewHolder(HippyRecyclerViewHolder hippyRecyclerViewHolder, int position) {
         RenderNode oldNode = hippyRecyclerViewHolder.bindNode;
@@ -143,7 +154,7 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
     }
 
     /**
-     * 设置View的LayoutParams排版属性
+     * 设置View的LayoutParams排版属性，宽高由render节点提供
      */
     protected void setLayoutParams(View itemView, int position) {
         ViewGroup.LayoutParams params = itemView.getLayoutParams();
@@ -168,10 +179,16 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
         return getChildNode(position).getItemViewType();
     }
 
-    private ListItemRenderNode getChildNode(int position) {
+    /**
+     * 获取子节点，理论上面是不会返回空的，否则就是某个流程出了问题
+     */
+    public ListItemRenderNode getChildNode(int position) {
         return (ListItemRenderNode) getParentNode().getChildAt(position);
     }
 
+    /**
+     * listItemView的数量
+     */
     @Override
     public int getItemCount() {
         RenderNode listNode = getParentNode();
@@ -207,11 +224,20 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
         return getChildNode(position).getId();
     }
 
+    /**
+     * 该position对于的renderNode是否是吸顶的属性
+     */
     @Override
     public boolean isStickyPosition(int position) {
-        return getChildNode(position).shouldSticky();
+        if (position >= 0 && position < getItemCount()) {
+            return getChildNode(position).shouldSticky();
+        }
+        return false;
     }
 
+    /**
+     * 该position对于的renderNode是否是Header属性，值判断第一个节点
+     */
     private boolean isPullHeader(int position) {
         if (position == 0) {
             return getChildNode(0).isPullHeader();
@@ -219,6 +245,9 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
         return false;
     }
 
+    /**
+     * 获取下拉刷新的事件辅助器
+     */
     public PullHeaderEventHelper getHeaderEventHelper() {
         return headerEventHelper;
     }

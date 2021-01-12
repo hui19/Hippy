@@ -19,33 +19,46 @@ package com.tencent.mtt.hippy.views.hippylist;
 import android.content.Context;
 import android.graphics.Rect;
 import android.support.v7.widget.HippyRecyclerViewBase;
+import android.support.v7.widget.IHippyViewAboundListener;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
+import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
+import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
+import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IHeaderHost;
+import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IHeaderAttachListener;
 import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.StickyHeaderHelper;
 
 /**
  * Created by niuniuyang on 2020/12/22.
  * Description
  */
-public class HippyRecyclerView extends HippyRecyclerViewBase {
+public class HippyRecyclerView extends HippyRecyclerViewBase implements IHeaderAttachListener,
+        IHippyViewAboundListener {
 
     private HippyEngineContext hippyEngineContext;
     private HippyRecyclerListAdapter listAdapter;
     private RecyclerViewEventHelper recyclerViewEventHelper;
-    private boolean isEnableScroll = true;
+    private boolean isEnableScroll = true;//使能ListView的滚动功能
     private boolean enableSticky;
     private StickyHeaderHelper stickyHeaderHelper;//FIXME niuniuayng 后续实现
+    IHeaderHost headerHost;
 
     public HippyRecyclerView(Context context, int orientation) {
         super(context);
         init(context, orientation);
         setItemAnimator(null);
         recyclerViewEventHelper = new RecyclerViewEventHelper(this);
+    }
+
+    public void setHeaderHost(IHeaderHost headerHost) {
+        this.headerHost = headerHost;
     }
 
     public HippyRecyclerView(Context context) {
@@ -219,7 +232,7 @@ public class HippyRecyclerView extends HippyRecyclerViewBase {
         this.enableSticky = enable;
         if (enableSticky) {
             if (stickyHeaderHelper == null) {
-                stickyHeaderHelper = new StickyHeaderHelper(this, listAdapter);
+                stickyHeaderHelper = new StickyHeaderHelper(this, listAdapter, this, headerHost);
                 addOnScrollListener(stickyHeaderHelper);
             }
         } else {
@@ -228,4 +241,65 @@ public class HippyRecyclerView extends HippyRecyclerViewBase {
             }
         }
     }
+
+    /**
+     * 同步删除RenderNode对应注册的View，deleteChild是递归删除RenderNode创建的所有的view
+     * 如果当前淘汰的ViewHolder是正是当前正在挂载的header节点，就不能调用deleteChild
+     *
+     * @param viewHolder
+     */
+    @Override
+    public void onViewAbound(HippyRecyclerViewHolder viewHolder) {
+        if (viewHolder.bindNode != null && !viewHolder.bindNode.isDelete()) {
+            viewHolder.bindNode.setLazy(true);
+            RenderNode parentNode = viewHolder.bindNode.getParent();
+            if (parentNode != null) {
+                hippyEngineContext.getRenderManager().getControllerManager()
+                        .deleteChild(parentNode.getId(), viewHolder.bindNode.getId());
+                Log.d("onViewAbound", "onViewAbound pos:" + viewHolder.getAdapterPosition());
+            }
+            viewHolder.bindNode.setRecycleItemTypeChangeListener(null);
+        }
+    }
+
+    /**
+     * 当header被摘下来，需要对header进行还原或者回收对处理
+     * 遍历所有都ViewHolder，看看有没有收纳这个headerView都ViewHolder
+     * 如果没有，需要把aboundHeader进行回收，并同步删除render节点对应都view
+     *
+     * @param aboundHeader HeaderView对应的Holder
+     * @param currentHeaderView headerView的实体内容
+     */
+    @Override
+    public void onHeaderDetached(ViewHolder aboundHeader, View currentHeaderView) {
+        boolean findHostViewHolder = false;
+        for (int i = 0; i < getChildCountWithCaches(); i++) {
+            ViewHolder viewHolder = getChildViewHolder(getChildAtWithCaches(i));
+            if (isTheSameRenderNode(aboundHeader, viewHolder)) {
+                findHostViewHolder = true;
+                fillContentView(currentHeaderView, viewHolder);
+                break;
+            }
+        }
+        //当header无处安放，抛弃view都同时，需要同步给Hippy进行View都删除，不然后续无法创建对应都View
+        if (!findHostViewHolder) {
+            onViewAbound((HippyRecyclerViewHolder) aboundHeader);
+        }
+    }
+
+    private boolean fillContentView(View currentHeaderView, ViewHolder viewHolder) {
+        if (viewHolder != null && viewHolder.itemView instanceof ViewGroup) {
+            ViewGroup itemView = (ViewGroup) viewHolder.itemView;
+            if (itemView.getChildCount() <= 0) {
+                itemView.addView(currentHeaderView);
+            }
+        }
+        return false;
+    }
+
+    private boolean isTheSameRenderNode(ViewHolder aboundHeader, ViewHolder viewHolder) {
+        return ((HippyRecyclerViewHolder) viewHolder).bindNode
+                .getId() == ((HippyRecyclerViewHolder) aboundHeader).bindNode.getId();
+    }
+
 }

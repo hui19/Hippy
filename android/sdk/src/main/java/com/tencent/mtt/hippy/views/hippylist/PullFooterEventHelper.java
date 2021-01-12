@@ -28,7 +28,7 @@ import com.tencent.mtt.nxeasy.recyclerview.helper.footer.IFooterLoadMoreListener
  */
 class PullFooterEventHelper implements IFooterLoadMoreListener {
 
-    public static final String EVENT_ON_END_REACHED = "onEndReached";
+    public static final String EVENT_ON_END_REACHED = "onLoadMore";
     private final HippyRecyclerView recyclerView;
     private FooterExposureHelper footerExposureHelper;
     private HippyViewEvent onEndReachedEvent;
@@ -42,6 +42,7 @@ class PullFooterEventHelper implements IFooterLoadMoreListener {
         footerExposureHelper = new FooterExposureHelper();
         footerExposureHelper.setFooterListener(this);
         footerExposureHelper.setExposureView(itemView);
+        recyclerView.addOnScrollListener(footerExposureHelper);
     }
 
     public void disableFooter() {

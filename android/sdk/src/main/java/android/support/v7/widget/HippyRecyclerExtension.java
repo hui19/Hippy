@@ -26,6 +26,8 @@ import java.util.ArrayList;
 /**
  * Created by niuniuyang on 2021/1/4.
  * Description
+ *
+ * 目的是精确通过renderNode命中缓存
  * RecyclerView的扩展的缓存，如果mAttachedScrap 和  mCachedViews 都没有命中，会在访问RecyclerPool之前
  * 先访问ViewCacheExtension。参看{@link Recycler#tryGetViewHolderForPositionByDeadline}的执行流程
  */
