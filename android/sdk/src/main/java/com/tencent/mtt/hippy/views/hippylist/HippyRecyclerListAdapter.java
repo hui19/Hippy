@@ -52,12 +52,14 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
     private int positionToCreateHolder;
     private PullFooterEventHelper footerEventHelper;
     private PullHeaderEventHelper headerEventHelper;
+    private PreloadHelper preloadHelper;
 
     public HippyRecyclerListAdapter(HippyRecyclerView hippyRecyclerView,
             HippyEngineContext hpContext) {
         this.hpContext = hpContext;
         this.hippyRecyclerView = hippyRecyclerView;
         hippyItemTypeHelper = new HippyItemTypeHelper(hippyRecyclerView);
+        preloadHelper = new PreloadHelper(hippyRecyclerView);
     }
 
     /**
@@ -250,5 +252,9 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
      */
     public PullHeaderEventHelper getHeaderEventHelper() {
         return headerEventHelper;
+    }
+
+    public void setPreloadItemNumber(int preloadItemNumber) {
+        preloadHelper.setPreloadItemNumber(preloadItemNumber);
     }
 }

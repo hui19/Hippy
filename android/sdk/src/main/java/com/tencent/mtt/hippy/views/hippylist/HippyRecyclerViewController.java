@@ -129,6 +129,7 @@ public class HippyRecyclerViewController extends HippyViewController<HippyRecycl
 //    if (adapter instanceof HippyListAdapter) {
 //      ((HippyListAdapter) adapter).setPreloadItemNumber(preloadItemNumber);
 //    }
+        getAdapter(view).setPreloadItemNumber(preloadItemNumber);
     }
 
     @Override
