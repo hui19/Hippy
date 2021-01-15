@@ -25,6 +25,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.OnScrollListener;
 import android.view.View;
 import android.view.View.OnLayoutChangeListener;
+import android.view.ViewGroup;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.utils.PixelUtil;
@@ -244,7 +245,24 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     private void dispatchExposureEvent() {
         int childCount = hippyRecyclerView.getChildCount();
         for (int i = 0; i < childCount; i++) {
-            checkExposureView(hippyRecyclerView.getChildAt(i));
+            checkExposureView(findHippyListItemView((ViewGroup) hippyRecyclerView.getChildAt(i)));
         }
+    }
+
+    /**
+     * 由于挂载到RecyclerView到子View可能不是HippyListItemView，比如对于stickyItem，我们会包一层
+     * ViewGroup，所以这里拿HippyListItemView，需要做两层的判断
+     */
+    private View findHippyListItemView(ViewGroup viewGroup) {
+        if (viewGroup instanceof HippyListItemView) {
+            return viewGroup;
+        }
+        if (viewGroup.getChildCount() > 0) {
+            View child = viewGroup.getChildAt(0);
+            if (child instanceof HippyListItemView) {
+                return child;
+            }
+        }
+        return null;
     }
 }
