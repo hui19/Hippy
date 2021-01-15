@@ -21,18 +21,16 @@ import android.graphics.Rect;
 import android.support.v7.widget.HippyRecyclerViewBase;
 import android.support.v7.widget.IHippyViewAboundListener;
 import android.support.v7.widget.LinearLayoutManager;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
-import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
-import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IHeaderHost;
 import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IHeaderAttachListener;
+import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IHeaderHost;
 import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.StickyHeaderHelper;
 
 /**
@@ -244,9 +242,6 @@ public class HippyRecyclerView extends HippyRecyclerViewBase implements IHeaderA
 
     /**
      * 同步删除RenderNode对应注册的View，deleteChild是递归删除RenderNode创建的所有的view
-     * 如果当前淘汰的ViewHolder是正是当前正在挂载的header节点，就不能调用deleteChild
-     *
-     * @param viewHolder
      */
     @Override
     public void onViewAbound(HippyRecyclerViewHolder viewHolder) {
@@ -256,7 +251,6 @@ public class HippyRecyclerView extends HippyRecyclerViewBase implements IHeaderA
             if (parentNode != null) {
                 hippyEngineContext.getRenderManager().getControllerManager()
                         .deleteChild(parentNode.getId(), viewHolder.bindNode.getId());
-                Log.d("onViewAbound", "onViewAbound pos:" + viewHolder.getAdapterPosition());
             }
             viewHolder.bindNode.setRecycleItemTypeChangeListener(null);
         }

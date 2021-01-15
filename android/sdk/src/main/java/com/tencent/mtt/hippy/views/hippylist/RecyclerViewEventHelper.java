@@ -219,18 +219,17 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
 
     protected void checkExposureView(View view) {
         if (view instanceof HippyListItemView) {
-            return;
-        }
-        HippyListItemView itemView = (HippyListItemView) view;
-        if (isViewVisible(view)) {
-            if (itemView.getExposureState() != HippyListItemView.EXPOSURE_STATE_APPEAR) {
-                hippyRecyclerView.sendExposureEvent(view, HippyListItemView.EXPOSURE_EVENT_APPEAR);
-                itemView.setExposureState(HippyListItemView.EXPOSURE_STATE_APPEAR);
-            }
-        } else {
-            if (itemView.getExposureState() != HippyListItemView.EXPOSURE_STATE_DISAPPEAR) {
-                hippyRecyclerView.sendExposureEvent(view, HippyListItemView.EXPOSURE_EVENT_DISAPPEAR);
-                itemView.setExposureState(HippyListItemView.EXPOSURE_STATE_DISAPPEAR);
+            HippyListItemView itemView = (HippyListItemView) view;
+            if (isViewVisible(view)) {
+                if (itemView.getExposureState() != HippyListItemView.EXPOSURE_STATE_APPEAR) {
+                    hippyRecyclerView.sendExposureEvent(view, HippyListItemView.EXPOSURE_EVENT_APPEAR);
+                    itemView.setExposureState(HippyListItemView.EXPOSURE_STATE_APPEAR);
+                }
+            } else {
+                if (itemView.getExposureState() != HippyListItemView.EXPOSURE_STATE_DISAPPEAR) {
+                    hippyRecyclerView.sendExposureEvent(view, HippyListItemView.EXPOSURE_EVENT_DISAPPEAR);
+                    itemView.setExposureState(HippyListItemView.EXPOSURE_STATE_DISAPPEAR);
+                }
             }
         }
     }
