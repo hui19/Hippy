@@ -26,6 +26,8 @@ import android.support.v7.widget.RecyclerView.OnScrollListener;
 import android.view.View;
 import android.view.View.OnLayoutChangeListener;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.ViewTreeObserver.OnPreDrawListener;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.utils.PixelUtil;
@@ -33,12 +35,11 @@ import com.tencent.mtt.hippy.views.list.HippyListItemView;
 import com.tencent.mtt.hippy.views.scroll.HippyScrollViewEventHelper;
 
 /**
- * Created by niuniuyang on 2020/12/24.
- * Description
- * 各种事件的通知，通知前端view的曝光事件，用于前端的统计上报
+ * Created by niuniuyang on 2020/12/24. Description 各种事件的通知，通知前端view的曝光事件，用于前端的统计上报
  */
 public class RecyclerViewEventHelper extends OnScrollListener implements OnLayoutChangeListener {
 
+    public static final String INITIAL_LIST_READY = "initialListReady";
     private final HippyRecyclerView hippyRecyclerView;
     private boolean scrollBeginDragEventEnable;
     private boolean scrollEndDragEventEnable;
@@ -53,14 +54,50 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     private long lastScrollEventTimeStamp;
     private int scrollEventThrottle;
     private boolean exposureEventEnable;
+    private HippyViewEvent onScrollDragStartedEvent;
+
+    //initialListReady event
+    private boolean isInitialListReadyNotified = false;
+    private ViewTreeObserver viewTreeObserver;
+    private OnPreDrawListener preDrawListener;
+
 
     public RecyclerViewEventHelper(HippyRecyclerView recyclerView) {
         this.hippyRecyclerView = recyclerView;
         hippyRecyclerView.addOnScrollListener(this);
         hippyRecyclerView.addOnLayoutChangeListener(this);
+        preDrawListener = new OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                notifyInitialListReady();
+                return true;
+            }
+        };
     }
 
-    private HippyViewEvent onScrollDragStartedEvent;
+    void notifyInitialListReady() {
+        if (canNotifyInit()) {
+            isInitialListReadyNotified = true;
+            viewTreeObserver.removeOnPreDrawListener(preDrawListener);
+            hippyRecyclerView.post(new Runnable() {
+                @Override
+                public void run() {
+                    new HippyViewEvent(INITIAL_LIST_READY)
+                            .send((View) hippyRecyclerView.getParent(), null);
+                }
+            });
+        }
+    }
+
+    /**
+     * 是否满足initialListReady的通知条件，需要有真实view上屏才进行通知
+     */
+    private boolean canNotifyInit() {
+        return !isInitialListReadyNotified
+                && hippyRecyclerView.getAdapter().getItemCount() > 0
+                && hippyRecyclerView.getChildCount() > 0
+                && viewTreeObserver.isAlive();
+    }
 
     public void setScrollBeginDragEventEnable(boolean enable) {
         scrollBeginDragEventEnable = enable;
@@ -92,7 +129,8 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
 
     protected HippyViewEvent getOnScrollDragStartedEvent() {
         if (onScrollDragStartedEvent == null) {
-            onScrollDragStartedEvent = new HippyViewEvent(HippyScrollViewEventHelper.EVENT_TYPE_BEGIN_DRAG);
+            onScrollDragStartedEvent = new HippyViewEvent(
+                    HippyScrollViewEventHelper.EVENT_TYPE_BEGIN_DRAG);
         }
         return onScrollDragStartedEvent;
     }
@@ -108,7 +146,8 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     // start fling
     protected HippyViewEvent getOnScrollFlingStartedEvent() {
         if (onScrollFlingStartedEvent == null) {
-            onScrollFlingStartedEvent = new HippyViewEvent(HippyScrollViewEventHelper.EVENT_TYPE_MOMENTUM_BEGIN);
+            onScrollFlingStartedEvent = new HippyViewEvent(
+                    HippyScrollViewEventHelper.EVENT_TYPE_MOMENTUM_BEGIN);
         }
         return onScrollFlingStartedEvent;
     }
@@ -116,7 +155,8 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     // end drag event
     protected HippyViewEvent getOnScrollDragEndedEvent() {
         if (onScrollDragEndedEvent == null) {
-            onScrollDragEndedEvent = new HippyViewEvent(HippyScrollViewEventHelper.EVENT_TYPE_END_DRAG);
+            onScrollDragEndedEvent = new HippyViewEvent(
+                    HippyScrollViewEventHelper.EVENT_TYPE_END_DRAG);
         }
         return onScrollDragEndedEvent;
     }
@@ -132,10 +172,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     }
 
     @Override
-    public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-        if (onScrollEventEnable) {
-            getOnScrollEvent().send(hippyRecyclerView, generateScrollEvent());
-        }
+    public void onScrolled(@NonNull final RecyclerView recyclerView, int dx, int dy) {
         if (onScrollEventEnable) {
             long currTime = System.currentTimeMillis();
             if (currTime - lastScrollEventTimeStamp < scrollEventThrottle) {
@@ -146,6 +183,14 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
         }
         if (exposureEventEnable) {
             dispatchExposureEvent();
+        }
+        observePreDraw();
+    }
+
+    private void observePreDraw() {
+        if (!isInitialListReadyNotified && viewTreeObserver == null) {
+            viewTreeObserver = hippyRecyclerView.getViewTreeObserver();
+            viewTreeObserver.addOnPreDrawListener(preDrawListener);
         }
     }
 
@@ -178,7 +223,8 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     // end fling
     protected HippyViewEvent getOnScrollFlingEndedEvent() {
         if (onScrollFlingEndedEvent == null) {
-            onScrollFlingEndedEvent = new HippyViewEvent(HippyScrollViewEventHelper.EVENT_TYPE_MOMENTUM_END);
+            onScrollFlingEndedEvent = new HippyViewEvent(
+                    HippyScrollViewEventHelper.EVENT_TYPE_MOMENTUM_END);
         }
         return onScrollFlingEndedEvent;
     }
@@ -223,12 +269,12 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
             HippyListItemView itemView = (HippyListItemView) view;
             if (isViewVisible(view)) {
                 if (itemView.getExposureState() != HippyListItemView.EXPOSURE_STATE_APPEAR) {
-                    hippyRecyclerView.sendExposureEvent(view, HippyListItemView.EXPOSURE_EVENT_APPEAR);
+                    sendExposureEvent(view, HippyListItemView.EXPOSURE_EVENT_APPEAR);
                     itemView.setExposureState(HippyListItemView.EXPOSURE_STATE_APPEAR);
                 }
             } else {
                 if (itemView.getExposureState() != HippyListItemView.EXPOSURE_STATE_DISAPPEAR) {
-                    hippyRecyclerView.sendExposureEvent(view, HippyListItemView.EXPOSURE_EVENT_DISAPPEAR);
+                    sendExposureEvent(view, HippyListItemView.EXPOSURE_EVENT_DISAPPEAR);
                     itemView.setExposureState(HippyListItemView.EXPOSURE_STATE_DISAPPEAR);
                 }
             }

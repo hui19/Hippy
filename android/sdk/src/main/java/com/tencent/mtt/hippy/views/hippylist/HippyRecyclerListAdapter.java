@@ -23,7 +23,6 @@ import android.support.v7.widget.HippyItemTypeHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.support.v7.widget.RecyclerView.LayoutParams;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -38,24 +37,22 @@ import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IStickyItemsProvider;
 import java.util.ArrayList;
 
 /**
- * Created by niuniuyang on 2020/12≥/22.
- * Description
- * RecyclerView的子View直接是前端的RenderNode节点，没有之前包装的那层RecyclerViewItem。
+ * Created by niuniuyang on 2020/12≥/22. Description RecyclerView的子View直接是前端的RenderNode节点，没有之前包装的那层RecyclerViewItem。
  * 对于特殊的renderNode，比如header和sticky的节点，我们进行了不同的处理。
  */
-public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> implements
-        IRecycleItemTypeChange, IStickyItemsProvider {
+public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView>
+        extends Adapter<HippyRecyclerViewHolder>
+        implements IRecycleItemTypeChange, IStickyItemsProvider {
 
-    private final HippyEngineContext hpContext;
-    private final HippyRecyclerView hippyRecyclerView;
-    private final HippyItemTypeHelper hippyItemTypeHelper;
-    private int positionToCreateHolder;
-    private PullFooterEventHelper footerEventHelper;
-    private PullHeaderEventHelper headerEventHelper;
-    private PreloadHelper preloadHelper;
+    protected final HippyEngineContext hpContext;
+    protected final HRCV hippyRecyclerView;
+    protected final HippyItemTypeHelper hippyItemTypeHelper;
+    protected int positionToCreateHolder;
+    protected PullFooterEventHelper footerEventHelper;
+    protected PullHeaderEventHelper headerEventHelper;
+    protected PreloadHelper preloadHelper;
 
-    public HippyRecyclerListAdapter(HippyRecyclerView hippyRecyclerView,
-            HippyEngineContext hpContext) {
+    public HippyRecyclerListAdapter(HRCV hippyRecyclerView, HippyEngineContext hpContext) {
         this.hpContext = hpContext;
         this.hippyRecyclerView = hippyRecyclerView;
         hippyItemTypeHelper = new HippyItemTypeHelper(hippyRecyclerView);
@@ -63,11 +60,9 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
     }
 
     /**
-     * 对于吸顶到RenderNode需要特殊处理
-     * 吸顶的View需要包一层ViewGroup，吸顶的时候，从ViewGroup把RenderNode的View取出来挂载到顶部
+     * 对于吸顶到RenderNode需要特殊处理 吸顶的View需要包一层ViewGroup，吸顶的时候，从ViewGroup把RenderNode的View取出来挂载到顶部
      * 当RenderNode的View已经挂载到Header位置上面，如果重新触发创建ViewHolder，renderView会创建失败，
-     * 此时就只返回一个空到renderViewContainer上去，等viewHolder需要显示到时候，再把header上面的View还原到这个
-     * ViewHolder上面。
+     * 此时就只返回一个空到renderViewContainer上去，等viewHolder需要显示到时候，再把header上面的View还原到这个 ViewHolder上面。
      */
     @NonNull
     @Override
@@ -88,7 +83,6 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
     private FrameLayout getStickyContainer(ViewGroup parent, View renderView) {
         FrameLayout container = new FrameLayout(parent.getContext());
         if (renderView != null) {
-            Log.d("returnHeader", "positionToCreateHolder:" + positionToCreateHolder);
             container.addView(renderView, new FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT));
         }
         return container;
@@ -102,8 +96,7 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
     }
 
     /**
-     * 绑定数据
-     * 对于全新的viewHolder，isCreated 为true，调用updateViewRecursive进行物理树的创建，以及数据的绑定
+     * 绑定数据 对于全新的viewHolder，isCreated 为true，调用updateViewRecursive进行物理树的创建，以及数据的绑定
      * 对于非全新创建的viewHolder，进行view树的diff，然后在把数据绑定到view树上面
      *
      * @param hippyRecyclerViewHolder position当前的viewHolder
@@ -177,8 +170,12 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
     public int getItemViewType(int position) {
         //在调用onCreateViewHolder之前，必然会调用getItemViewType，所以这里把position记下来
         //用在onCreateViewHolder的时候来创建View，不然onCreateViewHolder是无法创建RenderNode到View的
-        positionToCreateHolder = position;
+        setPositionToCreate(position);
         return getChildNode(position).getItemViewType();
+    }
+
+    protected void setPositionToCreate(int position) {
+        positionToCreateHolder = position;
     }
 
     /**
@@ -217,7 +214,8 @@ public class HippyRecyclerListAdapter extends Adapter<HippyRecyclerViewHolder> i
     }
 
     @Override
-    public void onRecycleItemTypeChanged(int oldType, int newType, ListItemRenderNode listItemNode) {
+    public void onRecycleItemTypeChanged(int oldType, int newType,
+            ListItemRenderNode listItemNode) {
         hippyItemTypeHelper.updateItemType(oldType, newType, listItemNode);
     }
 

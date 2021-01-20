@@ -32,22 +32,23 @@ import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IHeaderHost;
 
 /**
- * Created by niuniuyang on 2020/12/29.
- * Description
- * 这里搞一个RecyclerViewWrapper 其实是一个普通的FrameLayout，并不是RecyclerView，主要为吸顶的Header功能考虑，
- * 系统RecyclerView做吸顶功能最简单的实现的是在RecyclerView的父亲覆盖一个View，
+ * Created by niuniuyang on 2020/12/29. Description 这里搞一个RecyclerViewWrapper
+ * 其实是一个普通的FrameLayout，并不是RecyclerView，主要为吸顶的Header功能考虑， 系统RecyclerView做吸顶功能最简单的实现的是在RecyclerView的父亲覆盖一个View，
  * 这样不会影响RecyclerView的Layout的排版，否则就需要重写LayoutManager，重新layoutManager也是后面要考虑的。
  */
-public class HippyRecyclerViewWrapper extends FrameLayout implements HippyViewBase, IHeaderHost {
+public class HippyRecyclerViewWrapper<HRCV extends HippyRecyclerView> extends FrameLayout implements
+        HippyViewBase,
+        IHeaderHost {
 
-    private final HippyEngineContext hpContext;
-    private HippyRecyclerView recyclerView;
+    protected final HippyEngineContext hpContext;
+    protected HRCV recyclerView;
     private NativeGestureDispatcher nativeGestureDispatcher;
 
-    public HippyRecyclerViewWrapper(@NonNull Context context, HippyRecyclerView recyclerView) {
+    public HippyRecyclerViewWrapper(@NonNull Context context, HRCV recyclerView) {
         super(context);
         this.recyclerView = recyclerView;
-        addView(recyclerView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        addView(recyclerView,
+                new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         hpContext = ((HippyInstanceContext) context).getEngineContext();
         HippyRecyclerExtension cacheExtension = new HippyRecyclerExtension(recyclerView, hpContext);
         recyclerView.setViewCacheExtension(cacheExtension);
@@ -105,7 +106,7 @@ public class HippyRecyclerViewWrapper extends FrameLayout implements HippyViewBa
         recyclerView.setRowShouldSticky(enable);
     }
 
-    public HippyRecyclerView getRecyclerView() {
+    public HRCV getRecyclerView() {
         return recyclerView;
     }
 
@@ -124,7 +125,8 @@ public class HippyRecyclerViewWrapper extends FrameLayout implements HippyViewBa
         getViewTreeObserver().addOnGlobalLayoutListener(listener);
     }
 
-    @RequiresApi(api = VERSION_CODES.JELLY_BEAN) @Override
+    @RequiresApi(api = VERSION_CODES.JELLY_BEAN)
+    @Override
     public void removeOnLayoutListener(OnGlobalLayoutListener listener) {
         getViewTreeObserver().removeOnGlobalLayoutListener(listener);
     }

@@ -7,13 +7,11 @@ import android.view.View;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 
 /**
- * Created by niuniuyang on 2021/1/15.
- * Description
- * 预加载的通知，
+ * Created by niuniuyang on 2021/1/15. Description 预加载的通知
  */
 public class PreloadHelper extends RecyclerView.OnScrollListener {
 
-    HippyRecyclerView hippyRecyclerView;
+    private HippyRecyclerView hippyRecyclerView;
     private int preloadItemNumber;
     private int currentPreloadCount = 0;
 
@@ -34,7 +32,8 @@ public class PreloadHelper extends RecyclerView.OnScrollListener {
             int lastPosition = recyclerView.getChildAdapterPosition(lastChild);
             if (lastPosition + preloadItemNumber >= itemCount) {
                 currentPreloadCount = itemCount;
-                new HippyViewEvent(EVENT_ON_END_REACHED).send((View) recyclerView.getParent(), null);
+                new HippyViewEvent(EVENT_ON_END_REACHED)
+                        .send((View) recyclerView.getParent(), null);
             }
         }
     }

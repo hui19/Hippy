@@ -19,6 +19,7 @@ package com.tencent.mtt.hippy.views.hippylist;
 import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
+import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
@@ -34,41 +35,53 @@ import com.tencent.mtt.hippy.uimanager.RenderNode;
  */
 
 @HippyController(name = HippyRecyclerViewController.CLASS_NAME)
-public class HippyRecyclerViewController extends HippyViewController<HippyRecyclerViewWrapper> {
+public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper<HippyRecyclerView>>
+        extends HippyViewController<HRW> {
 
     public static final String CLASS_NAME = "ListView";
 
+    public HippyRecyclerViewController() {
+
+    }
+
     @Override
-    public int getChildCount(HippyRecyclerViewWrapper viewGroup) {
+    public int getChildCount(HRW viewGroup) {
         return viewGroup.getChildCountWithCaches();
     }
 
     @Override
-    public View getChildAt(HippyRecyclerViewWrapper viewGroup, int index) {
+    public View getChildAt(HRW viewGroup, int index) {
         return viewGroup.getChildAtWithCaches(index);
     }
 
     @Override
-    public void onBatchComplete(HippyRecyclerViewWrapper view) {
+    public void onBatchComplete(HRW view) {
         super.onBatchComplete(view);
         view.setListData();
     }
 
     @Override
     protected View createViewImpl(Context context) {
-        return new HippyRecyclerViewWrapper(context,
-                new HippyRecyclerView(context, LinearLayoutManager.HORIZONTAL));
+        return createViewImpl(context, null);
     }
 
     @Override
     protected View createViewImpl(Context context, HippyMap iniProps) {
+        return new HippyRecyclerViewWrapper(context,
+                initDefault(context, iniProps, new HippyRecyclerView(context)));
+    }
+
+    public static HippyRecyclerView initDefault(Context context, HippyMap iniProps,
+            HippyRecyclerView recyclerView) {
+        LinearLayoutManager layoutManager = new LinearLayoutManager(context);
+        recyclerView.setItemAnimator(null);
         if (iniProps != null && iniProps.containsKey("horizontal")) {
-            return new HippyRecyclerViewWrapper(context,
-                    new HippyRecyclerView(context, LinearLayoutManager.HORIZONTAL));
-        } else {
-            return new HippyRecyclerViewWrapper(context,
-                    new HippyRecyclerView(context, LinearLayoutManager.VERTICAL));
+            layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         }
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setHippyEngineContext(((HippyInstanceContext) context).getEngineContext());
+        recyclerView.initRecyclerView();
+        return recyclerView;
     }
 
     @Override
@@ -78,62 +91,57 @@ public class HippyRecyclerViewController extends HippyViewController<HippyRecycl
     }
 
     @HippyControllerProps(name = "rowShouldSticky")
-    public void setRowShouldSticky(HippyRecyclerViewWrapper view, boolean enable) {
+    public void setRowShouldSticky(HRW view, boolean enable) {
         view.setRowShouldSticky(enable);
     }
 
     @HippyControllerProps(name = "onScrollBeginDrag", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-    public void setScrollBeginDragEventEnable(HippyRecyclerViewWrapper view, boolean flag) {
+    public void setScrollBeginDragEventEnable(HRW view, boolean flag) {
         view.getRecyclerViewEventHelper().setScrollBeginDragEventEnable(flag);
     }
 
     @HippyControllerProps(name = "onScrollEndDrag", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-    public void setScrollEndDragEventEnable(HippyRecyclerViewWrapper view, boolean flag) {
+    public void setScrollEndDragEventEnable(HRW view, boolean flag) {
         view.getRecyclerViewEventHelper().setScrollEndDragEventEnable(flag);
     }
 
     @HippyControllerProps(name = "onMomentumScrollBegin", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-    public void setMomentumScrollBeginEventEnable(HippyRecyclerViewWrapper view, boolean flag) {
+    public void setMomentumScrollBeginEventEnable(HRW view, boolean flag) {
         view.getRecyclerViewEventHelper().setMomentumScrollBeginEventEnable(flag);
     }
 
     @HippyControllerProps(name = "onMomentumScrollEnd", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-    public void setMomentumScrollEndEventEnable(HippyRecyclerViewWrapper view, boolean flag) {
+    public void setMomentumScrollEndEventEnable(HRW view, boolean flag) {
         view.getRecyclerViewEventHelper().setMomentumScrollEndEventEnable(flag);
     }
 
     @HippyControllerProps(name = "onScrollEnable", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-    public void setOnScrollEventEnable(HippyRecyclerViewWrapper view, boolean flag) {
+    public void setOnScrollEventEnable(HRW view, boolean flag) {
         view.getRecyclerViewEventHelper().setOnScrollEventEnable(flag);
     }
 
     @HippyControllerProps(name = "exposureEventEnabled", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-    public void setExposureEventEnable(HippyRecyclerViewWrapper view, boolean flag) {
+    public void setExposureEventEnable(HRW view, boolean flag) {
         view.getRecyclerViewEventHelper().setExposureEventEnable(flag);
     }
 
     @HippyControllerProps(name = "scrollEnabled", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = true)
-    public void setScrollEnable(HippyRecyclerViewWrapper view, boolean flag) {
+    public void setScrollEnable(HRW view, boolean flag) {
         view.setScrollEnable(flag);
     }
 
     @HippyControllerProps(name = "scrollEventThrottle", defaultType = HippyControllerProps.NUMBER, defaultNumber = 30.0D)
-    public void setscrollEventThrottle(HippyRecyclerViewWrapper view, int scrollEventThrottle) {
+    public void setscrollEventThrottle(HRW view, int scrollEventThrottle) {
         view.getRecyclerViewEventHelper().setScrollEventThrottle(scrollEventThrottle);
     }
 
     @HippyControllerProps(name = "preloadItemNumber")
-    public void setPreloadItemNumber(HippyRecyclerViewWrapper view, int preloadItemNumber) {
-        //FIXME niuniuyang ,配合分页加载使用
-//    RecyclerViewBase.Adapter adapter = view.getAdapter();
-//    if (adapter instanceof HippyListAdapter) {
-//      ((HippyListAdapter) adapter).setPreloadItemNumber(preloadItemNumber);
-//    }
+    public void setPreloadItemNumber(HRW view, int preloadItemNumber) {
         getAdapter(view).setPreloadItemNumber(preloadItemNumber);
     }
 
     @Override
-    public void dispatchFunction(HippyRecyclerViewWrapper view, String functionName,
+    public void dispatchFunction(HRW view, String functionName,
             HippyArray dataArray) {
         super.dispatchFunction(view, functionName, dataArray);
         //FIXME niuniuyang
@@ -171,7 +179,7 @@ public class HippyRecyclerViewController extends HippyViewController<HippyRecycl
         }
     }
 
-    private HippyRecyclerListAdapter getAdapter(HippyRecyclerViewWrapper view) {
-        return (HippyRecyclerListAdapter) view.getRecyclerView().getAdapter();
+    private HippyRecyclerListAdapter getAdapter(HRW view) {
+        return view.getRecyclerView().getAdapter();
     }
 }
