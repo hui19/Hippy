@@ -1,3 +1,19 @@
+/* Tencent is pleased to support the open source community by making Hippy available.
+ * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package android.support.v7.widget;
 
 import android.support.v7.widget.RecyclerView.Recycler;
@@ -10,6 +26,8 @@ import java.util.ArrayList;
 /**
  * Created by niuniuyang on 2021/1/4.
  * Description
+ *
+ * 目的是精确通过renderNode命中缓存
  * RecyclerView的扩展的缓存，如果mAttachedScrap 和  mCachedViews 都没有命中，会在访问RecyclerPool之前
  * 先访问ViewCacheExtension。参看{@link Recycler#tryGetViewHolderForPositionByDeadline}的执行流程
  */

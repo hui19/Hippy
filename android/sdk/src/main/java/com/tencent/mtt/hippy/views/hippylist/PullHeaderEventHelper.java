@@ -1,46 +1,72 @@
+/* Tencent is pleased to support the open source community by making Hippy available.
+ * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.tencent.mtt.hippy.views.hippylist;
 
 import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
-
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
-import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.mtt.hippy.uimanager.PullHeaderRenderNode;
 import com.tencent.mtt.hippy.utils.PixelUtil;
-import com.tencent.mtt.nxeasy.listview.pagehelper.IHeaderRefreshListener;
-import com.tencent.mtt.nxeasy.listview.pagehelper.IHeaderRefreshView;
+import com.tencent.mtt.nxeasy.recyclerview.helper.header.HeaderRefreshHelper;
+import com.tencent.mtt.nxeasy.recyclerview.helper.header.IHeaderRefreshListener;
+import com.tencent.mtt.nxeasy.recyclerview.helper.header.IHeaderRefreshView;
+import com.tencent.mtt.nxeasy.recyclerview.helper.header.ILayoutRequester;
 
 /**
  * Created by niuniuyang on 2021/1/8.
  * Description
+ * 下来刷新事件的Helper，负责和前端进行下来刷新的各种事件通知
  */
-class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRefreshView {
+class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRefreshView,
+  ILayoutRequester {
 
     public static final String EVENT_TYPE_HEADER_PULLING = "onHeaderPulling";
     public static final String EVENT_TYPE_HEADER_RELEASED = "onHeaderReleased";
-    private final RenderNode renderNode;
+    private final PullHeaderRenderNode renderNode;
     private HippyRecyclerView recyclerView;
     private View renderNodeView;
     private LinearLayout headerContainer;
     private LayoutParams contentLayoutParams;
+    private HeaderRefreshHelper headerRefreshHelper;
 
-    PullHeaderEventHelper(HippyRecyclerView recyclerView, RenderNode renderNode) {
+    PullHeaderEventHelper(HippyRecyclerView recyclerView, PullHeaderRenderNode renderNode) {
         this.recyclerView = recyclerView;
         this.renderNode = renderNode;
         headerContainer = new LinearLayout(recyclerView.getContext());
+        headerRefreshHelper = new HeaderRefreshHelper();
+        headerRefreshHelper.setHeaderRefreshView(this);
+        headerRefreshHelper.setHeaderRefreshListener(this);
+        headerRefreshHelper.setLayoutRequester(this);
+        recyclerView.setOnTouchListener(headerRefreshHelper);
     }
 
     public void setRenderNodeView(View renderNodeView) {
         if (this.renderNodeView != renderNodeView) {
             this.renderNodeView = renderNodeView;
             headerContainer.removeAllViews();
-            contentLayoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, renderNode.getHeight());
+            contentLayoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, renderNode.getHeaderHeight());
             contentLayoutParams.gravity = Gravity.BOTTOM;
             headerContainer.addView(renderNodeView, contentLayoutParams);
         }
     }
+
 
     public View getView() {
         return headerContainer;
@@ -53,6 +79,11 @@ class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRefreshVie
         sendPullHeaderEvent(EVENT_TYPE_HEADER_PULLING, params);
     }
 
+    /**
+     * 如果Hippy前端有需要，下拉刷新更加具体的状态，这里可以通知给前端see {@link IHeaderRefreshView}
+     *
+     * @param headerStatusLoading 当前的header的状态
+     */
     @Override
     public void setLoadingStatus(int headerStatusLoading) {
 
@@ -60,9 +91,12 @@ class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRefreshVie
 
     @Override
     public int getContentHeight() {
-        return renderNode.getHeight();
+        return renderNode.getHeaderHeight();
     }
 
+    /**
+     * 松手后，触发的刷新回调，需要通知Hippy前端业务进行数据的刷新操作
+     */
     @Override
     public void onHeaderLoadMore() {
         sendPullHeaderEvent(EVENT_TYPE_HEADER_RELEASED, new HippyMap());
@@ -72,11 +106,22 @@ class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRefreshVie
         new HippyViewEvent(eventName).send(renderNodeView, param);
     }
 
+    /**
+     * Hippy前端业务通知数据已经刷新完毕，这里通知给headerRefreshHelper，进行header的收起功能
+     */
     public void onHeaderRefreshFinish() {
-
+        headerRefreshHelper.onRefreshDone();
     }
 
+    /**
+     * Hippy前端业务调用主动刷新功能，这款需要通知headerRefreshHelper进行自动下拉刷新
+     */
     public void onHeaderRefresh() {
+        headerRefreshHelper.triggerRefresh();
+    }
 
+    @Override
+    public void requestLayout() {
+        recyclerView.dispatchLayout();
     }
 }

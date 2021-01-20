@@ -1,3 +1,19 @@
+/* Tencent is pleased to support the open source community by making Hippy available.
+ * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package android.support.v7.widget;
 
 import android.support.v7.widget.RecyclerView.ViewHolder;
@@ -8,14 +24,18 @@ import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewHolder;
 
 /**
- * Created by niuniuyang on 2021/1/4.
- * Description
+ * Created by niuniuyang on 2021/1/4. Description
+ *
+ * 继承RecycledViewPool，主要用于renderNode节点的精确命中，不能从RecycledViewPool里面随意取一个node
+ * 所有重写了getRecycledView方法；putRecycledView也需要检测缓存是否会抛弃viewHolder，如果抛弃需要把
+ * 事件同步给RenderManager进行相应的节点删除。
  */
 public class HippyRecyclerPool extends RecyclerView.RecycledViewPool {
 
     private final View recyclerView;
     private final HippyRecyclerExtension viewCacheExtension;
     private final HippyEngineContext hpContext;
+    private IHippyViewAboundListener viewAboundListener;
 
     public HippyRecyclerPool(HippyEngineContext hpContext, View recyclerView,
             HippyRecyclerExtension viewCacheExtension) {
@@ -24,13 +44,14 @@ public class HippyRecyclerPool extends RecyclerView.RecycledViewPool {
         this.viewCacheExtension = viewCacheExtension;
     }
 
+    public void setViewAboundListener(IHippyViewAboundListener viewAboundListener) {
+        this.viewAboundListener = viewAboundListener;
+    }
+
     /**
-     * 从缓存池里面获取ViewHolder进行复用
-     * 1、精确命中相同的renderNode
-     * 2、命中相同Type的ViewHolder，并且对应的RenderNode是没有被前端删除的
-     * 如果renderNode.isDelete为true,说明前端删除了RenderNode，
-     * 此时会调用 RenderManager框架的deleteChild, 所以view也不会存在了。
-     * 即使找到了相同type的Holder，也不能复用了。
+     * 从缓存池里面获取ViewHolder进行复用 1、精确命中相同的renderNode 2、命中相同Type的ViewHolder，并且对应的RenderNode是没有被前端删除的
+     * 如果renderNode.isDelete为true,说明前端删除了RenderNode， 此时会调用 RenderManager框架的deleteChild,
+     * 所以view也不会存在了。 即使找到了相同type的Holder，也不能复用了。
      */
     @Override
     public ViewHolder getRecycledView(int viewType) {
@@ -52,15 +73,14 @@ public class HippyRecyclerPool extends RecyclerView.RecycledViewPool {
         }
         //检测对应的节点是否被删除
         if (delegateHolder instanceof HippyRecyclerViewHolder
-                && ((HippyRecyclerViewHolder) delegateHolder).bindNode.isDelete()) {
+                && ((HippyRecyclerViewHolder) delegateHolder).isRenderDeleted()) {
             return null;
         }
         return delegateHolder;
     }
 
     /**
-     * putRecycledView 可能出现缓存已经超过最大值，会发生ViewHolder被抛弃，
-     * 抛弃需要后，需要同步修改 renderManager内部创建对应的view，这样
+     * putRecycledView 可能出现缓存已经超过最大值，会发生ViewHolder被抛弃， 抛弃需要后，需要同步修改 renderManager内部创建对应的view，这样
      * {@link com.tencent.mtt.hippy.views.hippylist.HippyRecyclerListAdapter#onCreateViewHolder(
      *ViewGroup, int)}，才能通过 {@link RenderNode#createViewRecursive()} 创建新的view,
      * 否则createViewRecursive会返回null。
@@ -77,22 +97,7 @@ public class HippyRecyclerPool extends RecyclerView.RecycledViewPool {
         int viewType = scrap.getItemViewType();
         ScrapData scrapData = this.mScrap.get(viewType);
         if (scrapData != null && scrapData.mScrapHeap.size() >= scrapData.mMaxScrap) {
-            onViewAbound((HippyRecyclerViewHolder) scrap);
-        }
-    }
-
-    /**
-     * 同步删除RenderNode对应注册的View，deleteChild是递归删除RenderNode创建的所有的view
-     */
-    private void onViewAbound(HippyRecyclerViewHolder viewHolder) {
-        if (viewHolder.bindNode != null && !viewHolder.bindNode.isDelete()) {
-            viewHolder.bindNode.setLazy(true);
-            RenderNode parentNode = viewHolder.bindNode.getParent();
-            if (parentNode != null) {
-                hpContext.getRenderManager().getControllerManager()
-                        .deleteChild(parentNode.getId(), viewHolder.bindNode.getId());
-            }
-            viewHolder.bindNode.setRecycleItemTypeChangeListener(null);
+            viewAboundListener.onViewAbound((HippyRecyclerViewHolder) scrap);
         }
     }
 
@@ -101,6 +106,7 @@ public class HippyRecyclerPool extends RecyclerView.RecycledViewPool {
      */
     private boolean isTheSameRenderNode(HippyRecyclerViewHolder holder) {
         return holder.bindNode == hpContext.getRenderManager()
-                .getRenderNode(recyclerView.getId()).getChildAt(viewCacheExtension.getCurrentPosition());
+                .getRenderNode(recyclerView.getId())
+                .getChildAt(viewCacheExtension.getCurrentPosition());
     }
 }
