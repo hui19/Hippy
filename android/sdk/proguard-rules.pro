@@ -170,6 +170,7 @@ public void forceUpdateNode(int);
 -keep class com.tencent.mtt.tkd.views.** {*;}
 -keep interface com.tencent.mtt.hippy.bridge.HippyBridge {*;}
 
+-keep class android.support.v7.widget.** {*;}
 -keep class com.tencent.mtt.supportui.views.** {*;}
 -keep class com.tencent.mtt.hippy.utils.** {*;}
 -keep class com.tencent.mtt.hippy.dom.node.TypeFaceUtil {*;}
@@ -188,6 +189,9 @@ public <fields>;
 }
 
 -keepclasseswithmembers class com.tencent.mtt.supportui.** {
+protected <fields>;
+}
+-keepclasseswithmembers class android.support.v7.widget.** {
 protected <fields>;
 }
 
