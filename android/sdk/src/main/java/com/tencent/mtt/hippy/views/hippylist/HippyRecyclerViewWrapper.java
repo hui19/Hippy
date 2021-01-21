@@ -33,11 +33,11 @@ import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IHeaderHost;
 
 /**
  * Created by niuniuyang on 2020/12/29. Description 这里搞一个RecyclerViewWrapper
- * 其实是一个普通的FrameLayout，并不是RecyclerView，主要为吸顶的Header功能考虑， 系统RecyclerView做吸顶功能最简单的实现的是在RecyclerView的父亲覆盖一个View，
+ * 其实是一个普通的FrameLayout，并不是RecyclerView，主要为吸顶的Header功能考虑，
+ * 系统RecyclerView做吸顶功能最简单的实现的是在RecyclerView的父亲覆盖一个View，
  * 这样不会影响RecyclerView的Layout的排版，否则就需要重写LayoutManager，重新layoutManager也是后面要考虑的。
  */
-public class HippyRecyclerViewWrapper<HRCV extends HippyRecyclerView> extends FrameLayout implements
-        HippyViewBase,
+public class HippyRecyclerViewWrapper<HRCV extends HippyRecyclerView> extends FrameLayout implements HippyViewBase,
         IHeaderHost {
 
     protected final HippyEngineContext hpContext;

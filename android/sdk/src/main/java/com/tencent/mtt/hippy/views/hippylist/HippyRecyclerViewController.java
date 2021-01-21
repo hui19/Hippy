@@ -35,7 +35,7 @@ import com.tencent.mtt.hippy.uimanager.RenderNode;
  */
 
 @HippyController(name = HippyRecyclerViewController.CLASS_NAME)
-public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper<HippyRecyclerView>>
+public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper>
         extends HippyViewController<HRW> {
 
     public static final String CLASS_NAME = "ListView";
@@ -141,8 +141,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper<Hi
     }
 
     @Override
-    public void dispatchFunction(HRW view, String functionName,
-            HippyArray dataArray) {
+    public void dispatchFunction(HRW view, String functionName, HippyArray dataArray) {
         super.dispatchFunction(view, functionName, dataArray);
         //FIXME niuniuyang
         switch (functionName) {

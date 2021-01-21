@@ -48,7 +48,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
     protected StickyHeaderHelper stickyHeaderHelper;//支持吸顶
     protected IHeaderHost headerHost;//用于pullHeader下拉刷新
     protected LayoutManager layoutManager;
-    private RecyclerViewEventHelper recyclerViewEventHelper;//事件集合
+    protected RecyclerViewEventHelper recyclerViewEventHelper;//事件集合
 
     public HippyRecyclerView(Context context) {
         super(context);
@@ -56,6 +56,12 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
 
     public ADP getAdapter() {
         return listAdapter;
+    }
+
+    @Override
+    public void setAdapter(@Nullable Adapter adapter) {
+        listAdapter = (ADP) adapter;
+        super.setAdapter(adapter);
     }
 
     public HippyRecyclerView(@NonNull Context context, @Nullable AttributeSet attrs) {
@@ -79,9 +85,8 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
     }
 
     public void initRecyclerView() {
-        listAdapter = (ADP) new HippyRecyclerListAdapter<HippyRecyclerView>(this,
-                this.hippyEngineContext);
-        setAdapter(listAdapter);
+        setAdapter(new HippyRecyclerListAdapter<HippyRecyclerView>(this,
+                this.hippyEngineContext));
     }
 
 
@@ -157,7 +162,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
     /**
      * 获取position 前面的内容高度，不包含position自身的高度
      */
-    protected int getTotalHeightBefore(int position) {
+    public int getTotalHeightBefore(int position) {
         int totalHeightBefore = 0;
         for (int i = 0; i < position; i++) {
             totalHeightBefore += listAdapter.getItemHeight(i);
@@ -169,7 +174,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
     /**
      * 获取position 前面的内容高度，不包含position自身的高度
      */
-    protected int getTotalWithBefore(int position) {
+    public int getTotalWithBefore(int position) {
         int totalWidthBefore = 0;
         for (int i = 0; i < position; i++) {
             totalWidthBefore += listAdapter.getItemWidth(i);
@@ -179,9 +184,13 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
 
     public RecyclerViewEventHelper getRecyclerViewEventHelper() {
         if (recyclerViewEventHelper == null) {
-            recyclerViewEventHelper = new RecyclerViewEventHelper(this);
+            recyclerViewEventHelper = createEventHelper();
         }
         return recyclerViewEventHelper;
+    }
+
+    protected RecyclerViewEventHelper createEventHelper() {
+        return new RecyclerViewEventHelper(this);
     }
 
     /**

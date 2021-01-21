@@ -40,7 +40,7 @@ import com.tencent.mtt.hippy.views.scroll.HippyScrollViewEventHelper;
 public class RecyclerViewEventHelper extends OnScrollListener implements OnLayoutChangeListener {
 
     public static final String INITIAL_LIST_READY = "initialListReady";
-    private final HippyRecyclerView hippyRecyclerView;
+    protected final HippyRecyclerView hippyRecyclerView;
     private boolean scrollBeginDragEventEnable;
     private boolean scrollEndDragEventEnable;
     private HippyViewEvent onScrollDragEndedEvent;
@@ -49,7 +49,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     private HippyViewEvent onScrollFlingStartedEvent;
     private HippyViewEvent onScrollFlingEndedEvent;
     private int currentState;
-    private boolean onScrollEventEnable;
+    protected boolean onScrollEventEnable = true;
     private HippyViewEvent onScrollEvent;
     private long lastScrollEventTimeStamp;
     private int scrollEventThrottle;
@@ -122,9 +122,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     @Override
     public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
             int oldTop, int oldRight, int oldBottom) {
-        if (exposureEventEnable) {
-            dispatchExposureEvent();
-        }
+        checkSendExposureEvent();
     }
 
     protected HippyViewEvent getOnScrollDragStartedEvent() {
@@ -166,25 +164,30 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
         int oldState = currentState;
         currentState = newState;
         sendDragEvent(newState);
-        sendDragEndEvent(oldState, newState);
+        sendDragEndEvent(oldState, currentState);
         sendFlingEvent(newState);
-        sendFlingEndEvent(oldState, newState);
+        sendFlingEndEvent(oldState, currentState);
     }
 
     @Override
     public void onScrolled(@NonNull final RecyclerView recyclerView, int dx, int dy) {
+        checkSendOnScrollEvent();
+        checkSendExposureEvent();
+        observePreDraw();
+    }
+
+    private void checkSendOnScrollEvent() {
         if (onScrollEventEnable) {
             long currTime = System.currentTimeMillis();
-            if (currTime - lastScrollEventTimeStamp < scrollEventThrottle) {
-                return;
+            if (currTime - lastScrollEventTimeStamp >= scrollEventThrottle) {
+                lastScrollEventTimeStamp = currTime;
+                sendOnScrollEvent();
             }
-            lastScrollEventTimeStamp = currTime;
-            getOnScrollEvent().send(hippyRecyclerView, generateScrollEvent());
         }
-        if (exposureEventEnable) {
-            dispatchExposureEvent();
-        }
-        observePreDraw();
+    }
+
+    public void sendOnScrollEvent() {
+        getOnScrollEvent().send(hippyRecyclerView, generateScrollEvent());
     }
 
     private void observePreDraw() {
@@ -288,7 +291,10 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
         }
     }
 
-    private void dispatchExposureEvent() {
+    private void checkSendExposureEvent() {
+        if (!exposureEventEnable) {
+            return;
+        }
         int childCount = hippyRecyclerView.getChildCount();
         for (int i = 0; i < childCount; i++) {
             checkExposureView(findHippyListItemView((ViewGroup) hippyRecyclerView.getChildAt(i)));
