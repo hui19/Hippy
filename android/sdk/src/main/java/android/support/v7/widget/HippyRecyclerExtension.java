@@ -74,11 +74,11 @@ public class HippyRecyclerExtension extends RecyclerView.ViewCacheExtension {
         return null;
     }
 
-    private RecyclerView.ViewHolder findBestHolder(ArrayList<ViewHolder> viewHolders, int position,
+    private ViewHolder findBestHolder(ArrayList<ViewHolder> viewHolders, int position,
             int type) {
         int scrapCount = viewHolders.size();
         for (int i = 0; i < scrapCount; i++) {
-            final RecyclerView.ViewHolder holder = viewHolders.get(i);
+            final ViewHolder holder = viewHolders.get(i);
             if (isTheBestHolder(position, type, holder)) {
                 return holder;
             }

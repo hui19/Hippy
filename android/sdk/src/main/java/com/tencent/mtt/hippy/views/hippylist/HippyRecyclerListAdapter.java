@@ -20,7 +20,6 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.HippyItemTypeHelper;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.support.v7.widget.RecyclerView.LayoutParams;
 import android.view.View;
@@ -152,18 +151,23 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView>
      * 设置View的LayoutParams排版属性，宽高由render节点提供
      */
     protected void setLayoutParams(View itemView, int position) {
-        ViewGroup.LayoutParams params = itemView.getLayoutParams();
-        RecyclerView.LayoutParams childLp = null;
-        if (params instanceof RecyclerView.LayoutParams) {
-            childLp = (LayoutParams) params;
-        }
-        if (childLp == null) {
-            childLp = new RecyclerView.LayoutParams(MATCH_PARENT, 0);
-        }
+        LayoutParams childLp = getLayoutParams(itemView);
         RenderNode childNode = getChildNode(position);
         childLp.height = childNode.getHeight();
         childLp.width = childNode.getWidth();
         itemView.setLayoutParams(childLp);
+    }
+
+    protected LayoutParams getLayoutParams(View itemView) {
+        ViewGroup.LayoutParams params = itemView.getLayoutParams();
+        LayoutParams childLp = null;
+        if (params instanceof LayoutParams) {
+            childLp = (LayoutParams) params;
+        }
+        if (childLp == null) {
+            childLp = new LayoutParams(MATCH_PARENT, 0);
+        }
+        return childLp;
     }
 
     @Override
@@ -198,11 +202,19 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView>
     }
 
     public int getItemHeight(int position) {
-        return getChildNode(position).getHeight();
+        ListItemRenderNode childNode = getChildNode(position);
+        if (childNode != null) {
+            return childNode.getHeight();
+        }
+        return 0;
     }
 
     public int getItemWidth(int position) {
-        return getChildNode(position).getWidth();
+        ListItemRenderNode childNode = getChildNode(position);
+        if (childNode != null) {
+            return childNode.getWidth();
+        }
+        return 0;
     }
 
     protected RenderNode getParentNode() {

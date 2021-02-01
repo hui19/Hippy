@@ -54,6 +54,14 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
         super(context);
     }
 
+    public HippyRecyclerView(@NonNull Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public HippyRecyclerView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+    }
+
     public ADP getAdapter() {
         return listAdapter;
     }
@@ -62,14 +70,6 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
     public void setAdapter(@Nullable Adapter adapter) {
         listAdapter = (ADP) adapter;
         super.setAdapter(adapter);
-    }
-
-    public HippyRecyclerView(@NonNull Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public HippyRecyclerView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
     }
 
     public void setOrientation(LinearLayoutManager layoutManager) {

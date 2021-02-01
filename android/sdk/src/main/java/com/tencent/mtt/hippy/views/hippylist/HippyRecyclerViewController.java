@@ -39,6 +39,11 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper>
         extends HippyViewController<HRW> {
 
     public static final String CLASS_NAME = "ListView";
+    public static final String SCROLL_TO_INDEX = "scrollToIndex";
+    public static final String SCROLL_TO_CONTENT_OFFSET = "scrollToContentOffset";
+    public static final String SCROLL_TO_TOP = "scrollToTop";
+    public static final String COLLAPSE_PULL_HEADER = "collapsePullHeader";
+    public static final String EXPAND_PULL_HEADER = "expandPullHeader";
 
     public HippyRecyclerViewController() {
 
@@ -145,7 +150,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper>
         super.dispatchFunction(view, functionName, dataArray);
         //FIXME niuniuyang
         switch (functionName) {
-            case "scrollToIndex": {
+            case SCROLL_TO_INDEX: {
                 // list滑动到某个item
                 int xIndex = dataArray.getInt(0);
                 int yIndex = dataArray.getInt(1);
@@ -154,7 +159,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper>
                 view.scrollToIndex(xIndex, yIndex, animated, duration);
                 break;
             }
-            case "scrollToContentOffset": {
+            case SCROLL_TO_CONTENT_OFFSET: {
                 // list滑动到某个距离
                 double xOffset = dataArray.getDouble(0);
                 double yOffset = dataArray.getDouble(1);
@@ -163,15 +168,15 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper>
                 view.scrollToContentOffset(xOffset, yOffset, animated, duration);
                 break;
             }
-            case "scrollToTop": {
+            case SCROLL_TO_TOP: {
                 view.scrollToTop();
                 break;
             }
-            case "collapsePullHeader": {
+            case COLLAPSE_PULL_HEADER: {
                 getAdapter(view).getHeaderEventHelper().onHeaderRefreshFinish();
                 break;
             }
-            case "expandPullHeader": {
+            case EXPAND_PULL_HEADER: {
                 getAdapter(view).getHeaderEventHelper().onHeaderRefresh();
                 break;
             }

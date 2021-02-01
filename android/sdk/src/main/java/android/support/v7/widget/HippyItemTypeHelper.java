@@ -16,7 +16,6 @@
 
 package android.support.v7.widget;
 
-import android.support.v7.widget.RecyclerView.RecycledViewPool;
 import android.support.v7.widget.RecyclerView.RecycledViewPool.ScrapData;
 import android.support.v7.widget.RecyclerView.Recycler;
 import android.support.v7.widget.RecyclerView.ViewHolder;
@@ -51,7 +50,7 @@ public class HippyItemTypeHelper {
     public void updateItemType(int oldType, int newType, ListItemRenderNode listItemRenderNode) {
         int count = recyclerView.getChildCount();
         for (int i = 0; i < count; i++) {
-            final RecyclerView.ViewHolder holder = recyclerView
+            final ViewHolder holder = recyclerView
                     .getChildViewHolder(recyclerView.getChildAt(i));
             if (changeTypeIfNeed(oldType, newType, listItemRenderNode, holder)) {
                 return;
@@ -72,9 +71,9 @@ public class HippyItemTypeHelper {
     private void updateTypeForRecyclerPool(int oldType, int newType, ListItemRenderNode renderNode) {
         if (recycler.getRecycledViewPool() != null) {
             SparseArray<ScrapData> scrap = recycler.getRecycledViewPool().mScrap;
-            RecycledViewPool.ScrapData scrapData = scrap.get(oldType);
+            ScrapData scrapData = scrap.get(oldType);
             if (scrapData != null && !scrapData.mScrapHeap.isEmpty()) {
-                for (RecyclerView.ViewHolder holder : scrapData.mScrapHeap) {
+                for (ViewHolder holder : scrapData.mScrapHeap) {
                     if (changeTypeIfNeed(oldType, newType, renderNode, holder)) {
                         scrapData.mScrapHeap.remove(holder);
                         addNewType(newType, holder);
@@ -103,7 +102,7 @@ public class HippyItemTypeHelper {
             ArrayList<ViewHolder> viewHolders) {
         final int cacheSize = viewHolders.size();
         for (int i = 0; i < cacheSize; i++) {
-            final RecyclerView.ViewHolder holder = viewHolders.get(i);
+            final ViewHolder holder = viewHolders.get(i);
             if (changeTypeIfNeed(oldType, newType, listItemRenderNode, holder)) {
                 return true;
             }
@@ -112,7 +111,7 @@ public class HippyItemTypeHelper {
     }
 
     private boolean changeTypeIfNeed(int oldType, int newType, ListItemRenderNode listItemRenderNode,
-            RecyclerView.ViewHolder holder) {
+            ViewHolder holder) {
         if (holder.getItemViewType() == oldType && holder instanceof HippyRecyclerViewHolder) {
             RenderNode holderNode = ((HippyRecyclerViewHolder) holder).bindNode;
             if (holderNode == listItemRenderNode) {
