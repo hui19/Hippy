@@ -9,18 +9,13 @@ buildscript {
     }
 }
 android {
-    compileSdkVersion 28
-    buildToolsVersion '28.0.3'
+    compileSdkVersion 29
+    buildToolsVersion '30.0.3'
     defaultConfig {
         applicationId "com.tencent.mtt.hippy.example"
-        minSdkVersion 14
+        minSdkVersion 21
         // noinspection ExpiredTargetSdkVersion
-        targetSdkVersion 21
-        versionCode 1
-        versionName "1.0"
-        ndk {
-            abiFilters "armeabi-v7a"
-        }
+        targetSdkVersion 29
     }
 
     signingConfigs {
@@ -42,11 +37,6 @@ android {
             minifyEnabled false
         }
     }
-//    externalNativeBuild {
-//        cmake {
-//            path file('../../../android/sdk/src/main/jni/armeabi-v7a/CMakeLists.txt')
-//        }
-//    }
 }
 
 dependencies {

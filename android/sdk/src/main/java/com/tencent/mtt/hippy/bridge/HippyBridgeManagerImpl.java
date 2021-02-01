@@ -14,6 +14,10 @@
  */
 package com.tencent.mtt.hippy.bridge;
 
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
@@ -37,11 +41,6 @@ import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
 import java.util.ArrayList;
 
-/**
- * FileName: HippyBridgeManager
- * Description：
- * History：
- */
 public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.BridgeCallback, Handler.Callback
 {
 	static final int		MSG_CODE_INIT_BRIDGE				= 10;
@@ -114,7 +113,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 					{
 						mHippyBridge = new HippyBridgeImpl(mContext, HippyBridgeManagerImpl.this,
 								mBridgeType == BRIDGE_TYPE_SINGLE_THREAD, !mEnableHippyBuffer, this.mIsDevModule, this.mDebugServerHost);
-						
+
 						mHippyBridge.initJSBridge(getGlobalConfigs(), new NativeCallback(mHandler) {
 							@Override
 							public void Call(long value, Message msg, String action) {
@@ -304,7 +303,23 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 					if (mThirdPartyAdapter != null) {
 						mThirdPartyAdapter.onRuntimeDestroy();
 					}
-					mHippyBridge.destroy(null);
+
+					final com.tencent.mtt.hippy.common.Callback<Boolean> destroyCallback = (com.tencent.mtt.hippy.common.Callback<Boolean>) msg.obj;
+					mHippyBridge.destroy(new NativeCallback(mHandler) {
+						@Override
+						public void Call(long value, Message msg, String action) {
+							Boolean success = value == 1 ? true : false;
+							mHippyBridge.onDestroy();
+							if (destroyCallback != null) {
+								RuntimeException exception = null;
+								if (!success) {
+									exception = new RuntimeException("destroy core failed!!! msg.what=" + msg.what);
+								}
+
+								destroyCallback.callback(success, exception);
+							}
+						}
+					});
 					return true;
 				}
 			}
@@ -443,16 +458,20 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 	}
 
 	@Override
-	public void destroy()
-	{
+	public void destroyBridge(Callback<Boolean> callback) {
+		mHandler = new Handler(mContext.getThreadExecutor().getJsThread().getLooper(), this);
+		Message message = mHandler.obtainMessage(MSG_CODE_DESTROY_BRIDGE, callback);
+		mHandler.sendMessage(message);
+	}
+
+	@Override
+	public void destroy() {
 		mIsInit = false;
 		mLoadModuleListener = null;
-		if (mHandler != null)
-		{
+		if (mHandler != null) {
 			mHandler.removeMessages(MSG_CODE_INIT_BRIDGE);
 			mHandler.removeMessages(MSG_CODE_RUN_BUNDLE);
 			mHandler.removeMessages(MSG_CODE_CALL_FUNCTION);
-			mHandler.sendEmptyMessage(MSG_CODE_DESTROY_BRIDGE);
 		}
 	}
 
@@ -495,41 +514,74 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 		}
 	}
 
+    String getGlobalConfigs() {
+		Context context = mContext.getGlobalConfigs().getContext();
+		assert(context != null);
 
-
-	String getGlobalConfigs()
-	{
 		HippyMap globalParams = new HippyMap();
-		HippyMap dimensionMap = DimensionsUtil.getDimensions(-1, -1, mContext.getGlobalConfigs().getContext(), false);
+		HippyMap dimensionMap = DimensionsUtil.getDimensions(-1, -1, context, false);
 
-		// windowHeight是无效值，则允许客户端定制
-		String pkgName = "";
-		String url = "";
-		String appVersion = "";
-		if (mContext.getGlobalConfigs() != null && mContext.getGlobalConfigs().getDeviceAdapter() != null)
-		{
-			mContext.getGlobalConfigs().getDeviceAdapter().reviseDimensionIfNeed(mContext.getGlobalConfigs().getContext(), dimensionMap, false,
+		if (mContext.getGlobalConfigs() != null && mContext.getGlobalConfigs().getDeviceAdapter() != null) {
+			mContext.getGlobalConfigs().getDeviceAdapter().reviseDimensionIfNeed(context, dimensionMap, false,
 					false);
 		}
 		globalParams.pushMap("Dimensions", dimensionMap);
 
+		String packageName = "";
+		String versionName = "";
+		try {
+			PackageManager packageManager = context.getPackageManager();
+			PackageInfo packageInfo = packageManager.getPackageInfo(
+					context.getPackageName(), 0);
+			packageName = packageInfo.packageName;
+			versionName = packageInfo.versionName;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		String pageUrl = "";
+		String appName = "";
+		String appVersion = "";
 		if (mThirdPartyAdapter != null) {
-			pkgName = mThirdPartyAdapter.getPackageName();
-			url = mThirdPartyAdapter.getPageUrl();
+			appName = mThirdPartyAdapter.getPackageName();
 			appVersion = mThirdPartyAdapter.getAppVersion();
+			pageUrl = mThirdPartyAdapter.getPageUrl();
 		}
 
 		HippyMap platformParams = new HippyMap();
 		platformParams.pushString("OS", "android");
-		platformParams.pushString("PackageName", pkgName);
+		platformParams.pushString("PackageName", (packageName == null) ? "" : packageName);
+		platformParams.pushString("VersionName", (versionName == null) ? "" : versionName);
 		platformParams.pushInt("APILevel", Build.VERSION.SDK_INT);
+		platformParams.pushBoolean("NightMode", getNightMode());
 		globalParams.pushMap("Platform", platformParams);
+
 		HippyMap tkd = new HippyMap();
-		tkd.pushString("url", (url == null) ? "" : url);
-		tkd.pushString("appVersion", appVersion);
+		tkd.pushString("url", (pageUrl == null) ? "" : pageUrl);
+		tkd.pushString("appName", (appName == null) ? "" : appName);
+		tkd.pushString("appVersion", (appVersion == null) ? "" : appVersion);
 		globalParams.pushMap("tkd", tkd);
+
 		return ArgumentUtils.objectToJson(globalParams);
 	}
+
+  private boolean getNightMode() {
+    int currentNightMode = mContext.getGlobalConfigs().getContext().getResources().getConfiguration().uiMode
+      & Configuration.UI_MODE_NIGHT_MASK;
+    switch (currentNightMode) {
+      case Configuration.UI_MODE_NIGHT_UNDEFINED:
+        // We don't know what mode we're in, assume notnight
+        return false;
+      case Configuration.UI_MODE_NIGHT_NO:
+        // Night mode is not active, we're in day time
+        return false;
+      case Configuration.UI_MODE_NIGHT_YES:
+        // Night mode is active, we're at night!
+        return true;
+      default:
+        return false;
+    }
+  }
 
 	@Override
 	public HippyThirdPartyAdapter getThirdPartyAdapter() {

@@ -136,20 +136,34 @@ export default class ListExample extends React.Component {
     this.setState({ dataSource: newDataSource });
   }
 
-  // TODO android onAppear不完善，暂时不适用
-  // 曝光
+  // item完全曝光
   // eslint-disable-next-line class-methods-use-this
   onAppear(index) {
     // eslint-disable-next-line no-console
     console.log('onAppear', index);
   }
 
-  // TODO android onDisappear不完善，暂时不适用
-  // 隐藏
+  // item完全隐藏
   // eslint-disable-next-line class-methods-use-this
   onDisappear(index) {
     // eslint-disable-next-line no-console
     console.log('onDisappear', index);
+  }
+
+  // TODO android onWillAppear不完善，暂时不适用
+  // item至少一个像素曝光
+  // eslint-disable-next-line class-methods-use-this
+  onWillAppear(index) {
+    // eslint-disable-next-line no-console
+    console.log('onWillAppear', index);
+  }
+
+  // TODO android onWillDisappear不完善，暂时不适用
+  // item至少一个像素隐藏
+  // eslint-disable-next-line class-methods-use-this
+  onWillDisappear(index) {
+    // eslint-disable-next-line no-console
+    console.log('onWillDisappear', index);
   }
 
   getRowType(index) {
@@ -229,6 +243,8 @@ export default class ListExample extends React.Component {
         rowShouldSticky={index =>this.isStickyItem(index)}
         onAppear={index => this.onAppear(index)}
         onDisappear={index => this.onDisappear(index)}
+        onWillAppear={index => this.onWillAppear(index)}
+        onWillDisappear={index => this.onWillDisappear(index)}
       />
     );
   }

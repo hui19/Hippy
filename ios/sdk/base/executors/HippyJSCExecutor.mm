@@ -41,18 +41,21 @@
 #import "HippyRedBox.h"
 #import "HippyJSCWrapper.h"
 #import "HippyJSCErrorHandling.h"
+#import "HippyJSEnginesMapper.h"
+#import "HippyBridge+LocalFileSource.h"
+#include "ios_loader.h"
+#import "HippyBridge+Private.h"
 #include "js_native_api_jsc.h"
 #include "javascript_task.h"
 #include "js_native_api.h"
 #include "scope.h"
 #include "javascript_task_runner.h"
 #include "engine.h"
-#import "HippyJSEnginesMapper.h"
-#include "ios_loader.h"
-#import "HippyBridge+LocalFileSource.h"
 
 NSString *const HippyJSCThreadName = @"com.tencent.hippy.JavaScript";
 NSString *const HippyJavaScriptContextCreatedNotification = @"HippyJavaScriptContextCreatedNotification";
+NSString *const HippyJavaScriptContextCreatedNotificationBridgeKey = @"HippyJavaScriptContextCreatedNotificationBridgeKey";
+
 HIPPY_EXTERN NSString *const HippyFBJSContextClassKey = @"_HippyFBJSContextClassKey";
 HIPPY_EXTERN NSString *const HippyFBJSValueClassKey = @"_HippyFBJSValueClassKey";
 
@@ -145,17 +148,19 @@ HIPPY_EXPORT_MODULE()
 
 - (std::unique_ptr<Engine::RegisterMap>) registerMap {
     __weak HippyJSCExecutor *weakSelf = self;
+    __weak id<HippyBridgeDelegate> weakBridgeDelegate = self.bridge.delegate;
     hippy::base::RegisterFunction taskEndCB = [weakSelf](void *){
         HippyJSCExecutor *strongSelf = weakSelf;
         if (strongSelf) {
             [strongSelf->_bridge handleBuffer:nil batchEnded:YES];
         }
     };
-    hippy::base::RegisterFunction ctxCreateCB = [weakSelf](void* p){
+    hippy::base::RegisterFunction ctxCreateCB = [weakSelf, weakBridgeDelegate](void* p){
         HippyJSCExecutor *strongSelf = weakSelf;
         if (!strongSelf) {
             return;
         }
+        id<HippyBridgeDelegate> strongBridgeDelegate = weakBridgeDelegate;
         ScopeWrapper* wrapper = reinterpret_cast<ScopeWrapper*>(p);
         std::shared_ptr<Scope> scope = wrapper->scope_.lock();
         if (scope) {
@@ -163,8 +168,8 @@ HIPPY_EXPORT_MODULE()
             JSContext* jsContext = [JSContext contextWithJSGlobalContextRef:context->GetCtxRef()];
             context->RegisterGlobalInJs();
             NSMutableDictionary *deviceInfo = [NSMutableDictionary dictionaryWithDictionary:[strongSelf.bridge deviceInfo]];
-            if ([strongSelf.bridge.delegate respondsToSelector:@selector(objectsBeforeExecuteCode)]) {
-                NSDictionary *customObjects = [strongSelf.bridge.delegate objectsBeforeExecuteCode];
+            if ([strongBridgeDelegate respondsToSelector:@selector(objectsBeforeExecuteCode)]) {
+                NSDictionary *customObjects = [strongBridgeDelegate objectsBeforeExecuteCode];
                 if (customObjects) {
                     [deviceInfo addEntriesFromDictionary:customObjects];
                 }
@@ -252,10 +257,21 @@ HIPPY_EXPORT_MODULE()
 
 - (JSContext *)JSContext {
     if (nil == _JSContext) {
-        _JSContext = [JSContext contextWithJSGlobalContextRef:[self JSGlobalContextRef]];
-        if (_JSContext) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:HippyJavaScriptContextCreatedNotification
-                                                                object:_JSContext];
+        JSGlobalContextRef contextRef = [self JSGlobalContextRef];
+        if (contextRef) {
+            _JSContext = [JSContext contextWithJSGlobalContextRef:contextRef];
+            HippyBridge *bridge = self.bridge;
+            if ([bridge isKindOfClass:[HippyBatchedBridge class]]) {
+                bridge = [(HippyBatchedBridge *)bridge parentBridge];
+            }
+            NSDictionary *userInfo = nil;
+            if (bridge) {
+                userInfo = @{HippyJavaScriptContextCreatedNotificationBridgeKey: bridge};
+            }
+            if (_JSContext) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:HippyJavaScriptContextCreatedNotification
+                                                                    object:nil userInfo:userInfo];
+            }
         }
     }
     return _JSContext;
@@ -333,6 +349,7 @@ static void installBasicSynchronousHooksOnContext(JSContext *context)
         return;
     }
     _valid = NO;
+    self.pScope->WillExit();
     self.pScope = nullptr;
     _JSContext.name = @"HippyJSContext(delete)";
     _JSContext = nil;
@@ -431,9 +448,13 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName)
                     if (method_value) {
                         if (jsccontext->IsFunction(method_value)) {
                             std::shared_ptr<hippy::napi::CtxValue> function_params[arguments.count];
-                            for (NSUInteger i = 0; i < arguments.count; i++) {
-                                JSValueRef value = [JSValue valueWithObject:arguments[i] inContext:[strongSelf JSContext]].JSValueRef;
-                                function_params[i] = std::make_shared<hippy::napi::JSCCtxValue>([strongSelf JSGlobalContextRef], value);
+                            if (arguments.count > 0) {
+                                JSContext *context = [strongSelf JSContext];
+                                JSGlobalContextRef globalContextRef = [strongSelf JSGlobalContextRef];
+                                for (NSUInteger i = 0; i < arguments.count; i++) {
+                                    JSValueRef value = [JSValue valueWithObject:arguments[i] inContext:context].JSValueRef;
+                                    function_params[i] = std::make_shared<hippy::napi::JSCCtxValue>(globalContextRef, value);
+                                }
                             }
                             std::shared_ptr<hippy::napi::CtxValue> resultValue = jsccontext->CallFunction(method_value, arguments.count, function_params, &exception);
                             jsc_resultValue = std::static_pointer_cast<hippy::napi::JSCCtxValue>(resultValue);
@@ -525,7 +546,9 @@ static NSData *loadPossiblyBundledApplicationScript(NSData *script, __unused NSU
 static void registerNativeRequire(JSContext *context, HippyJSCExecutor *executor)
 {
     __weak HippyJSCExecutor *weakExecutor = executor;
-    context[@"nativeRequire"] = ^(NSNumber *moduleID) { [weakExecutor _nativeRequire:moduleID]; };
+    context[@"nativeRequire"] = ^(NSNumber *moduleID) {
+        [weakExecutor _nativeRequire:moduleID];
+    };
 }
 
 static NSLock *jslock() {
