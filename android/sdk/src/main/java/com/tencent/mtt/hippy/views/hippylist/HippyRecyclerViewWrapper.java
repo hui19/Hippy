@@ -50,10 +50,12 @@ public class HippyRecyclerViewWrapper<HRCV extends HippyRecyclerView> extends Fr
         addView(recyclerView,
                 new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         hpContext = ((HippyInstanceContext) context).getEngineContext();
-        HippyRecyclerExtension cacheExtension = new HippyRecyclerExtension(recyclerView, hpContext);
+        HippyRecyclerExtension cacheExtension = new HippyRecyclerExtension(recyclerView, hpContext,
+                recyclerView.getNodePositionHelper());
         recyclerView.setViewCacheExtension(cacheExtension);
         recyclerView.setHeaderHost(this);
-        HippyRecyclerPool pool = new HippyRecyclerPool(hpContext, this, cacheExtension);
+        HippyRecyclerPool pool = new HippyRecyclerPool(hpContext, this, cacheExtension,
+                recyclerView.getNodePositionHelper());
         pool.setViewAboundListener(recyclerView);
         recyclerView.setRecycledViewPool(pool);
 

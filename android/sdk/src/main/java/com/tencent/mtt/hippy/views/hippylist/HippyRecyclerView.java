@@ -49,6 +49,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
     protected IHeaderHost headerHost;//用于pullHeader下拉刷新
     protected LayoutManager layoutManager;
     protected RecyclerViewEventHelper recyclerViewEventHelper;//事件集合
+    private NodePositionHelper nodePositionHelper;
 
     public HippyRecyclerView(Context context) {
         super(context);
@@ -70,6 +71,13 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
     public void setAdapter(@Nullable Adapter adapter) {
         listAdapter = (ADP) adapter;
         super.setAdapter(adapter);
+    }
+
+    public NodePositionHelper getNodePositionHelper() {
+        if (nodePositionHelper == null) {
+            nodePositionHelper = new NodePositionHelper();
+        }
+        return nodePositionHelper;
     }
 
     public void setOrientation(LinearLayoutManager layoutManager) {
@@ -313,5 +321,9 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
             return viewHolder.bindNode.getId() == aboundHeader.bindNode.getId();
         }
         return false;
+    }
+
+    public void setNodePositionHelper(NodePositionHelper nodePositionHelper) {
+        this.nodePositionHelper = nodePositionHelper;
     }
 }

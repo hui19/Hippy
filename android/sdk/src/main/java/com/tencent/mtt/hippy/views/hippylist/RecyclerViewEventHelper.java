@@ -24,6 +24,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.OnScrollListener;
 import android.view.View;
+import android.view.View.OnAttachStateChangeListener;
 import android.view.View.OnLayoutChangeListener;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -37,7 +38,8 @@ import com.tencent.mtt.hippy.views.scroll.HippyScrollViewEventHelper;
 /**
  * Created by niuniuyang on 2020/12/24. Description 各种事件的通知，通知前端view的曝光事件，用于前端的统计上报
  */
-public class RecyclerViewEventHelper extends OnScrollListener implements OnLayoutChangeListener {
+public class RecyclerViewEventHelper extends OnScrollListener implements OnLayoutChangeListener,
+        OnAttachStateChangeListener {
 
     public static final String INITIAL_LIST_READY = "initialListReady";
     protected final HippyRecyclerView hippyRecyclerView;
@@ -65,6 +67,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     public RecyclerViewEventHelper(HippyRecyclerView recyclerView) {
         this.hippyRecyclerView = recyclerView;
         hippyRecyclerView.addOnScrollListener(this);
+        hippyRecyclerView.addOnAttachStateChangeListener(this);
         hippyRecyclerView.addOnLayoutChangeListener(this);
         preDrawListener = new OnPreDrawListener() {
             @Override
@@ -82,8 +85,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
             hippyRecyclerView.post(new Runnable() {
                 @Override
                 public void run() {
-                    new HippyViewEvent(INITIAL_LIST_READY)
-                            .send((View) hippyRecyclerView.getParent(), null);
+                    new HippyViewEvent(INITIAL_LIST_READY).send((View) hippyRecyclerView.getParent(), null);
                 }
             });
         }
@@ -173,7 +175,6 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     public void onScrolled(@NonNull final RecyclerView recyclerView, int dx, int dy) {
         checkSendOnScrollEvent();
         checkSendExposureEvent();
-        observePreDraw();
     }
 
     private void checkSendOnScrollEvent() {
@@ -316,5 +317,15 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
             }
         }
         return null;
+    }
+
+    @Override
+    public void onViewAttachedToWindow(View v) {
+        observePreDraw();
+    }
+
+    @Override
+    public void onViewDetachedFromWindow(View v) {
+
     }
 }

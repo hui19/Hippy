@@ -186,7 +186,8 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView>
      * 获取子节点，理论上面是不会返回空的，否则就是某个流程出了问题
      */
     public ListItemRenderNode getChildNode(int position) {
-        return (ListItemRenderNode) getParentNode().getChildAt(position);
+        return (ListItemRenderNode) getParentNode().getChildAt(
+                hippyRecyclerView.getNodePositionHelper().getRenderNodePosition(position));
     }
 
     /**
