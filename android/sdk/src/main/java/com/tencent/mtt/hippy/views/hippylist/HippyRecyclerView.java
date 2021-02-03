@@ -27,14 +27,10 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.view.ViewTreeObserver.OnPreDrawListener;
 import com.tencent.mtt.hippy.HippyEngineContext;
-import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
-import com.tencent.mtt.hippy.views.list.HippyListView;
 import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IHeaderAttachListener;
 import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IHeaderHost;
 import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.StickyHeaderHelper;
@@ -52,14 +48,11 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
     protected StickyHeaderHelper stickyHeaderHelper;//支持吸顶
     protected IHeaderHost headerHost;//用于pullHeader下拉刷新
     protected LayoutManager layoutManager;
-    private RecyclerViewEventHelper recyclerViewEventHelper;//事件集合
+    protected RecyclerViewEventHelper recyclerViewEventHelper;//事件集合
+    private NodePositionHelper nodePositionHelper;
 
     public HippyRecyclerView(Context context) {
         super(context);
-    }
-
-    public ADP getAdapter() {
-        return listAdapter;
     }
 
     public HippyRecyclerView(@NonNull Context context, @Nullable AttributeSet attrs) {
@@ -68,6 +61,23 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
 
     public HippyRecyclerView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+    }
+
+    public ADP getAdapter() {
+        return listAdapter;
+    }
+
+    @Override
+    public void setAdapter(@Nullable Adapter adapter) {
+        listAdapter = (ADP) adapter;
+        super.setAdapter(adapter);
+    }
+
+    public NodePositionHelper getNodePositionHelper() {
+        if (nodePositionHelper == null) {
+            nodePositionHelper = new NodePositionHelper();
+        }
+        return nodePositionHelper;
     }
 
     public void setOrientation(LinearLayoutManager layoutManager) {
@@ -83,9 +93,8 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
     }
 
     public void initRecyclerView() {
-        listAdapter = (ADP) new HippyRecyclerListAdapter<HippyRecyclerView>(this,
-                this.hippyEngineContext);
-        setAdapter(listAdapter);
+        setAdapter(new HippyRecyclerListAdapter<HippyRecyclerView>(this,
+                this.hippyEngineContext));
     }
 
 
@@ -161,7 +170,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
     /**
      * 获取position 前面的内容高度，不包含position自身的高度
      */
-    protected int getTotalHeightBefore(int position) {
+    public int getTotalHeightBefore(int position) {
         int totalHeightBefore = 0;
         for (int i = 0; i < position; i++) {
             totalHeightBefore += listAdapter.getItemHeight(i);
@@ -173,7 +182,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
     /**
      * 获取position 前面的内容高度，不包含position自身的高度
      */
-    protected int getTotalWithBefore(int position) {
+    public int getTotalWithBefore(int position) {
         int totalWidthBefore = 0;
         for (int i = 0; i < position; i++) {
             totalWidthBefore += listAdapter.getItemWidth(i);
@@ -183,9 +192,13 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
 
     public RecyclerViewEventHelper getRecyclerViewEventHelper() {
         if (recyclerViewEventHelper == null) {
-            recyclerViewEventHelper = new RecyclerViewEventHelper(this);
+            recyclerViewEventHelper = createEventHelper();
         }
         return recyclerViewEventHelper;
+    }
+
+    protected RecyclerViewEventHelper createEventHelper() {
+        return new RecyclerViewEventHelper(this);
     }
 
     /**
@@ -308,5 +321,9 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
             return viewHolder.bindNode.getId() == aboundHeader.bindNode.getId();
         }
         return false;
+    }
+
+    public void setNodePositionHelper(NodePositionHelper nodePositionHelper) {
+        this.nodePositionHelper = nodePositionHelper;
     }
 }

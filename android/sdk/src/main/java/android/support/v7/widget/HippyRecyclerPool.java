@@ -20,8 +20,10 @@ import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.View;
 import android.view.ViewGroup;
 import com.tencent.mtt.hippy.HippyEngineContext;
+import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewHolder;
+import com.tencent.mtt.hippy.views.hippylist.NodePositionHelper;
 
 /**
  * Created by niuniuyang on 2021/1/4. Description
@@ -35,10 +37,13 @@ public class HippyRecyclerPool extends RecyclerView.RecycledViewPool {
     private final View recyclerView;
     private final HippyRecyclerExtension viewCacheExtension;
     private final HippyEngineContext hpContext;
+    private final NodePositionHelper nodePositionHelper;
     private IHippyViewAboundListener viewAboundListener;
 
     public HippyRecyclerPool(HippyEngineContext hpContext, View recyclerView,
-            HippyRecyclerExtension viewCacheExtension) {
+            HippyRecyclerExtension viewCacheExtension,
+            NodePositionHelper nodePositionHelper) {
+        this.nodePositionHelper = nodePositionHelper;
         this.hpContext = hpContext;
         this.recyclerView = recyclerView;
         this.viewCacheExtension = viewCacheExtension;
@@ -103,10 +108,15 @@ public class HippyRecyclerPool extends RecyclerView.RecycledViewPool {
 
     /**
      * 是否是节点完全相等
+     *
+     * @param scrapHolder 缓存池里面的Holder
      */
-    private boolean isTheSameRenderNode(HippyRecyclerViewHolder holder) {
-        return holder.bindNode == hpContext.getRenderManager()
-                .getRenderNode(recyclerView.getId())
-                .getChildAt(viewCacheExtension.getCurrentPosition());
+    private boolean isTheSameRenderNode(HippyRecyclerViewHolder scrapHolder) {
+        if (scrapHolder.bindNode == null) {
+            return false;
+        }
+        RenderNode nodeForCurrent = hpContext.getRenderManager().getRenderNode(recyclerView.getId())
+                .getChildAt(nodePositionHelper.getRenderNodePosition(viewCacheExtension.getCurrentPosition()));
+        return scrapHolder.bindNode.equals(nodeForCurrent);
     }
 }

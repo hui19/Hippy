@@ -40,8 +40,4 @@ public class HippyRecyclerViewHolder extends ViewHolder {
         }
         return false;
     }
-
-    public boolean isRenderNode() {
-        return bindNode != null;
-    }
 }

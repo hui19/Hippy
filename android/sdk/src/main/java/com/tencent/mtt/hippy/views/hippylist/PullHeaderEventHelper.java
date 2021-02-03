@@ -34,8 +34,7 @@ import com.tencent.mtt.nxeasy.recyclerview.helper.header.ILayoutRequester;
  * Description
  * 下来刷新事件的Helper，负责和前端进行下来刷新的各种事件通知
  */
-class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRefreshView,
-  ILayoutRequester {
+class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRefreshView, ILayoutRequester {
 
     public static final String EVENT_TYPE_HEADER_PULLING = "onHeaderPulling";
     public static final String EVENT_TYPE_HEADER_RELEASED = "onHeaderReleased";

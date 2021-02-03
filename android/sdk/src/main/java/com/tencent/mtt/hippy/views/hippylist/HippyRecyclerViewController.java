@@ -25,6 +25,7 @@ import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.ListViewRenderNode;
@@ -35,10 +36,15 @@ import com.tencent.mtt.hippy.uimanager.RenderNode;
  */
 
 @HippyController(name = HippyRecyclerViewController.CLASS_NAME)
-public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper<HippyRecyclerView>>
+public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper>
         extends HippyViewController<HRW> {
 
     public static final String CLASS_NAME = "RecyclerView";
+    public static final String SCROLL_TO_INDEX = "scrollToIndex";
+    public static final String SCROLL_TO_CONTENT_OFFSET = "scrollToContentOffset";
+    public static final String SCROLL_TO_TOP = "scrollToTop";
+    public static final String COLLAPSE_PULL_HEADER = "collapsePullHeader";
+    public static final String EXPAND_PULL_HEADER = "expandPullHeader";
 
     public HippyRecyclerViewController() {
 
@@ -141,12 +147,11 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper<Hi
     }
 
     @Override
-    public void dispatchFunction(HRW view, String functionName,
-            HippyArray dataArray) {
+    public void dispatchFunction(HRW view, String functionName, HippyArray dataArray) {
         super.dispatchFunction(view, functionName, dataArray);
         //FIXME niuniuyang
         switch (functionName) {
-            case "scrollToIndex": {
+            case SCROLL_TO_INDEX: {
                 // list滑动到某个item
                 int xIndex = dataArray.getInt(0);
                 int yIndex = dataArray.getInt(1);
@@ -155,7 +160,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper<Hi
                 view.scrollToIndex(xIndex, yIndex, animated, duration);
                 break;
             }
-            case "scrollToContentOffset": {
+            case SCROLL_TO_CONTENT_OFFSET: {
                 // list滑动到某个距离
                 double xOffset = dataArray.getDouble(0);
                 double yOffset = dataArray.getDouble(1);
@@ -164,15 +169,15 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper<Hi
                 view.scrollToContentOffset(xOffset, yOffset, animated, duration);
                 break;
             }
-            case "scrollToTop": {
+            case SCROLL_TO_TOP: {
                 view.scrollToTop();
                 break;
             }
-            case "collapsePullHeader": {
+            case COLLAPSE_PULL_HEADER: {
                 getAdapter(view).getHeaderEventHelper().onHeaderRefreshFinish();
                 break;
             }
-            case "expandPullHeader": {
+            case EXPAND_PULL_HEADER: {
                 getAdapter(view).getHeaderEventHelper().onHeaderRefresh();
                 break;
             }
