@@ -38,7 +38,7 @@ import com.tencent.mtt.hippy.uimanager.RenderNode;
 public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper>
         extends HippyViewController<HRW> {
 
-    public static final String CLASS_NAME = "RecyclerView";
+    public static final String CLASS_NAME = "ListView";
     public static final String SCROLL_TO_INDEX = "scrollToIndex";
     public static final String SCROLL_TO_CONTENT_OFFSET = "scrollToContentOffset";
     public static final String SCROLL_TO_TOP = "scrollToTop";
