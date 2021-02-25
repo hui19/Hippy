@@ -71,20 +71,26 @@ class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRefreshVie
         return headerContainer;
     }
 
+
     @Override
-    public void onMove(float deltaY, float sumOffset) {
+    public void onHeaderHeightChanged(int sumOffset) {
         HippyMap params = new HippyMap();
-        params.pushDouble("contentOffset", PixelUtil.px2dp(deltaY));
+        params.pushDouble("contentOffset", PixelUtil.px2dp(sumOffset));
         sendPullHeaderEvent(EVENT_TYPE_HEADER_PULLING, params);
     }
 
-    /**
-     * 如果Hippy前端有需要，下拉刷新更加具体的状态，这里可以通知给前端see {@link IHeaderRefreshView}
-     *
-     * @param headerStatusLoading 当前的header的状态
-     */
     @Override
-    public void setLoadingStatus(int headerStatusLoading) {
+    public void onRefreshing() {
+
+    }
+
+    @Override
+    public void onStartDrag() {
+
+    }
+
+    @Override
+    public void onFolded() {
 
     }
 
@@ -93,11 +99,12 @@ class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRefreshVie
         return renderNode.getHeaderHeight();
     }
 
+
     /**
      * 松手后，触发的刷新回调，需要通知Hippy前端业务进行数据的刷新操作
      */
     @Override
-    public void onHeaderLoadMore() {
+    public void onHeaderRefreshing(int refreshWay) {
         sendPullHeaderEvent(EVENT_TYPE_HEADER_RELEASED, new HippyMap());
     }
 
