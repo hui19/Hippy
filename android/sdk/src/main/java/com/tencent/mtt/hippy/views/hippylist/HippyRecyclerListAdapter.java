@@ -36,7 +36,8 @@ import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IStickyItemsProvider;
 import java.util.ArrayList;
 
 /**
- * Created by niuniuyang on 2020/12≥/22. Description RecyclerView的子View直接是前端的RenderNode节点，没有之前包装的那层RecyclerViewItem。
+ * Created by niuniuyang on 2020/12/22.
+ * Description RecyclerView的子View直接是前端的RenderNode节点，没有之前包装的那层RecyclerViewItem。
  * 对于特殊的renderNode，比如header和sticky的节点，我们进行了不同的处理。
  */
 public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView>
@@ -263,6 +264,10 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView>
      */
     public PullHeaderEventHelper getHeaderEventHelper() {
         return headerEventHelper;
+    }
+
+    public PreloadHelper getPreloadHelper() {
+        return preloadHelper;
     }
 
     public void setPreloadItemNumber(int preloadItemNumber) {

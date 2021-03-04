@@ -149,7 +149,6 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper>
     @Override
     public void dispatchFunction(HRW view, String functionName, HippyArray dataArray) {
         super.dispatchFunction(view, functionName, dataArray);
-        //FIXME niuniuyang
         switch (functionName) {
             case SCROLL_TO_INDEX: {
                 // list滑动到某个item

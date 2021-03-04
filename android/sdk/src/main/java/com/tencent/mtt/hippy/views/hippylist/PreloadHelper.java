@@ -11,31 +11,28 @@ import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
  */
 public class PreloadHelper extends RecyclerView.OnScrollListener {
 
-    private HippyRecyclerView hippyRecyclerView;
-    private int preloadItemNumber;
-    private int currentPreloadCount = 0;
+    protected HippyRecyclerView hippyRecyclerView;
+    protected int preloadItemNumber;
 
     public PreloadHelper(HippyRecyclerView hippyRecyclerView) {
         this.hippyRecyclerView = hippyRecyclerView;
     }
 
-
     @Override
     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
         int itemCount = recyclerView.getAdapter().getItemCount();
         //频控，记录上次预加载的总条目数，相同就不再次触发预加载
-        if (itemCount == currentPreloadCount) {
-            return;
-        }
         if (recyclerView.getChildCount() > 0) {
             View lastChild = recyclerView.getChildAt(recyclerView.getChildCount() - 1);
             int lastPosition = recyclerView.getChildAdapterPosition(lastChild);
             if (lastPosition + preloadItemNumber >= itemCount) {
-                currentPreloadCount = itemCount;
-                new HippyViewEvent(EVENT_ON_END_REACHED)
-                        .send((View) recyclerView.getParent(), null);
+                sendReachEndEvent(recyclerView);
             }
         }
+    }
+
+    public void sendReachEndEvent(RecyclerView recyclerView) {
+        new HippyViewEvent(EVENT_ON_END_REACHED).send((View) recyclerView.getParent(), null);
     }
 
     /**
@@ -47,5 +44,9 @@ public class PreloadHelper extends RecyclerView.OnScrollListener {
         if (preloadItemNumber > 0) {
             hippyRecyclerView.addOnScrollListener(this);
         }
+    }
+
+    public void reset() {
+
     }
 }

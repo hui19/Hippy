@@ -208,15 +208,13 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
         isEnableScroll = enable;
     }
 
-    /**
-     * FIXME niuniuyang 这没有requestLayout的逻辑，测试需要看看会不会有问题。
-     */
     public void scrollToIndex(int xIndex, int yPosition, boolean animated, int duration) {
         if (animated) {
             doSmoothScrollY(duration, getTotalHeightBefore(yPosition) - getContentOffsetY());
         } else {
             scrollToPosition(yPosition);
         }
+        postDispatchLayout();
     }
 
     public void scrollToContentOffset(double xOffset, double yOffset, boolean animated,
@@ -233,10 +231,21 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
         if (duration != 0) {
             if (scrollToYPos != 0 && !didStructureChange()) {
                 smoothScrollBy(0, scrollToYPos, duration);
+                postDispatchLayout();
             }
         } else {
             smoothScrollBy(0, scrollToYPos);
+            postDispatchLayout();
         }
+    }
+
+    private void postDispatchLayout() {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                dispatchLayout();
+            }
+        });
     }
 
     public void scrollToTop() {
@@ -246,6 +255,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
         } else {
             smoothScrollBy(0, -getContentOffsetY());
         }
+        postDispatchLayout();
     }
 
     /**

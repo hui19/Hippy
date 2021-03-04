@@ -41,8 +41,7 @@ public class HippyRecyclerPool extends RecyclerView.RecycledViewPool {
     private IHippyViewAboundListener viewAboundListener;
 
     public HippyRecyclerPool(HippyEngineContext hpContext, View recyclerView,
-            HippyRecyclerExtension viewCacheExtension,
-            NodePositionHelper nodePositionHelper) {
+            HippyRecyclerExtension viewCacheExtension, NodePositionHelper nodePositionHelper) {
         this.nodePositionHelper = nodePositionHelper;
         this.hpContext = hpContext;
         this.recyclerView = recyclerView;
