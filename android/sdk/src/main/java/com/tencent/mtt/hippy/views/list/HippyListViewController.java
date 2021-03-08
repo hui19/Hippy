@@ -24,6 +24,7 @@ import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.ListViewRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.mtt.hippy.views.modal.HippyModalHostView;
 import com.tencent.mtt.supportui.views.recyclerview.BaseLayoutManager;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewItem;
@@ -42,6 +43,15 @@ public class HippyListViewController extends HippyViewController<HippyListView>
 {
 
 	public static final String CLASS_NAME = "ListView";
+
+	@Override
+	public void onViewDestroy(HippyListView hippyListView)
+	{
+		super.onViewDestroy(hippyListView);
+		if (hippyListView != null && hippyListView.mListScrollListeners != null) {
+			hippyListView.mListScrollListeners.clear();
+		}
+	}
 
 	@Override
 	protected void addView(ViewGroup parentView, View view, int index)
