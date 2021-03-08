@@ -62,7 +62,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 	public static final String IMAGE_TYPE_GIF   = "gif";
 	public static final String IMAGE_PROPS      = "props";
 
-	private HippyMap props = null;
+	private HippyMap props = new HippyMap();
 	private boolean mHasSetTempBackgroundColor = false;
 	private boolean mUserHasSetBackgroudnColor = false;
 	private int 	mUserSetBackgroundColor = Color.TRANSPARENT;
