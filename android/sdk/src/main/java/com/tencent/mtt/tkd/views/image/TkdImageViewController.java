@@ -33,7 +33,7 @@ public class TkdImageViewController extends HippyImageViewController
 	{
     TkdImageView imageView = new TkdImageView(context);
 		if (iniProps != null) {
-			imageView.setIniProps(iniProps);
+			imageView.setInitProps(iniProps);
 		}
 
 		return imageView;
