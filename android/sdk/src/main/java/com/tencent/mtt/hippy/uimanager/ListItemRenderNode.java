@@ -59,6 +59,18 @@ public class ListItemRenderNode extends RenderNode {
         }
     }
 
+    @Override public boolean removeChild(RenderNode uiNode) {
+        return super.removeChild(uiNode);
+    }
+
+    @Override void addChild(RenderNode uiNode, int index) {
+        super.addChild(uiNode, index);
+    }
+
+    @Override public void remove(int index) {
+        super.remove(index);
+    }
+
     @Override
     public void updateNode(HippyMap map) {
         int oldType = getTypeFromMap(mProps);

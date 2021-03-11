@@ -67,7 +67,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView>
     @NonNull
     @Override
     public HippyRecyclerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        ListItemRenderNode renderNode = getChildNode(positionToCreateHolder);
+        ListItemRenderNode renderNode = getChildNodeByAdapterPosition(positionToCreateHolder);
         renderNode.setLazy(false);
         View renderView = renderNode.createViewRecursive();
         if (isPullHeader(positionToCreateHolder)) {
@@ -111,7 +111,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView>
             hippyRecyclerViewHolder.isCreated = false;
         } else {
             oldNode.setLazy(true);
-            ListItemRenderNode toNode = getChildNode(position);
+            ListItemRenderNode toNode = getChildNodeByAdapterPosition(position);
             toNode.setLazy(false);
             //step 1: diff
             ArrayList<PatchType> patchTypes = DiffUtils.diff(oldNode, toNode);
@@ -134,7 +134,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView>
      */
     private void enablePullFooter(int position, View itemView) {
         if (position == getItemCount() - 1) {
-            ListItemRenderNode renderNode = getChildNode(position);
+            ListItemRenderNode renderNode = getChildNodeByAdapterPosition(position);
             if (renderNode.isPullFooter()) {
                 if (footerEventHelper == null) {
                     footerEventHelper = new PullFooterEventHelper(hippyRecyclerView);
@@ -153,7 +153,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView>
      */
     protected void setLayoutParams(View itemView, int position) {
         LayoutParams childLp = getLayoutParams(itemView);
-        RenderNode childNode = getChildNode(position);
+        RenderNode childNode = getChildNodeByAdapterPosition(position);
         childLp.height = childNode.getHeight();
         childLp.width = childNode.getWidth();
         itemView.setLayoutParams(childLp);
@@ -176,7 +176,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView>
         //在调用onCreateViewHolder之前，必然会调用getItemViewType，所以这里把position记下来
         //用在onCreateViewHolder的时候来创建View，不然onCreateViewHolder是无法创建RenderNode到View的
         setPositionToCreate(position);
-        return getChildNode(position).getItemViewType();
+        return getChildNodeByAdapterPosition(position).getItemViewType();
     }
 
     protected void setPositionToCreate(int position) {
@@ -185,10 +185,24 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView>
 
     /**
      * 获取子节点，理论上面是不会返回空的，否则就是某个流程出了问题
+     *
+     * @param position adapter实际的item位置
+     */
+    public ListItemRenderNode getChildNodeByAdapterPosition(int position) {
+        return getChildNode(hippyRecyclerView.getNodePositionHelper().getRenderNodePosition(position));
+    }
+
+    /**
+     * 获取前端的renderNode的子节点
+     *
+     * @param position 前端的子节点的位置
      */
     public ListItemRenderNode getChildNode(int position) {
-        return (ListItemRenderNode) getParentNode().getChildAt(
-                hippyRecyclerView.getNodePositionHelper().getRenderNodePosition(position));
+        RenderNode parentNode = getParentNode();
+        if (parentNode != null && position < parentNode.getChildCount() && position >= 0) {
+            return (ListItemRenderNode) parentNode.getChildAt(position);
+        }
+        return null;
     }
 
     /**
@@ -196,6 +210,15 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView>
      */
     @Override
     public int getItemCount() {
+        return getRenderNodeCount();
+    }
+
+    /**
+     * 返回前端的list的内容Item数目
+     *
+     * @return
+     */
+    public int getRenderNodeCount() {
         RenderNode listNode = getParentNode();
         if (listNode != null) {
             return listNode.getChildCount();
@@ -203,8 +226,22 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView>
         return 0;
     }
 
+    /**
+     * 前端展示的内容的高度
+     *
+     * @return
+     */
+    public int getRenderNodeHeight() {
+        int renderCount = getRenderNodeCount();
+        int renderNodeHeight = 0;
+        for (int i = 0; i < renderCount; i++) {
+            renderNodeHeight += getItemHeight(i);
+        }
+        return renderNodeHeight;
+    }
+
     public int getItemHeight(int position) {
-        ListItemRenderNode childNode = getChildNode(position);
+        ListItemRenderNode childNode = getChildNodeByAdapterPosition(position);
         if (childNode != null) {
             return childNode.getHeight();
         }
@@ -212,7 +249,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView>
     }
 
     public int getItemWidth(int position) {
-        ListItemRenderNode childNode = getChildNode(position);
+        ListItemRenderNode childNode = getChildNodeByAdapterPosition(position);
         if (childNode != null) {
             return childNode.getWidth();
         }
@@ -235,7 +272,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView>
 
     @Override
     public long getItemId(int position) {
-        return getChildNode(position).getId();
+        return getChildNodeByAdapterPosition(position).getId();
     }
 
     /**
@@ -244,7 +281,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView>
     @Override
     public boolean isStickyPosition(int position) {
         if (position >= 0 && position < getItemCount()) {
-            return getChildNode(position).shouldSticky();
+            return getChildNodeByAdapterPosition(position).shouldSticky();
         }
         return false;
     }
@@ -254,7 +291,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView>
      */
     private boolean isPullHeader(int position) {
         if (position == 0) {
-            return getChildNode(0).isPullHeader();
+            return getChildNodeByAdapterPosition(0).isPullHeader();
         }
         return false;
     }

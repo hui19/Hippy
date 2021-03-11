@@ -85,10 +85,14 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
             hippyRecyclerView.post(new Runnable() {
                 @Override
                 public void run() {
-                    new HippyViewEvent(INITIAL_LIST_READY).send((View) hippyRecyclerView.getParent(), null);
+                    new HippyViewEvent(INITIAL_LIST_READY).send(getParentView(), null);
                 }
             });
         }
+    }
+
+    private View getParentView() {
+        return (View) hippyRecyclerView.getParent();
     }
 
     /**
@@ -175,6 +179,9 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     public void onScrolled(@NonNull final RecyclerView recyclerView, int dx, int dy) {
         checkSendOnScrollEvent();
         checkSendExposureEvent();
+        if (!recyclerView.canScrollVertically(1)) {
+            new HippyViewEvent(HippyScrollViewEventHelper.EVENT_ON_END_REACHED).send(getParentView(), null);
+        }
     }
 
     private void checkSendOnScrollEvent() {
@@ -188,7 +195,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     }
 
     public void sendOnScrollEvent() {
-        getOnScrollEvent().send(hippyRecyclerView, generateScrollEvent());
+        getOnScrollEvent().send(getParentView(), generateScrollEvent());
     }
 
     private void observePreDraw() {
@@ -200,27 +207,27 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
 
     protected void sendFlingEvent(int newState) {
         if (momentumScrollBeginEventEnable && newState == SCROLL_STATE_SETTLING) {
-            getOnScrollFlingStartedEvent().send(hippyRecyclerView, generateScrollEvent());
+            getOnScrollFlingStartedEvent().send(getParentView(), generateScrollEvent());
         }
     }
 
     protected void sendDragEndEvent(int oldState, int newState) {
         if (scrollEndDragEventEnable && oldState == SCROLL_STATE_DRAGGING
                 && newState == RecyclerView.SCROLL_STATE_IDLE) {
-            getOnScrollDragEndedEvent().send(hippyRecyclerView, generateScrollEvent());
+            getOnScrollDragEndedEvent().send(getParentView(), generateScrollEvent());
         }
     }
 
     protected void sendFlingEndEvent(int oldState, int newState) {
         if (momentumScrollEndEventEnable && oldState == SCROLL_STATE_SETTLING
                 && newState != SCROLL_STATE_SETTLING) {
-            getOnScrollFlingEndedEvent().send(hippyRecyclerView, generateScrollEvent());
+            getOnScrollFlingEndedEvent().send(getParentView(), generateScrollEvent());
         }
     }
 
     protected void sendDragEvent(int newState) {
         if (scrollBeginDragEventEnable && newState == RecyclerView.SCROLL_STATE_DRAGGING) {
-            getOnScrollDragStartedEvent().send(hippyRecyclerView, generateScrollEvent());
+            getOnScrollDragStartedEvent().send(getParentView(), generateScrollEvent());
         }
     }
 
@@ -237,7 +244,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
         this.scrollEventThrottle = scrollEventThrottle;
     }
 
-    public HippyMap generateScrollEvent() {
+    public final HippyMap generateScrollEvent() {
         HippyMap contentOffset = new HippyMap();
         contentOffset.pushDouble("x", PixelUtil.px2dp(0));
         contentOffset.pushDouble("y", PixelUtil.px2dp(hippyRecyclerView.getContentOffsetY()));

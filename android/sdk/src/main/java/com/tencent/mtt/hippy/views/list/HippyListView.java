@@ -403,14 +403,14 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
     @Override
     protected void onScrollFlingStarted() {
         if (mMomentumScrollBeginEventEnable) {
-            getOnScrollFlingStartedEvent().send(this, generateScrollEvent());
+//            getOnScrollFlingStartedEvent().send(this, generateScrollEvent());
         }
     }
 
     @Override
     protected void onScrollFlingEnded() {
         if (mMomentumScrollEndEventEnable) {
-            getOnScrollFlingEndedEvent().send(this, generateScrollEvent());
+//            getOnScrollFlingEndedEvent().send(this, generateScrollEvent());
         }
     }
 

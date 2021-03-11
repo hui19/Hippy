@@ -208,11 +208,16 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
         isEnableScroll = enable;
     }
 
+    public int getNodePositionInAdapter(int position) {
+        return position;
+    }
+
     public void scrollToIndex(int xIndex, int yPosition, boolean animated, int duration) {
+        int positionInAdapter = getNodePositionInAdapter(yPosition);
         if (animated) {
-            doSmoothScrollY(duration, getTotalHeightBefore(yPosition) - getContentOffsetY());
+            doSmoothScrollY(duration, getTotalHeightBefore(positionInAdapter) - getContentOffsetY());
         } else {
-            scrollToPosition(yPosition);
+            scrollToPosition(positionInAdapter);
         }
         postDispatchLayout();
     }

@@ -13,6 +13,7 @@ public class PreloadHelper extends RecyclerView.OnScrollListener {
 
     protected HippyRecyclerView hippyRecyclerView;
     protected int preloadItemNumber;
+    protected boolean isPreloading;
 
     public PreloadHelper(HippyRecyclerView hippyRecyclerView) {
         this.hippyRecyclerView = hippyRecyclerView;
@@ -22,10 +23,14 @@ public class PreloadHelper extends RecyclerView.OnScrollListener {
     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
         int itemCount = recyclerView.getAdapter().getItemCount();
         //频控，记录上次预加载的总条目数，相同就不再次触发预加载
-        if (recyclerView.getChildCount() > 0) {
+        if (isPreloading) {
+            return;
+        }
+        if (hippyRecyclerView.getAdapter().getRenderNodeCount() > 0) {
             View lastChild = recyclerView.getChildAt(recyclerView.getChildCount() - 1);
             int lastPosition = recyclerView.getChildAdapterPosition(lastChild);
             if (lastPosition + preloadItemNumber >= itemCount) {
+                isPreloading = true;
                 sendReachEndEvent(recyclerView);
             }
         }
@@ -47,6 +52,6 @@ public class PreloadHelper extends RecyclerView.OnScrollListener {
     }
 
     public void reset() {
-
+        isPreloading = false;
     }
 }

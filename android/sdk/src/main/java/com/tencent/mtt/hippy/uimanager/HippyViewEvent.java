@@ -16,6 +16,7 @@
 
 package com.tencent.mtt.hippy.uimanager;
 
+import android.util.Log;
 import android.view.View;
 
 import com.tencent.mtt.hippy.HippyEngineContext;
@@ -37,6 +38,7 @@ public class HippyViewEvent {
     }
 
     public void send(View view, Object param) {
+        Log.d("HippyViewEvent", " HippyViewEvent send name=" + mEventName);
         if (view != null && view.getContext() instanceof HippyInstanceContext) {
             HippyEngineContext context = ((HippyInstanceContext) view.getContext()).getEngineContext();
             if (context == null) {
