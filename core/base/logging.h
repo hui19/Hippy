@@ -57,14 +57,18 @@ void Log(LoggingLevel level, const char* file, int line, const char* format,
 }  // namespace internal
 }  // namespace hippy
 
-#ifdef DEBUG
-#define HIPPY_LOG(level, ...) \
-  hippy::internal::Log(level, __FILE__, __LINE__, __VA_ARGS__)
-#define HIPPY_DLOG(level, ...) HIPPY_LOG(level, __VA_ARGS__)
-#else
-#define HIPPY_LOG(level, ...) hippy::internal::Log(level, __VA_ARGS__)
-#define HIPPY_DLOG(level, ...) (void(0))
-#endif  // DEBUG
+//#ifdef DEBUG
+//#define HIPPY_LOG(level, ...) \
+//  hippy::internal::Log(level, __FILE__, __LINE__, __VA_ARGS__)
+//#define HIPPY_DLOG(level, ...) HIPPY_LOG(level, __VA_ARGS__)
+//#else
+//#define HIPPY_LOG(level, ...) hippy::internal::Log(level, __VA_ARGS__)
+//#define HIPPY_DLOG(level, ...) (void(0))
+//#endif  // DEBUG
+
+ #define HIPPY_LOG(level, ...) \
+   hippy::internal::Log(hippy::Error, __FILE__, __LINE__, __VA_ARGS__)
+ #define HIPPY_DLOG(level, ...) HIPPY_LOG(level, __VA_ARGS__)
 
 // TODO(botmanli): print current call stack and do data report
 #define HIPPY_CHECK_WITH_MSG(condition, message) \
