@@ -87,7 +87,7 @@ task compileCmake(dependsOn: copyCore, type: Exec) {
     cMakeWorkDir.mkdirs()
     setWorkingDir(cMakeWorkDir)
 
-    def arches = ["armeabi-v7a", "x86", "x86_64"]
+    def arches = ["armeabi-v7a"]
     // FIXME: arm64-v8a so can't compile with other arches, it only supports building standalone.
     //        Comment on the orignal arches definitions, then uncomment the following lines and
     //        line starts 179 to compile arm64-v8a
@@ -187,18 +187,18 @@ task stripSO(dependsOn: compileNinja, type: Exec) {
 //            "-o",
 //            "$projectDir.absolutePath/libs/arm64-v8a/libhippybridge.so"
 
-    commandLine getToolPathX86("i686-linux-android-strip"),
-            "--strip-all",
-            "-x",
-            "$project.buildDir.absolutePath/outputs/x86/libhippybridge.so",
-            "-o",
-            "$projectDir.absolutePath/libs/x86/libhippybridge.so"
-    commandLine getToolPathX86_64("x86_64-linux-android-strip"),
-            "--strip-all",
-            "-x",
-            "$project.buildDir.absolutePath/outputs/x86_64/libhippybridge.so",
-            "-o",
-            "$projectDir.absolutePath/libs/x86_64/libhippybridge.so"
+//    commandLine getToolPathX86("i686-linux-android-strip"),
+//            "--strip-all",
+//            "-x",
+//            "$project.buildDir.absolutePath/outputs/x86/libhippybridge.so",
+//            "-o",
+//            "$projectDir.absolutePath/libs/x86/libhippybridge.so"
+//    commandLine getToolPathX86_64("x86_64-linux-android-strip"),
+//            "--strip-all",
+//            "-x",
+//            "$project.buildDir.absolutePath/outputs/x86_64/libhippybridge.so",
+//            "-o",
+//            "$projectDir.absolutePath/libs/x86_64/libhippybridge.so"
 }
 
 task stripSOv7a(dependsOn: stripSO, type: Exec) {

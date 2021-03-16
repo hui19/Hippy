@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.bridge;
 
+import android.util.Log;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.nio.charset.Charset;
@@ -139,6 +140,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		synchronized (HippyBridgeImpl.class) {
 			mV8RuntimeId = initJSFramework(mDebugGobalConfig.getBytes(), mSingleThreadMode, mBridgeParamJson, mIsDevModule, mDebugInitJSFrameworkCallback, groupId);
 			mInit = true;
+			Log.e("HippyJava", "=============initJSEngine: mV8RuntimeId=" + mV8RuntimeId);
 		}
 	}
 

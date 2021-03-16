@@ -14,6 +14,7 @@
  */
 package com.tencent.mtt.hippy.bridge;
 
+import android.util.Log;
 import java.util.ArrayList;
 
 import com.tencent.mtt.hippy.HippyEngine;
@@ -111,6 +112,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 					final com.tencent.mtt.hippy.common.Callback<Boolean> callback = (com.tencent.mtt.hippy.common.Callback<Boolean>) msg.obj;
 					try
 					{
+						Log.e("HippyJava", "=============handleMessage: MSG_CODE_INIT_BRIDGE");
 						mHippyBridge = new HippyBridgeImpl(mContext.getGlobalConfigs().getContext(), HippyBridgeManagerImpl.this,
 								mBridgeType == BRIDGE_TYPE_SINGLE_THREAD, !mEnableHippyBuffer, this.mIsDevModule);
 
@@ -124,11 +126,12 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 								mContext.getStartTimeMonitor().startEvent(HippyEngineMonitorEvent.ENGINE_LOAD_EVENT_LOAD_COMMONJS);
 								boolean flag = true;
 								if (mCoreBundleLoader != null) {
-
+									Log.e("HippyJava", "=============Call 1: value=" + value);
 									mCoreBundleLoader.load(mHippyBridge, new NativeCallback(mHandler) {
 										@Override
 										public void Call(long value, Message msg, String action) {
 											mIsInit = value == 1;
+											Log.e("HippyJava", "=============Call 2: value=" + value);
 											RuntimeException exception = null;
 											if (!mIsInit) {
 												exception = new RuntimeException("load coreJsBundle failed,check your core jsBundle");
@@ -314,6 +317,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 	@Override
 	public void initBridge(Callback<Boolean> callback)
 	{
+		Log.e("HippyJava", "=============initBridge");
 		mHandler = new Handler(mContext.getThreadExecutor().getJsThread().getLooper(), this);
 		Message message = mHandler.obtainMessage(MSG_CODE_INIT_BRIDGE, callback);
 		mHandler.sendMessage(message);
