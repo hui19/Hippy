@@ -121,14 +121,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
      * 内容偏移，返回recyclerView顶部被滑出去的内容 1、找到顶部第一个View前面的逻辑内容高度 2、加上第一个View被遮住的区域
      */
     public int getContentOffsetY() {
-        int firstChildPosition = getFirstChildPosition();
-        if (firstChildPosition >= 0) {
-            int totalHeightBeforePosition = getTotalHeightBefore(firstChildPosition);
-            int firstChildOffset =
-                    listAdapter.getItemHeight(firstChildPosition) - getVisibleHeight(getChildAt(0));
-            return totalHeightBeforePosition + firstChildOffset;
-        }
-        return 0;
+        return computeVerticalScrollOffset();
     }
 
     /**

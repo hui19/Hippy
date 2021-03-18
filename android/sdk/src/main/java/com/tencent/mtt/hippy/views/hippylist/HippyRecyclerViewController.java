@@ -17,6 +17,7 @@
 package com.tencent.mtt.hippy.views.hippylist;
 
 import android.content.Context;
+import android.support.v7.widget.EasyLinearLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 import com.tencent.mtt.hippy.HippyInstanceContext;
@@ -79,7 +80,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper>
 
     public static HippyRecyclerView initDefault(Context context, HippyMap iniProps,
             HippyRecyclerView recyclerView) {
-        LinearLayoutManager layoutManager = new LinearLayoutManager(context);
+        LinearLayoutManager layoutManager = new EasyLinearLayoutManager(context);
         recyclerView.setItemAnimator(null);
         if (iniProps != null && iniProps.containsKey("horizontal")) {
             layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);

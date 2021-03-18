@@ -20,6 +20,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.HippyItemTypeHelper;
+import android.support.v7.widget.IItemLayoutParams;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.support.v7.widget.RecyclerView.LayoutParams;
 import android.view.View;
@@ -42,7 +43,7 @@ import java.util.ArrayList;
  */
 public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView>
         extends Adapter<HippyRecyclerViewHolder>
-        implements IRecycleItemTypeChange, IStickyItemsProvider {
+        implements IRecycleItemTypeChange, IStickyItemsProvider, IItemLayoutParams {
 
     protected final HippyEngineContext hpContext;
     protected final HRCV hippyRecyclerView;
@@ -158,6 +159,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView>
         childLp.width = childNode.getWidth();
         itemView.setLayoutParams(childLp);
     }
+
 
     protected LayoutParams getLayoutParams(View itemView) {
         ViewGroup.LayoutParams params = itemView.getLayoutParams();
@@ -309,5 +311,13 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView>
 
     public void setPreloadItemNumber(int preloadItemNumber) {
         preloadHelper.setPreloadItemNumber(preloadItemNumber);
+    }
+
+    @Override
+    public void getItemLayoutParams(int position, LayoutParams lp) {
+        if (lp == null) {
+            return;
+        }
+        lp.height = getItemHeight(position);
     }
 }

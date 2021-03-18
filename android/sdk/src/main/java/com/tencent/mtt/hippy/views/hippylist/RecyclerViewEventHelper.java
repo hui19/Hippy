@@ -21,6 +21,8 @@ import static android.support.v7.widget.RecyclerView.SCROLL_STATE_SETTLING;
 
 import android.graphics.Rect;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.OverPullHelper;
+import android.support.v7.widget.OverPullListener;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.OnScrollListener;
 import android.view.View;
@@ -31,6 +33,7 @@ import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnPreDrawListener;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.list.HippyListItemView;
 import com.tencent.mtt.hippy.views.scroll.HippyScrollViewEventHelper;
@@ -39,7 +42,7 @@ import com.tencent.mtt.hippy.views.scroll.HippyScrollViewEventHelper;
  * Created by niuniuyang on 2020/12/24. Description 各种事件的通知，通知前端view的曝光事件，用于前端的统计上报
  */
 public class RecyclerViewEventHelper extends OnScrollListener implements OnLayoutChangeListener,
-        OnAttachStateChangeListener {
+        OnAttachStateChangeListener, OverPullListener {
 
     public static final String INITIAL_LIST_READY = "initialListReady";
     protected final HippyRecyclerView hippyRecyclerView;
@@ -91,7 +94,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
         }
     }
 
-    private View getParentView() {
+    protected View getParentView() {
         return (View) hippyRecyclerView.getParent();
     }
 
@@ -180,8 +183,12 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
         checkSendOnScrollEvent();
         checkSendExposureEvent();
         if (!recyclerView.canScrollVertically(1)) {
-            new HippyViewEvent(HippyScrollViewEventHelper.EVENT_ON_END_REACHED).send(getParentView(), null);
+            sendOnReachedEvent();
         }
+    }
+
+    protected void sendOnReachedEvent() {
+        new HippyViewEvent(HippyScrollViewEventHelper.EVENT_ON_END_REACHED).send(getParentView(), null);
     }
 
     private void checkSendOnScrollEvent() {
@@ -213,7 +220,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
 
     protected void sendDragEndEvent(int oldState, int newState) {
         if (scrollEndDragEventEnable && oldState == SCROLL_STATE_DRAGGING
-                && newState == RecyclerView.SCROLL_STATE_IDLE) {
+                && newState == RecyclerView.SCROLL_STATE_IDLE && !hippyRecyclerView.isOverPulling()) {
             getOnScrollDragEndedEvent().send(getParentView(), generateScrollEvent());
         }
     }
@@ -334,5 +341,25 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     @Override
     public void onViewDetachedFromWindow(View v) {
 
+    }
+
+    @Override
+    public void onOverPullStateChanged(int oldState, int newState, int offset) {
+        LogUtils.d("QBRecyclerViewEventHelper", "oldState:" + oldState + ",newState:" + newState);
+        if (oldState == OverPullHelper.OVER_PULL_NONE && isOverPulling(newState)) {
+            sendOnReachedEvent();
+            getOnScrollDragStartedEvent().send(getParentView(), generateScrollEvent());
+        }
+        if (isOverPulling(oldState) && isOverPulling(newState)) {
+            sendOnScrollEvent();
+        }
+        if (newState == OverPullHelper.OVER_PULL_SETTLING && oldState != OverPullHelper.OVER_PULL_SETTLING) {
+            getOnScrollDragEndedEvent().send(getParentView(), generateScrollEvent());
+        }
+    }
+
+    private boolean isOverPulling(int newState) {
+        return newState == OverPullHelper.OVER_PULL_DOWN_ING ||
+                newState == OverPullHelper.OVER_PULL_UP_ING;
     }
 }
