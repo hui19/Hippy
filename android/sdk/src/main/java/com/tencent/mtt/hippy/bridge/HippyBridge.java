@@ -16,31 +16,32 @@
 package com.tencent.mtt.hippy.bridge;
 
 import android.content.res.AssetManager;
-
 import com.tencent.mtt.hippy.common.HippyArray;
+import java.nio.ByteBuffer;
 
-public interface HippyBridge
-{
-	String URI_SCHEME_ASSETS = "asset:";
-	String URI_SCHEME_FILE   = "file:";
+public interface HippyBridge {
+	static final String URI_SCHEME_ASSETS = "asset:";
+	static final String URI_SCHEME_FILE   = "file:";
 
-	void initJSBridge(String gobalConfig, NativeCallback callback, int groupId);
+	public void initJSBridge(String gobalConfig, NativeCallback callback, int groupId);
 
-	boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache,
-			String codeCacheTag, NativeCallback callback);
+	public boolean runScriptFromFile(String filePath, String scriptName, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback);
+
+	public boolean runScriptFromAssets(String fileName, AssetManager assetManager, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback);
+
+	public boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback);
 
 	void onDestroy();
 
-	void destroy(NativeCallback callback);
+	public void destroy(NativeCallback callback);
 
-	void callFunction(String action, String params, NativeCallback callback);
+	public void callFunction(String action, ByteBuffer buffer, NativeCallback callback);
 
-    void callFunction(String action, byte[] bytes, int offset, int length, NativeCallback callback);
+	public void callFunction(String action, ByteBuffer buffer, int offset, int length, NativeCallback callback);
 
-	interface BridgeCallback
-	{
-		void callNatives(String moduleName, String moduleFunc, String callId, HippyArray params);
+	public static interface BridgeCallback {
+		public void callNatives(String moduleName, String moduleFunc, String callId, HippyArray params);
 
-		void reportException(String exception, String stackTrace);
+		public void reportException(String exception, String stackTrace);
 	}
 }
