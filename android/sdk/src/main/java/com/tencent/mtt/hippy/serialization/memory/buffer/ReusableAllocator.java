@@ -16,16 +16,18 @@
 package com.tencent.mtt.hippy.serialization.memory.buffer;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class ReusableAllocator extends SimpleAllocator {
   private ByteBuffer reusedBuffer;
   private int maxCacheSize = 16 * 1024; // 16k
 
   public ReusableAllocator() {
-
+    super();
   }
 
-  public ReusableAllocator(int maxCacheSize) {
+  public ReusableAllocator(int maxCacheSize, boolean isDirect, ByteOrder order) {
+    super(isDirect, order);
     this.maxCacheSize = maxCacheSize;
   }
 

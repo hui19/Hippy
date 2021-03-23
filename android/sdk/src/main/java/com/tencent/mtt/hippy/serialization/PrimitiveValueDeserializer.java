@@ -42,6 +42,8 @@ public abstract class PrimitiveValueDeserializer extends SharedSerialization {
   private int nextId;
   /** Maps ID of a deserialized object to the object itself. */
   private final Map<Integer, Object> objectMap = new HashMap<>();
+  /** Native UTF-16 encoding, set by buffer order. */
+  private final String nativeUTF16Encoding;
 
   protected PrimitiveValueDeserializer(ByteBuffer buffer, StringTable stringTable) {
     super();
@@ -49,7 +51,8 @@ public abstract class PrimitiveValueDeserializer extends SharedSerialization {
     if (buffer == null) {
       throw new NullPointerException();
     }
-    this.buffer = buffer.order(ByteOrder.nativeOrder());
+    this.buffer = buffer;
+    this.nativeUTF16Encoding = buffer.order() == ByteOrder.BIG_ENDIAN ? "UTF-16BE" : "UTF-16LE";
 
     if (stringTable == null) {
       stringTable = new DirectStringTable();
@@ -321,20 +324,11 @@ public abstract class PrimitiveValueDeserializer extends SharedSerialization {
   }
 
   protected String readOneByteString(StringLocation location, Object relatedKey) {
-    int charCount = (int) readVarint();
-    if (charCount < 0) {
-      throw new DataCloneOutOfRangeException(charCount);
-    }
-    char[] chars = new char[charCount];
-    for (int i = 0; i < charCount; i++) {
-      byte b = buffer.get();
-      chars[i] = (char) (b & 0xff);
-    }
-    return stringTable.lookup(chars, location, relatedKey);
+    return readString("ISO-8859-1", location, relatedKey);
   }
 
   protected String readTwoByteString(StringLocation location, Object relatedKey) {
-    return readString(NATIVE_UTF16_ENCODING, location, relatedKey);
+    return readString(nativeUTF16Encoding, location, relatedKey);
   }
 
   protected String readUTF8String(StringLocation location, Object relatedKey) {

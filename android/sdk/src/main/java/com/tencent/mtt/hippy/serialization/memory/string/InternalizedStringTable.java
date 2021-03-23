@@ -48,26 +48,16 @@ public class InternalizedStringTable extends DirectStringTable {
     return cacheablesProperty;
   }
 
-  // region hash algorithm
+  // region algorithm
   /**
    * This algorithm implements the DJB hash function
    * developed by <i>Daniel J. Bernstein</i>.
    */
-  public static <T> int DJB_HASH(T value) {
+  public static int DJB_HASH(byte[] value) {
     long hash = 5381;
 
-    if (value instanceof byte[]) {
-      final int end = ((byte[]) value).length;
-      for (int i = 0; i < end; i++) {
-        hash = ((hash << 5) + hash) + ((byte[]) value)[i];
-      }
-    } else if (value instanceof char[]) {
-      final int end = ((char[]) value).length;
-      for (int i = 0; i < end; i++) {
-        hash = ((hash << 5) + hash) + (byte)(((char[]) value)[i]);
-      }
-    } else {
-      throw new UnreachableCodeException();
+    for (byte b : value) {
+      hash = ((hash << 5) + hash) + b;
     }
 
     return (int) hash;
@@ -76,40 +66,26 @@ public class InternalizedStringTable extends DirectStringTable {
   /**
    * The algorithm forked from the {@link String#hashCode()}.
    */
-  private static <T> int STRING_HASH(T value) {
+  private static int STRING_HASH(byte[] value) {
     int hash = 0;
 
-    if (value instanceof char[]) {
-      final int end = ((char[]) value).length;
-      for (int i = 0; i < end; i++) {
-        hash = hash * 31 + ((char[]) value)[i];
-      }
-    } else if (value instanceof byte[]) {
-      final int end = ((byte[]) value).length;
-      for (int i = 0; i < end; i++) {
-        hash = hash * 31 + (((byte[]) value)[i] & 0xff);
-      }
-    } else {
-      throw new UnreachableCodeException();
+    for (byte b : value) {
+      hash = hash * 31 + (b & 0xff);
     }
 
     return hash;
   }
-  // endregion
 
-  // region equals
-  private <T> boolean equals(T sequence, String string) {
-    final int expected;
-    boolean isByteArray = false;
-    if (sequence instanceof char[]) {
-      expected = ((char[]) sequence).length;
-    } else if (sequence instanceof byte[]) {
-      isByteArray = true;
-      expected = ((byte[]) sequence).length;
-    } else {
-      throw new UnreachableCodeException();
-    }
-
+  /**
+   * Fast compares {@link String} and {@link Byte[]} is equal
+   * Basic performance considerations, <strong>treated {@link String} as IOS-8859-1 encoding</strong>
+   *
+   * @param sequence byte sequence
+   * @param string an string
+   * @return {@code true} if it's equal, {@code false} otherwise
+   */
+  private boolean equals(byte[] sequence, String string) {
+    final int expected = sequence.length;
     final int length = string.length();
     if (length != expected) {
       return false;
@@ -117,17 +93,8 @@ public class InternalizedStringTable extends DirectStringTable {
 
     string.getChars(0, length, keyCompareTempBuffer, 0);
 
-    if (isByteArray) {
-      for (int i = 0; i < length; i++) {
-        if ((((byte[]) sequence)[i] & 0xff) != keyCompareTempBuffer[i]) {
-          return false;
-        }
-      }
-      return true;
-    }
-
     for (int i = 0; i < length; i++) {
-      if (((char[]) sequence)[i] != keyCompareTempBuffer[i]) {
+      if ((sequence[i] & 0xff) != keyCompareTempBuffer[i]) {
         return false;
       }
     }
@@ -135,23 +102,11 @@ public class InternalizedStringTable extends DirectStringTable {
   }
   // endregion
 
-  // region lookupKey
-  private <T> String lookupKey(T sequence, String encoding) throws UnsupportedEncodingException {
-    final int length;
-    boolean isByteArray = false;
-    if (sequence instanceof char[]) {
-      length = ((char[]) sequence).length;
-    } else if (sequence instanceof byte[]) {
-      isByteArray = true;
-      length = ((byte[]) sequence).length;
-    } else {
-      throw new UnreachableCodeException();
-    }
+  // region lookup
+  private String lookupKey(byte[] sequence, String encoding) throws UnsupportedEncodingException {
+    final int length = sequence.length;
     if (length >= MAX_KEY_CALC_LENGTH) {
-      if (isByteArray) {
-        return new String((byte[]) sequence, encoding);
-      }
-      return new String((char[]) sequence);
+      return new String(sequence, encoding);
     }
 
     final int hashCode = DJB_HASH(sequence);
@@ -160,36 +115,22 @@ public class InternalizedStringTable extends DirectStringTable {
     if (internalized != null && equals(sequence, internalized)) {
       return internalized;
     }
-    internalized = isByteArray ? new String((byte[]) sequence, encoding) : new String((char[]) sequence);
+    internalized = new String(sequence, encoding);
     keyTable[hashIndex] = internalized;
     return internalized;
   }
-  // endregion
 
-  // region lookupValue
-  private <T> String lookupValue(T sequence, String encoding, Object relatedKey) throws UnsupportedEncodingException {
+  private String lookupValue(byte[] sequence, String encoding, Object relatedKey) throws UnsupportedEncodingException {
     if (relatedKey instanceof String) {
       char[] valuePrefix = cacheablesProperty.get(relatedKey);
       if (valuePrefix != null) {
         boolean cacheables = true;
-        boolean isByteArray = false;
-        if (sequence instanceof byte[]) {
-          isByteArray = true;
-          for (int i = 0; i < valuePrefix.length; i++) {
-            if (((byte) valuePrefix[i]) != ((byte[]) sequence)[i]) {
-              cacheables = false;
-              break;
-            }
+
+        for (int i = 0; i < valuePrefix.length; i++) {
+          if (((byte) valuePrefix[i]) != sequence[i]) {
+            cacheables = false;
+            break;
           }
-        } else if (sequence instanceof char[]) {
-          for (int i = 0; i < valuePrefix.length; i++) {
-            if (valuePrefix[i] != ((char[]) sequence)[i]) {
-              cacheables = false;
-              break;
-            }
-          }
-        } else {
-          throw new UnreachableCodeException();
         }
 
         String value = null;
@@ -199,7 +140,7 @@ public class InternalizedStringTable extends DirectStringTable {
           value = valueCache.get(hashCode);
         }
         if (value == null) {
-          value = isByteArray ? new String((byte[]) sequence, encoding) : new String((char[]) sequence);
+          value = new String(sequence, encoding);
           if (cacheables) {
             valueCache.put(hashCode, value);
           }
@@ -208,18 +149,11 @@ public class InternalizedStringTable extends DirectStringTable {
       }
     }
 
-    if (sequence instanceof char[]) {
-      return new String((char[]) sequence);
-    } else if (sequence instanceof byte[]) {
-      return new String((byte[]) sequence, encoding);
-    } else {
-      throw new UnreachableCodeException();
-    }
+    return new String(sequence, encoding);
   }
-  // endregion
 
-  // region lookup
-  private <T> String lookupString(T sequence, String encoding, StringLocation location, Object relatedKey) throws UnsupportedEncodingException {
+  @Override
+  public String lookup(byte[] sequence, String encoding, StringLocation location, Object relatedKey) throws UnsupportedEncodingException {
     switch (location) {
       case OBJECT_KEY: // [[fallthrough]]
       case DENSE_ARRAY_KEY: // [[fallthrough]]
@@ -238,12 +172,7 @@ public class InternalizedStringTable extends DirectStringTable {
       case REGEXP: // [[fallthrough]]
       case SET_ITEM: // [[fallthrough]]
       case TOP_LEVEL: {
-        if (sequence instanceof byte[]) {
-          return super.lookup((byte[]) sequence, encoding, location, relatedKey);
-        } else if (sequence instanceof char[]) {
-          return super.lookup((char[]) sequence, location, relatedKey);
-        }
-        throw new UnreachableCodeException();
+        return super.lookup(sequence, encoding, location, relatedKey);
       }
       case VOID: {
         return "";
@@ -252,20 +181,6 @@ public class InternalizedStringTable extends DirectStringTable {
         throw new UnreachableCodeException();
       }
     }
-  }
-
-  @Override
-  public String lookup(char[] chars, StringLocation location, Object relatedKey) {
-    try {
-      return lookupString(chars, null, location, relatedKey);
-    } catch (UnsupportedEncodingException e) {
-      throw new UnreachableCodeException();
-    }
-  }
-
-  @Override
-  public String lookup(byte[] bytes, String encoding, StringLocation location, Object relatedKey) throws UnsupportedEncodingException {
-    return lookupString(bytes, encoding, location, relatedKey);
   }
   // endregion
 

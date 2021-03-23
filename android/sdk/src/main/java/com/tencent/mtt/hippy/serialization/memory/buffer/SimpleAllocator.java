@@ -19,20 +19,32 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 public class SimpleAllocator implements Allocator<ByteBuffer> {
-  protected static ByteBuffer allocateDirect(int capacity) {
-    return ByteBuffer.allocateDirect(capacity).order(ByteOrder.nativeOrder());
+  private final boolean isDirect;
+  private final ByteOrder order;
+
+  public SimpleAllocator() {
+    this(false, null);
+  }
+
+  public SimpleAllocator(boolean isDirect, ByteOrder order) {
+    this.isDirect = isDirect;
+    this.order = order;
   }
 
   @Override
   public ByteBuffer allocate(int capacity) {
-     return allocateDirect(capacity);
+    ByteBuffer buffer = isDirect ? ByteBuffer.allocateDirect(capacity) : ByteBuffer.allocate(capacity);
+    if (order != null) {
+      buffer.order(order);
+    }
+    return buffer;
   }
 
   @Override
   public ByteBuffer expand(ByteBuffer buffer, int capacityNeeded) {
     if (capacityNeeded > buffer.capacity()) {
       int newCapacity = Math.max(capacityNeeded, 2 * buffer.capacity());
-      ByteBuffer newBuffer = allocateDirect(newCapacity);
+      ByteBuffer newBuffer = allocate(newCapacity);
       buffer.flip();
       newBuffer.put(buffer);
       buffer = newBuffer;

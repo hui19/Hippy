@@ -359,10 +359,10 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 
 	private HippyArray bytesToArgument(ByteBuffer buffer) {
 		HippyArray hippyParam = null;
+    buffer.order(ByteOrder.nativeOrder());
 		if (mBridgeParamJson) {
 			LogUtils.d("hippy_bridge", "bytesToArgument using JSON");
 			byte[] bytes = new byte[buffer.limit()];
-			buffer.order(ByteOrder.nativeOrder());
 			buffer.get(bytes);
 			hippyParam = ArgumentUtils.parseToArray(new String(bytes));
 		} else {

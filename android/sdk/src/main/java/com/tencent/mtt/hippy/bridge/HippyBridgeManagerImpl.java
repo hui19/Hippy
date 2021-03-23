@@ -37,6 +37,8 @@ import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.mtt.hippy.serialization.compatible.Serializer;
+import com.tencent.mtt.hippy.serialization.memory.buffer.Allocator;
+import com.tencent.mtt.hippy.serialization.memory.buffer.SimpleAllocator;
 import com.tencent.mtt.hippy.utils.ArgumentUtils;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -76,6 +78,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 	private final String mDebugServerHost;
 	private final int mGroupId;
 	private final HippyThirdPartyAdapter mThirdPartyAdapter;
+	private final Allocator<ByteBuffer> allocator = new SimpleAllocator(true, ByteOrder.nativeOrder());
 	HippyEngine.ModuleListener mLoadModuleListener;
 
 	public HippyBridgeManagerImpl(HippyEngineContext context, HippyBundleLoader coreBundleLoader, int bridgeType,
@@ -241,7 +244,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 						buffer.put(json);
 					} else {
 						try {
-							Serializer serializer = new Serializer();
+							Serializer serializer = new Serializer(allocator);
 							serializer.writeHeader();
 							serializer.writeValue(msg.obj);
 							buffer = serializer.release();

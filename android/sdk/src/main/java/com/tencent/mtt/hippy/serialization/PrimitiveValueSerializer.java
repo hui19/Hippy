@@ -43,6 +43,8 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
   private final Map<Object, Integer> objectMap = new IdentityHashMap<>();
   /** Unsigned int max value. */
   private static final long MAX_UINT32_VALUE = 4294967295L;
+  /** Long string gate value. */
+  private static final int LONG_STGRING_GATE_VALUE = 130;
 
   protected PrimitiveValueSerializer(Allocator<ByteBuffer> allocator) {
     super();
@@ -105,7 +107,30 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
    */
   public void writeValue(Object value) {
     ensureNotReleased();
-    if (value == Boolean.TRUE) {
+    if (value instanceof String) {
+      writeString((String) value);
+    } else if (value instanceof Number) {
+      if (value instanceof Integer || value instanceof Short || value instanceof Byte || value instanceof Character) {
+        writeTag(SerializationTag.INT32);
+        writeInt32((int) value);
+      } else if (value instanceof Long) {
+        long longValue = (long) value;
+        if (longValue <= MAX_UINT32_VALUE) {
+          writeTag(SerializationTag.UINT32);
+          writeVarint(longValue);
+        } else {
+          writeTag(SerializationTag.DOUBLE);
+          writeDouble((double) value);
+        }
+      } else if (value instanceof BigInteger) {
+        writeTag(SerializationTag.BIG_INT);
+        writeBigIntContents((BigInteger) value);
+      } else {
+        double doubleValue = ((Number) value).doubleValue();
+        writeTag(SerializationTag.DOUBLE);
+        writeDouble(doubleValue);
+      }
+    } else if (value == Boolean.TRUE) {
       writeTag(SerializationTag.TRUE);
     } else if (value == Boolean.FALSE) {
       writeTag(SerializationTag.FALSE);
@@ -115,27 +140,6 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
       writeTag(SerializationTag.UNDEFINED);
     } else if (value == Null) {
       writeTag(SerializationTag.NULL);
-    } else if (value instanceof Integer || value instanceof Short || value instanceof Byte || value instanceof Character) {
-      writeTag(SerializationTag.INT32);
-      writeInt32((int) value);
-    } else if (value instanceof Long) {
-      long longValue = (long) value;
-      if (longValue <= MAX_UINT32_VALUE) {
-       writeTag(SerializationTag.UINT32);
-       writeVarint(longValue);
-      } else {
-        writeTag(SerializationTag.DOUBLE);
-        writeDouble((double) value);
-      }
-    } else if (value instanceof BigInteger) {
-      writeTag(SerializationTag.BIG_INT);
-      writeBigIntContents((BigInteger) value);
-    } else if (value instanceof Number) {
-      double doubleValue = ((Number) value).doubleValue();
-      writeTag(SerializationTag.DOUBLE);
-      writeDouble(doubleValue);
-    } else if (value instanceof String) {
-      writeString((String) value);
     } else {
       Integer id = objectMap.get(value);
       if (id != null) {
@@ -248,33 +252,78 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
   }
 
   protected void writeString(String string) {
-    try {
-      byte[] bytes;
-      SerializationTag tag;
-      String encoding;
-      if (isOneByteString(string)) {
-        tag = SerializationTag.ONE_BYTE_STRING;
-        encoding = "ISO-8859-1";
+    if (string.length() < LONG_STGRING_GATE_VALUE) {
+      writeShortString(string);
+    } else {
+      char[] chars = string.toCharArray();
+      if (isOneByteCharSequence(chars)) {
+        writeOneByteString(string);
       } else {
-        tag = SerializationTag.TWO_BYTE_STRING;
-        encoding = NATIVE_UTF16_ENCODING;
+        writeCharSequence(chars);
       }
-      writeTag(tag);
-      bytes = string.getBytes(encoding);
-      writeVarint(bytes.length);
-      writeBytes(bytes, bytes.length);
-    } catch (UnsupportedEncodingException e) {
-      throw new UnreachableCodeException();
     }
   }
 
-  protected static boolean isOneByteString(String string) {
-    for (char c : string.toCharArray()) {
+  protected static boolean isOneByteCharSequence(char[] chars) {
+    for (char c : chars) {
       if (c >= 256) {
         return false;
       }
     }
     return true;
+  }
+
+  protected void writeCharSequence(char[] chars) {
+    writeTag(SerializationTag.TWO_BYTE_STRING);
+    writeVarint(chars.length * 2);
+    ensureFreeSpace(chars.length);
+    for (char c : chars) {
+      buffer.putChar(c); // put by native order
+    }
+  }
+
+  protected void writeOneByteString(String string) {
+    byte[] bytes;
+    try {
+      //noinspection CharsetObjectCanBeUsed
+      bytes = string.getBytes("ISO-8859-1");
+    } catch (UnsupportedEncodingException e) {
+      throw new UnreachableCodeException();
+    }
+    writeTag(SerializationTag.ONE_BYTE_STRING);
+    writeVarint(bytes.length);
+    writeBytes(bytes, bytes.length);
+  }
+
+  protected void writeShortString(String string) {
+    char[] chars = string.toCharArray();
+
+    // region one byte string, commonly path
+    writeTag(SerializationTag.ONE_BYTE_STRING);
+    writeVarint(chars.length);
+    ensureFreeSpace(chars.length);
+    int i = 0;
+    for (; i < chars.length; i++) {
+      if (chars[i] < 256) {
+        buffer.put((byte) chars[i]);
+      } else {
+        buffer.position(buffer.position() - i - 11); // revert buffer changes
+        break;
+      }
+    }
+    if (i == chars.length) {
+      return;
+    }
+    // endregion
+
+    // region two byte string, universal path
+    writeTag(SerializationTag.TWO_BYTE_STRING);
+    writeVarint(chars.length * 2);
+    ensureFreeSpace(chars.length);
+    for (char c : chars) {
+      buffer.putChar(c); // put by native order
+    }
+    // endregion
   }
 
   protected void writeBigIntContents(BigInteger bigInteger) {
