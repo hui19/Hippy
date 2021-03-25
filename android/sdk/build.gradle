@@ -529,4 +529,6 @@ println("bintrayUpload: bintrayUser=" + user + ", bintrayKey=" + key)
 //  desc = 'Hippy library for Android'
 //  website = 'https://github.com/Tencent/Hippy'
 //}
+apply from: 'maven_for_qb.gradle'
+
 
