@@ -38,7 +38,6 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.views.list.HippyRecycler;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
-import com.tencent.mtt.hippy.views.wormhole.HippyWormholeManager;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -177,11 +176,11 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener
 	}
 
   public StyleNode createStyleNode(String className, boolean isVirtual, int rootId) {
-    if (className.equals(HippyWormholeManager.WORMHOLE_TKD)) {
-      return mControllerRegistry.getViewController(className).createNode(isVirtual, rootId);
-    } else {
-      return mControllerRegistry.getViewController(className).createNode(isVirtual);
+    StyleNode tempNode = mControllerRegistry.getViewController(className).createNode(isVirtual, rootId);
+    if (tempNode != null) {
+      return tempNode;
     }
+    return mControllerRegistry.getViewController(className).createNode(isVirtual);
   }
 
 	public void updateView(int id, String name, HippyMap newProps)

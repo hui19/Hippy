@@ -153,7 +153,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 
 	protected StyleNode createNode(boolean isVirtual, int rootId)
 	{
-		return new StyleNode();
+		return null;
 	}
 
 	protected StyleNode createNode(boolean isVirtual)
