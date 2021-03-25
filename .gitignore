@@ -31,3 +31,4 @@ build/
 
 # core
 core/ARM
+android/sdk/maven_for_qb.gradle
