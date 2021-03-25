@@ -233,17 +233,25 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView>
      *
      * @return
      */
-    public int getRenderNodeHeight() {
+    public int getRenderNodeTotalHeight() {
         int renderCount = getRenderNodeCount();
-        int renderNodeHeight = 0;
+        int renderNodeTotalHeight = 0;
         for (int i = 0; i < renderCount; i++) {
-            renderNodeHeight += getItemHeight(i);
+            renderNodeTotalHeight += getRenderNodeHeight(i);
         }
-        return renderNodeHeight;
+        return renderNodeTotalHeight;
     }
 
     public int getItemHeight(int position) {
-        ListItemRenderNode childNode = getChildNodeByAdapterPosition(position);
+        Integer itemHeight = getRenderNodeHeight(position);
+        if (itemHeight != null) {
+            return itemHeight;
+        }
+        return 0;
+    }
+
+    public int getRenderNodeHeight(int position) {
+        ListItemRenderNode childNode = getChildNode(position);
         if (childNode != null) {
             return childNode.getHeight();
         }
@@ -251,7 +259,15 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView>
     }
 
     public int getItemWidth(int position) {
-        ListItemRenderNode childNode = getChildNodeByAdapterPosition(position);
+        Integer renderNodeWidth = getRenderNodeWidth(position);
+        if (renderNodeWidth != null) {
+            return renderNodeWidth;
+        }
+        return 0;
+    }
+
+    public int getRenderNodeWidth(int position) {
+        ListItemRenderNode childNode = getChildNode(position);
         if (childNode != null) {
             return childNode.getWidth();
         }

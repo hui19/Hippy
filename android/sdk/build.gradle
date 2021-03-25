@@ -283,7 +283,7 @@ android {
   }
   buildTypes {
     release {
-      minifyEnabled true
+      minifyEnabled false
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
     }
     debug {
@@ -312,11 +312,11 @@ android {
 
 dependencies {
 //compileOnly("com.tencent.mtt:support-ui:2.3.0")
-  implementation project(':support-ui')
-  implementation project(':easyrecyclerlist')
-  implementation project(':easy-recyclerview-helper')
-//  implementation 'com.tencent.mtt.easy.recyclerview.helper:easy-recyclerview-helper:1.0.1'
-  implementation 'com.android.support:recyclerview-v7:28.0.0'
+//  implementation project(':support-ui')
+//  implementation project(':easyrecyclerlist')
+//  implementation 'com.android.support:recyclerview-v7:28.0.0'
+  implementation 'com.tencent.mtt.easy.list:easyrecyclerlist:qb-11.4.1.8'
+  implementation 'com.tencent.mtt:support-ui:2.2.0'
   api fileTree(dir: 'libs', include: ['*.jar'])
 }
 

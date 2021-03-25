@@ -18,6 +18,8 @@ buildscript {
     }
   }
   repositories {
+    maven { url 'https://mirrors.tencent.com/repository/maven/thirdparty' }
+
     maven {
       url 'https://mirrors.tencent.com/repository/maven/qqbrowser'
       credentials {
@@ -25,6 +27,7 @@ buildscript {
         password MAVEN_PWD
       }
     }
+
     google()
     jcenter()
   }
@@ -42,6 +45,8 @@ buildscript {
 
 allprojects {
   repositories {
+    maven { url 'https://mirrors.tencent.com/repository/maven/thirdparty' }
+
     maven {
       url 'https://mirrors.tencent.com/repository/maven/qqbrowser'
       credentials {

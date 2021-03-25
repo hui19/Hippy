@@ -20,7 +20,7 @@ examples/ios-demo/HippyDemo.xcodeproj/xcuserdata/*
 examples/hippy-react-demo/package-lock.json
 examples/hippy-vue-demo/package-lock.json
 examples/android-demo/maven-auth.properties
-
+android/sdk/maven_for_qb.gradle
 # android
 *.iml
 local.properties
@@ -28,6 +28,9 @@ local.properties
 .gradle/
 build/
 .externalNativeBuild
+android/sdk/maven_for_qb.gradle
+android/sdk/maven-auth.properties
+examples/android-demo/maven-auth.properties
 
 # core
 core/ARM

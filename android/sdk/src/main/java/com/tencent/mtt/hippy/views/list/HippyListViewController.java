@@ -41,7 +41,7 @@ import android.view.ViewGroup;
 @HippyController(name = HippyListViewController.CLASS_NAME)
 public class HippyListViewController extends HippyViewController<HippyListView> {
 
-    public static final String CLASS_NAME = "1ListView";
+    public static final String CLASS_NAME = "ListView";
 
     @Override
     protected void addView(ViewGroup parentView, View view, int index) {

@@ -171,6 +171,17 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
         return totalHeightBefore;
     }
 
+    /**
+     * 获取renderNodePosition前面的内容高度，不包含renderNodePosition自身的高度
+     */
+    public int getRenderNodeHeightBefore(int renderNodePosition) {
+        int renderNodeTotalHeight = 0;
+        for (int i = 0; i < renderNodePosition; i++) {
+            renderNodeTotalHeight += listAdapter.getRenderNodeHeight(i);
+        }
+        return renderNodeTotalHeight;
+    }
+
 
     /**
      * 获取position 前面的内容高度，不包含position自身的高度

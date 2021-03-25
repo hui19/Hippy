@@ -175,6 +175,9 @@ public void forceUpdateNode(int);
 -keep class com.tencent.mtt.hippy.dom.node.TypeFaceUtil {*;}
 -keep class com.tencent.mtt.hippy.adapter.image.HippyImageLoader {*;}
 
+
+-keep class android.support.v7.widget.** {*;}
+
 -keepclasseswithmembers class com.tencent.mtt.supportui.** {
 public <methods>;
 }
@@ -190,4 +193,12 @@ public <fields>;
 -keepclasseswithmembers class com.tencent.mtt.supportui.** {
 protected <fields>;
 }
+
+-keepclasseswithmembers class android.support.v7.widget.** {
+protected <fields>;
+}
+
+-keepparameternames
+
+-keepattributes SourceFile,LineNumberTable
 

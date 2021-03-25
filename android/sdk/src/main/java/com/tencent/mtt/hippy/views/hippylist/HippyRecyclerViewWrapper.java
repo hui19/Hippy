@@ -64,6 +64,11 @@ public class HippyRecyclerViewWrapper<HRCV extends HippyRecyclerView> extends Fr
     }
 
     @Override
+    public int computeVerticalScrollOffset() {
+        return recyclerView.computeVerticalScrollOffset();
+    }
+
+    @Override
     public NativeGestureDispatcher getGestureDispatcher() {
         return nativeGestureDispatcher;
     }

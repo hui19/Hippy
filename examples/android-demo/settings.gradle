@@ -3,3 +3,9 @@ project(':android-sdk').projectDir = new File('../../android/sdk')
 
 include 'example'
 project(':example').projectDir = new File('example')
+
+//include 'support-ui'
+//project(':support-ui').projectDir = new File('../../SubProject/support_ui/sdk')
+//
+//include 'easyrecyclerlist'
+//project(':easyrecyclerlist').projectDir = new File('../..//easyrecyclerlist/sdk')
