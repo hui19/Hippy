@@ -26,11 +26,4 @@ android {
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'src/main/libs')
-    compileOnly 'com.tencent.mtt:support-ui:2.3.2'
-    implementation 'com.tencent.mtt.easy.list:easyrecyclerlist:qb-11.4.1.8'
-    implementation project(':android-res')
 }
-
-
-apply from: 'maven_for_qb.gradle'
