@@ -46,7 +46,12 @@ export default {
   },
   methods: {
     goToHome() {
-      this.$router.back();
+      var begin = new Date().getTime();
+      Vue.Native.callNative('TestModule', 'helloNativeWithPromise', 1, function(ret) {
+          var end = new Date().getTime();
+          var time = end - begin;
+          console.log("time = " + time);
+      });
     },
     remoteDebug() {
       if (this.subtitle !== DEBUG_SUBTITLE || !Vue.Native) {

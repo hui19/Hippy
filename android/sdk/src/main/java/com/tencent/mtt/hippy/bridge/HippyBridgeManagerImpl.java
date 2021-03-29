@@ -23,6 +23,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 
+import android.util.Log;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;
 import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
@@ -237,23 +238,31 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 					}
 
 					ByteBuffer buffer;
-					if (mBridgeParamJson) {
+					//if (mBridgeParamJson) {
+					long start1 = System.nanoTime();
+					ByteBuffer buffer1;
 						mStringBuilder.setLength(0);
 						byte[] json = ArgumentUtils.objectToJsonOpt(msg.obj, mStringBuilder).getBytes();
-						buffer = ByteBuffer.allocateDirect(json.length).order(ByteOrder.nativeOrder());
-						buffer.put(json);
-					} else {
+					buffer1 = ByteBuffer.allocateDirect(json.length).order(ByteOrder.nativeOrder());
+					buffer1.put(json);
+					long end1 = System.nanoTime();
+					Log.e("maxli", "============ time1=" + (end1 - start1)/1000);
+
+					//} else {
 						try {
+							long start2 = System.nanoTime();
 							Serializer serializer = new Serializer(allocator);
 							serializer.writeHeader();
 							serializer.writeValue(msg.obj);
 							buffer = serializer.release();
+							long end2 = System.nanoTime();
+							Log.e("maxli", "============ time2=" + (end2 - start2)/1000);
 						} catch (Throwable e) {
 							e.printStackTrace();
 							LogUtils.e("compatible.Serializer", "Error Stringify Buffer", e);
 							return true;
 						}
-					}
+					//}
 
 					if (TextUtils.equals(action, "loadInstance")) {
 						mHippyBridge.callFunction(action, buffer, new NativeCallback(mHandler, Message.obtain(msg), action) {

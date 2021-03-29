@@ -67,22 +67,25 @@ public class TestModule extends HippyNativeModuleBase {
      */
     @HippyMethod(name = "helloNativeWithPromise")
     public void helloNativeWithPromise(HippyMap hippyMap, Promise promise) {
-        //这里回来的参数可以为java的基础类型，和hippymap与hippyarry,但是前端调用的时候必须对应上
-        String hello = hippyMap.getString("hello");
-        Log.d("TestModule", hello);
+        HippyMap back = new HippyMap();
+        back.pushString("body", "CgwQASkADwoGFTFfMTMxODQzOTQyMTg0MTMxMDAxOBABIAE9AAECMQkAAwZnaHR0cDovL3FxcHVibGljLnFwaWMuY24vcXFfcHVibGljX2NvdmVyLzAvMC0yMzg4MDcwMDM3LTI1QUZBQjVGMEEyNjVEMDUwMEVGNzM3NjU0QTQ3Mjk1X3BhYXNfMTA4XzgwLzMyMAZnaHR0cDovL3FxcHVibGljLnFwaWMuY24vcXFfcHVibGljX2NvdmVyLzAvMC0yNTc1OTc2NDEwLTQxMTc5Rjc0MzFCMUMwQjhDMkY2MkUzMTA1Mjg4REZFX3BhYXNfMTA4XzgwLzMyMAZnaHR0cDovL3FxcHVibGljLnFwaWMuY24vcXFfcHVibGljX2NvdmVyLzAvMC0yMzY1MDYwMDU1LUJEQzFENEE2MkUxM0M5MkZBQ0MzRUY3MzNFMDI0NENCX3BhYXNfMTA4XzgwLzMyMCoWACYANgBGAAs5AAEGFFsv5aSnVl3oiJznvZEgIDcw6K+ESgYAEAEsPEYAXGoMHAsLWgYAFgAmADYAC2oGABYAJgA2AAt2AID/mQyqBgAWACYANgBGAFYAZgB2AIYAC7oGABYALAvKCAwL2gYAFgAsPAvmAPoPBgAQAQv6EAYAFgAmADYATFYAYAF2AIwL+hEMHCw8RgBWAAv6EgYAFgAmADwL9hMA/BT6FQYAFgAsPAv6FgYAFgAmADYARgBWAGYAdgCJDJYAoP+2AMYAC/oXBgAcLDYARgBWAGYAcAGAAZABoAG8zAv6GAYAFgAmADYAC0ZZODbjgIropb/muLjorrDjgIvmvJTlkZjlq4zmnI3oo4XlpKrmmrTpnLLnvaLmvJTvvIzmnajmtIHmib7mnaXigJzoo7jmm7/igJ3vvIzmsqHmnInnqb/luK5XAAAD/XFiOi8vZXh0L3JlYWQ/Y2lkPU10dFRhZ1NvdXJjZSZ0eXBlPTMmbXR0c3VtbWFyeWlkPTEzMTg0M");
+        back.pushInt("code", 0);
+        back.pushString("className", "MTT.GetHomepageFeedsTabListsRsp");
 
-        if (true) {
-            //TODO： 如果模块这里处理成功回调resolve
-            HippyMap hippyMap1 = new HippyMap();
-            hippyMap1.pushInt("code", 1);
-            hippyMap1.pushString("result", "hello i am from native");
-            promise.resolve(hippyMap1);
-        } else {
-            //失败就回调reject
-            HippyMap hippyMap1 = new HippyMap();
-            hippyMap1.pushInt("code", -1);
-            promise.reject(hippyMap1);
-        }
+        HippyMap inner = new HippyMap();
+        inner.pushInt("QQ-S-Encrypt", 17);
+        inner.pushString("Cache-Control", "no-cache");
+        inner.pushString("OkHttp-Selected-Protocol", "http/1.1");
+        inner.pushString("Content-Type", "application/multipart-formdata");
+        inner.pushString("Date", "Tue, 16 Mar 2021 10:53:08 GMT");
+        inner.pushString("Server", "QBServer");
+        inner.pushString("QQ-S-ZIP", "gzip");
+        inner.pushInt("Content-Length", 26448);
+        inner.pushString("OkHttp-Response-Source", "NETWORK 200");
+        inner.pushString("Connection", "keep-alive");
+
+        back.pushMap("headers", inner);
+        promise.resolve(back);
 
     }
 }
