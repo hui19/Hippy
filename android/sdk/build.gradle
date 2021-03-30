@@ -26,10 +26,10 @@ android {
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'src/main/libs')
-    compileOnly 'com.tencent.mtt:support-ui:2.3.2'
-    implementation 'com.tencent.mtt.easy.list:easyrecyclerlist:qb-11.4.1.8'
+    api fileTree(include: ['*.jar'], dir: 'src/main/libs/')
+    implementation 'com.tencent.mtt:support-ui:2.3.3'
     implementation project(':android-res')
+    api 'com.tencent.mtt.easy.list:easyrecyclerlist:qb-11.4.1.8'
 }
 
 

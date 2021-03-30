@@ -30,12 +30,12 @@ publishing {
         myPub(MavenPublication) {
             groupId 'com.tencent.qqbrowser.hippyforqb'
             artifactId 'hippysdk'
-            version 'dev-niuniu-11.5.0.2'
+            version 'dev-niuniu-11.5.0.3-SNAPSHOT'
             artifact(androidSourcesJar)
             artifact("$buildDir/outputs/aar/android-sdk-release.aar")
             pom.withXml {
                 def dependenciesNode = asNode().appendNode('dependencies')
-                configurations.implementation.allDependencies.each {
+                configurations.api.allDependencies.each {
                     if (it.group != null && (it.name != null || "unspecified".equals(it.name)) && it.version != null) {
                         def dependencyNode = dependenciesNode.appendNode('dependency')
                         dependencyNode.appendNode('groupId', it.group)
@@ -62,6 +62,7 @@ publishing {
                 username MAVEN_USER
                 password MAVEN_PWD
             }
+//            url "file:///Users/niuniuyang/maven/hippyforqb/"
         }
     }
 }
