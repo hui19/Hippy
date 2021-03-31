@@ -25,7 +25,7 @@ import com.tencent.mtt.hippy.serialization.PrimitiveValueDeserializer;
 import com.tencent.mtt.hippy.serialization.SerializationTag;
 import com.tencent.mtt.hippy.serialization.StringLocation;
 import com.tencent.mtt.hippy.serialization.exception.DataCloneOutOfRangeException;
-import com.tencent.mtt.hippy.serialization.memory.string.StringTable;
+import com.tencent.mtt.hippy.serialization.string.StringTable;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;

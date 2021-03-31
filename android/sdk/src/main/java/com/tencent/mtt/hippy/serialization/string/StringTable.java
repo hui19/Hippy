@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.mtt.hippy.serialization.memory.buffer;
+package com.tencent.mtt.hippy.serialization.string;
 
-import java.nio.ByteBuffer;
+import com.tencent.mtt.hippy.serialization.StringLocation;
 
-public interface Allocator<T extends ByteBuffer> {
-  public T allocate(int capacity);
-  public T expand(T buffer, int capacity);
-  public T release(T buffer);
+import java.io.UnsupportedEncodingException;
+
+public interface StringTable {
+  public String lookup(byte[] bytes, String encoding, StringLocation location, Object relatedKey) throws UnsupportedEncodingException;
+  public void release();
 }

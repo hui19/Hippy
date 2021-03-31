@@ -17,8 +17,8 @@ package com.tencent.mtt.hippy.serialization;
 
 import com.tencent.mtt.hippy.serialization.exception.DataCloneOutOfRangeException;
 import com.tencent.mtt.hippy.exception.UnreachableCodeException;
-import com.tencent.mtt.hippy.serialization.memory.string.DirectStringTable;
-import com.tencent.mtt.hippy.serialization.memory.string.StringTable;
+import com.tencent.mtt.hippy.serialization.string.DirectStringTable;
+import com.tencent.mtt.hippy.serialization.string.StringTable;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;

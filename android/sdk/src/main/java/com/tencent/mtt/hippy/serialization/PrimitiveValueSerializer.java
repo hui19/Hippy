@@ -15,15 +15,12 @@
  */
 package com.tencent.mtt.hippy.serialization;
 
-import com.tencent.mtt.hippy.exception.UnreachableCodeException;
-import com.tencent.mtt.hippy.serialization.memory.buffer.Allocator;
-import com.tencent.mtt.hippy.serialization.memory.buffer.SimpleAllocator;
-import com.tencent.mtt.hippy.serialization.utils.IntegerPolyfill;
 
-import java.io.UnsupportedEncodingException;
+import com.tencent.mtt.hippy.serialization.utils.IntegerPolyfill;
+import com.tencent.mtt.hippy.serialization.writer.BinaryWriter;
+import com.tencent.mtt.hippy.serialization.writer.SafeHeapWriter;
+
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
-import java.util.Date;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
@@ -31,96 +28,72 @@ import java.util.Map;
  * Implementation of {@code v8::(internal::)ValueSerializer}.
  */
 public abstract class PrimitiveValueSerializer extends SharedSerialization {
-  /** This serializer should not be used once the buffer is released */
-  private boolean isReleased = false;
-  /** Allocator used for Buffer. */
-  private final Allocator<ByteBuffer> allocator;
-  /** Buffer used for serialization. */
-  protected ByteBuffer buffer;
+  /** Writer used for write Data. */
+  protected final BinaryWriter writer;
   /** ID of the next serialized object. **/
   private int nextId;
   /** Maps a serialized object to its ID. */
   private final Map<Object, Integer> objectMap = new IdentityHashMap<>();
   /** Unsigned int max value. */
   private static final long MAX_UINT32_VALUE = 4294967295L;
-  /** Long string gate value. */
-  private static final int LONG_STGRING_GATE_VALUE = 130;
 
-  protected PrimitiveValueSerializer(Allocator<ByteBuffer> allocator) {
+  protected PrimitiveValueSerializer(BinaryWriter writer) {
     super();
 
-    if (allocator == null) {
-      allocator = new SimpleAllocator();
+    if (writer == null) {
+      writer = new SafeHeapWriter();
     }
-    this.allocator = allocator;
-
-    buffer = this.allocator.allocate(1024);
+    this.writer = writer;
   }
 
-  protected void ensureFreeSpace(int spaceNeeded) {
-    int capacity = buffer.capacity();
-    int capacityNeeded = buffer.position() + spaceNeeded;
-    if (capacityNeeded > capacity) {
-      buffer = this.allocator.expand(buffer, capacityNeeded);
-    }
+  public BinaryWriter getWriter() {
+    return writer;
   }
 
-  protected void ensureNotReleased() {
-    if (isReleased) {
-      throw new IllegalStateException("Already released");
-    }
-  }
-
-  private void setReleased() {
-    isReleased = true;
+  public void Reset() {
+    writer.reset();
+    objectMap.clear();
   }
 
   /**
    * Writes out a header, which includes the format version.
    */
   public void writeHeader() {
-    ensureNotReleased();
     writeTag(SerializationTag.VERSION);
-    writeVarint(LATEST_VERSION);
+    writer.putVarint(LATEST_VERSION);
   }
 
   protected void writeTag(SerializationTag tag) {
-    writeByte(tag.getTag());
+    writer.putByte(tag.getTag());
   }
 
   protected void writeTag(ArrayBufferViewTag tag) {
-    writeByte(tag.getTag());
+    writer.putByte(tag.getTag());
   }
 
   protected void writeTag(ErrorTag tag) {
-    writeByte(tag.getTag());
-  }
-
-  protected void writeByte(byte b) {
-    ensureFreeSpace(1);
-    buffer.put(b);
+    writer.putByte(tag.getTag());
   }
 
   /**
    * Serializes a JavaScript delegate object into the buffer.
    * @param value JavaScript delegate object
    */
-  public void writeValue(Object value) {
-    ensureNotReleased();
+  public boolean writeValue(Object value) {
     if (value instanceof String) {
       writeString((String) value);
     } else if (value instanceof Number) {
-      if (value instanceof Integer || value instanceof Short || value instanceof Byte || value instanceof Character) {
+      if (value instanceof Integer || value instanceof Short || value instanceof Byte) {
         writeTag(SerializationTag.INT32);
         writeInt32((int) value);
       } else if (value instanceof Long) {
         long longValue = (long) value;
         if (longValue <= MAX_UINT32_VALUE) {
           writeTag(SerializationTag.UINT32);
-          writeVarint(longValue);
+          writer.putVarint(longValue);
         } else {
           writeTag(SerializationTag.DOUBLE);
-          writeDouble((double) value);
+          writer.putDouble((double) value);
         }
       } else if (value instanceof BigInteger) {
         writeTag(SerializationTag.BIG_INT);
@@ -128,7 +101,7 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
       } else {
         double doubleValue = ((Number) value).doubleValue();
         writeTag(SerializationTag.DOUBLE);
-        writeDouble(doubleValue);
+        writer.putDouble(doubleValue);
       }
     } else if (value == Boolean.TRUE) {
       writeTag(SerializationTag.TRUE);
@@ -144,31 +117,17 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
       Integer id = objectMap.get(value);
       if (id != null) {
         writeTag(SerializationTag.OBJECT_REFERENCE);
-        writeVarint(id);
+        writer.putVarint(id);
       } else {
-        beforeWriteObject(value);
-        writeObject(value);
+        return false;
       }
     }
+    return true;
   }
-
-  protected void beforeWriteObject(Object object) { }
-
-  protected void writeObject(Object object) {
-    assignId(object);
-    if (object instanceof Date) {
-      writeTag(SerializationTag.DATE);
-      writeDate((Date) object);
-    } else {
-      writeCustomObjectValue(object);
-    }
-  }
-
-  protected abstract void writeCustomObjectValue(Object object);
 
   protected void writeInt32(int value) {
     int zigzag = (value << 1) ^ (value >> 31);
-    writeVarint(IntegerPolyfill.toUnsignedLong(zigzag));
+    writer.putVarint(IntegerPolyfill.toUnsignedLong(zigzag));
   }
 
   /**
@@ -177,7 +136,7 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
    * @param value data
    */
   public void writeUInt32(long value) {
-    writeVarint(value);
+    writer.putVarint(value);
   }
 
   /**
@@ -186,58 +145,18 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
    * @param value data
    */
   public void writeUInt64(long value) {
-    writeVarint(value);
-  }
-
-  /**
-   * Writes an unsigned integer as a base-128 varint.
-   * The number is written, 7 bits at a time, from the least significant to the
-   * most significant 7 bits. Each byte, except the last, has the MSB set.
-   * @see <a href="https://developers.google.com/protocol-buffers/docs/encoding">protocol buffers encoding</a>
-   *
-   * @param value data
-   */
-  protected void writeVarint(long value) {
-    ensureNotReleased();
-    long rest = value;
-    byte[] bytes = new byte[10];
-    int idx = 0;
-    do {
-      byte b = (byte) rest;
-      b |= 0x80;
-      bytes[idx] = b;
-      idx++;
-      rest >>>= 7;
-    } while (rest != 0);
-    bytes[idx - 1] &= 0x7f;
-    writeBytes(bytes, idx);
-  }
-
-  protected void writeBytes(byte[] bytes, int length) {
-    ensureFreeSpace(length);
-    buffer.put(bytes, 0, length);
-  }
-
-  /**
-   * Write raw bytes to the buffer.
-   *
-   * @param bytes source {@link ByteBuffer}
-   */
-  public void writeRawBytes(ByteBuffer bytes) {
-    ensureNotReleased();
-    ensureFreeSpace(bytes.remaining());
-    buffer.put(bytes);
+    writer.putVarint(value);
   }
 
   /**
    * Write raw {@code byte[]} to the buffer.
    *
    * @param bytes source
+   * @param start start position in source
+   * @param length length in source
    */
-  public void writeRawBytes(byte[] bytes) {
-    ensureNotReleased();
-    ensureFreeSpace(bytes.length);
-    buffer.put(bytes);
+  public void writeBytes(byte[] bytes, int start, int length) {
+    writer.putBytes(bytes, start, length);
   }
 
   /**
@@ -246,82 +165,36 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
    * @param value data
    */
   public void writeDouble(double value) {
-    ensureNotReleased();
-    ensureFreeSpace(8);
-    buffer.putDouble(value);
+    writer.putDouble(value);
   }
+
 
   protected void writeString(String string) {
-    if (string.length() < LONG_STGRING_GATE_VALUE) {
-      writeShortString(string);
-    } else {
-      char[] chars = string.toCharArray();
-      if (isOneByteCharSequence(chars)) {
-        writeOneByteString(string);
-      } else {
-        writeCharSequence(chars);
-      }
-    }
-  }
-
-  protected static boolean isOneByteCharSequence(char[] chars) {
-    for (char c : chars) {
-      if (c >= 256) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  protected void writeCharSequence(char[] chars) {
-    writeTag(SerializationTag.TWO_BYTE_STRING);
-    writeVarint(chars.length * 2);
-    ensureFreeSpace(chars.length);
-    for (char c : chars) {
-      buffer.putChar(c); // put by native order
-    }
-  }
-
-  protected void writeOneByteString(String string) {
-    byte[] bytes;
-    try {
-      //noinspection CharsetObjectCanBeUsed
-      bytes = string.getBytes("ISO-8859-1");
-    } catch (UnsupportedEncodingException e) {
-      throw new UnreachableCodeException();
-    }
-    writeTag(SerializationTag.ONE_BYTE_STRING);
-    writeVarint(bytes.length);
-    writeBytes(bytes, bytes.length);
-  }
-
-  protected void writeShortString(String string) {
-    char[] chars = string.toCharArray();
-
+    int length = string.length();
     // region one byte string, commonly path
     writeTag(SerializationTag.ONE_BYTE_STRING);
-    writeVarint(chars.length);
-    ensureFreeSpace(chars.length);
+    writer.putVarint(length);
     int i = 0;
-    for (; i < chars.length; i++) {
-      if (chars[i] < 256) {
-        buffer.put((byte) chars[i]);
+    for (; i < length; i++) {
+      char c = string.charAt(i);
+      if (c < 256) {
+        writer.putByte((byte) c);
       } else {
-        buffer.position(buffer.position() - i - 11); // revert buffer changes
+        writer.length(-11 - i); // revert buffer changes
         break;
       }
     }
-    if (i == chars.length) {
+    if (i == length) {
       return;
     }
     // endregion
 
     // region two byte string, universal path
     writeTag(SerializationTag.TWO_BYTE_STRING);
-    writeVarint(chars.length * 2);
-    ensureFreeSpace(chars.length);
-    for (char c : chars) {
-      buffer.putChar(c); // put by native order
+    writer.putVarint(length * 2);
+    for (i = 0; i < length; i++) {
+      char c = string.charAt(i);
+      writer.putChar(c);
     }
     // endregion
   }
@@ -339,7 +212,7 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
     if (negative) {
       bitfield++;
     }
-    writeVarint(bitfield);
+    writer.putVarint(bitfield);
     for (int i = 0; i < bytes; i++) {
       byte b = 0;
       for (int bit = 8 * (i + 1) - 1; bit >= 8 * i; bit--) {
@@ -348,27 +221,8 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
           b++;
         }
       }
-      writeByte(b);
+      writer.putByte(b);
     }
-  }
-
-  protected void writeDate(Date date) {
-    writeDouble(date.getTime());
-  }
-
-  /**
-   * Returns the serialized data (allocated using the {@link Allocator}).
-   * This serializer should not be used once the buffer is released.
-   * Ownership of the buffer is transferred to the caller.
-   *
-   * @return Serialized data
-   */
-  public ByteBuffer release() {
-    ensureNotReleased();
-    setReleased();
-    buffer.flip();
-    allocator.release(buffer);
-    return buffer;
   }
 
   protected void assignId(Object object) {

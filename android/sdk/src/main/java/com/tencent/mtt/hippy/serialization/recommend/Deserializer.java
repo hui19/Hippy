@@ -43,7 +43,7 @@ import com.tencent.mtt.hippy.runtime.builtins.objects.JSNumberObject;
 import com.tencent.mtt.hippy.runtime.builtins.objects.JSStringObject;
 import com.tencent.mtt.hippy.serialization.StringLocation;
 import com.tencent.mtt.hippy.serialization.exception.DataCloneException;
-import com.tencent.mtt.hippy.serialization.memory.string.StringTable;
+import com.tencent.mtt.hippy.serialization.string.StringTable;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;

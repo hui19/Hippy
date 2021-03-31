@@ -25,7 +25,6 @@ import android.text.TextUtils;
 
 import android.util.Log;
 import com.tencent.mtt.hippy.HippyEngine;
-import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;
 import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyRootView;
@@ -38,15 +37,13 @@ import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.mtt.hippy.serialization.compatible.Serializer;
-import com.tencent.mtt.hippy.serialization.memory.buffer.Allocator;
-import com.tencent.mtt.hippy.serialization.memory.buffer.SimpleAllocator;
+import com.tencent.mtt.hippy.serialization.writer.BinaryWriter;
 import com.tencent.mtt.hippy.utils.ArgumentUtils;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 import org.json.JSONObject;
 
@@ -79,7 +76,8 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 	private final String mDebugServerHost;
 	private final int mGroupId;
 	private final HippyThirdPartyAdapter mThirdPartyAdapter;
-	private final Allocator<ByteBuffer> allocator = new SimpleAllocator(true, ByteOrder.nativeOrder());
+  private final Serializer serializer = new Serializer();
+
 	HippyEngine.ModuleListener mLoadModuleListener;
 
 	public HippyBridgeManagerImpl(HippyEngineContext context, HippyBundleLoader coreBundleLoader, int bridgeType,
@@ -94,6 +92,24 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 		mThirdPartyAdapter = thirdPartyAdapter;
 		mStringBuilder = new StringBuilder(1024);
 	}
+
+	private ByteBuffer TestJSON(HippyMap obj) {
+    ByteBuffer buffer1;
+    mStringBuilder.setLength(0);
+    byte[] json = ArgumentUtils.objectToJsonOpt(obj, mStringBuilder).getBytes();
+    buffer1 = ByteBuffer.allocateDirect(json.length);
+    buffer1.put(json);
+    return buffer1;
+  }
+  private ByteBuffer TestBuffer(HippyMap obj) {
+    serializer.Reset();
+    serializer.writeHeader();
+    serializer.writeValue(obj);
+    BinaryWriter writer = serializer.getWriter();
+    ByteBuffer buffer1= ByteBuffer.allocateDirect(writer.length());
+    buffer1.put(writer.value(), 0, writer.length());
+    return buffer1;
+  }
 
 	@Override
 	public boolean handleMessage(Message msg) {
@@ -237,32 +253,20 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 						}
 					}
 
-					ByteBuffer buffer;
-					//if (mBridgeParamJson) {
-					long start1 = System.nanoTime();
-					ByteBuffer buffer1;
-						mStringBuilder.setLength(0);
-						byte[] json = ArgumentUtils.objectToJsonOpt(msg.obj, mStringBuilder).getBytes();
-					buffer1 = ByteBuffer.allocateDirect(json.length).order(ByteOrder.nativeOrder());
-					buffer1.put(json);
-					long end1 = System.nanoTime();
-					Log.e("maxli", "============ time1=" + (end1 - start1)/1000);
-
-					//} else {
-						try {
-							long start2 = System.nanoTime();
-							Serializer serializer = new Serializer(allocator);
-							serializer.writeHeader();
-							serializer.writeValue(msg.obj);
-							buffer = serializer.release();
-							long end2 = System.nanoTime();
-							Log.e("maxli", "============ time2=" + (end2 - start2)/1000);
-						} catch (Throwable e) {
-							e.printStackTrace();
-							LogUtils.e("compatible.Serializer", "Error Stringify Buffer", e);
-							return true;
-						}
-					//}
+					ByteBuffer buffer = null;
+          long start1 = System.nanoTime();
+          TestJSON((HippyMap) msg.obj);
+          long time1 = (System.nanoTime() - start1) / 1000;
+          long start2 = System.nanoTime();
+          try {
+            buffer = TestBuffer((HippyMap) msg.obj);
+          } catch (Throwable e) {
+            e.printStackTrace();
+            LogUtils.e("compatible.Serializer", "Error Stringify Buffer", e);
+            return true;
+          }
+          long time2 = (System.nanoTime() - start2) / 1000;
+          Log.e("maxli", "json = " + time1 + ", buffer = " + time2 + ", buffer / json = " + (double) time2 / time1 );
 
 					if (TextUtils.equals(action, "loadInstance")) {
 						mHippyBridge.callFunction(action, buffer, new NativeCallback(mHandler, Message.obtain(msg), action) {
