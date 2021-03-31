@@ -93,6 +93,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
 
     public void initRecyclerView() {
         setAdapter(new HippyRecyclerListAdapter<HippyRecyclerView>(this, this.hippyEngineContext));
+        intEventHelper();
     }
 
 
@@ -192,6 +193,10 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     }
 
     public RecyclerViewEventHelper getRecyclerViewEventHelper() {
+        return intEventHelper();
+    }
+
+    private RecyclerViewEventHelper intEventHelper() {
         if (recyclerViewEventHelper == null) {
             recyclerViewEventHelper = createEventHelper();
         }
@@ -217,10 +222,12 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         int positionInAdapter = getNodePositionInAdapter(yPosition);
         if (animated) {
             doSmoothScrollY(duration, getTotalHeightBefore(positionInAdapter) - getContentOffsetY());
+            postDispatchLayout();
         } else {
-            scrollToPosition(positionInAdapter);
+            scrollToPositionWithOffset(positionInAdapter, 0);
+            //不能调用postDispatchLayout，需要立即调研dispatchLayout，否则滚动位置不对
+            dispatchLayout();
         }
-        postDispatchLayout();
     }
 
     public void scrollToContentOffset(double xOffset, double yOffset, boolean animated, int duration) {

@@ -42,4 +42,26 @@ public class HippyRecyclerViewBase extends EasyRecyclerView {
             int defStyle) {
         super(context, attrs, defStyle);
     }
+
+    /**
+     * @param position 从哪一个数据位置开始排版,将position的item置顶
+     * @param offset 相对于RecyclerView底部的offset，offset>0：内容下移，offset<0：内容上移
+     */
+    public void scrollToPositionWithOffset(int position, int offset) {
+        if (!this.mLayoutFrozen) {
+            this.stopScroll();
+            if (this.mLayout == null) {
+                android.util.Log.e("RecyclerView",
+                        "Cannot scroll to position a LayoutManager set. Call setLayoutManager with a non-null argument.");
+            } else {
+                LayoutManager layoutManager = getLayoutManager();
+                if (layoutManager instanceof LinearLayoutManager) {
+                    ((LinearLayoutManager) layoutManager).scrollToPositionWithOffset(position, offset);
+                } else {
+                    this.mLayout.scrollToPosition(position);
+                }
+                this.awakenScrollBars();
+            }
+        }
+    }
 }
