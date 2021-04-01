@@ -22,7 +22,7 @@ ext {
 
     v8Version = "v8_77"
     // Visual Studio Debugging Support
-    skipCmakeAndNinja = System.getenv('skipCmakeAndNinja') != null
+    skipCmakeAndNinja = false;//System.getenv('skipCmakeAndNinja') != null
 }
 
 def findNdkFullPath() {

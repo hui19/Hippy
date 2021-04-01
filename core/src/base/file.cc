@@ -56,12 +56,12 @@ std::string HippyFile::ReadFile(const char* file_path, bool is_auto_fill) {
     std::streamsize size = file.gcount();
     file.clear();
     file.seekg(0, std::ios_base::beg);
-    int data_size = size;
+    long data_size = size;
     if (is_auto_fill) {
       data_size += 1;
     }
     ret.resize(data_size);
-    int read_size = file.read(&ret[0], size).gcount();
+    long read_size = file.read(&ret[0], size).gcount();
     if (size != read_size) {
       HIPPY_LOG(hippy::Warning,
                 "ReadFile file_path = %s, size = %d, read_size = %d", file_path,
@@ -102,8 +102,7 @@ int HippyFile::RmFullPath(std::string dir_full_path) {
       continue;
     }
     if (S_ISDIR(st.st_mode)) {
-      if (RmFullPath(sub_path) == -1)  // 如果是目录文件，递归删除
-      {
+      if (RmFullPath(sub_path) == -1) {  // 如果是目录文件，递归删除
         return -1;
       }
       rmdir(sub_path.c_str());
@@ -132,7 +131,7 @@ int HippyFile::CreateDir(const char* path, mode_t mode) {
 int HippyFile::CheckDir(const char* path, int mode) {
   HIPPY_DLOG(hippy::Debug, "CheckDir path = %s", path);
   return access(path, mode);
-};
+}
 
 uint64_t HippyFile::GetFileModifytime(const std::string& file_path) {
   HIPPY_LOG(hippy::Debug, "GetFileModifytime file_path = %s",

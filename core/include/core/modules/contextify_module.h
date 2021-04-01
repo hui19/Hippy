@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_CORE_MODULES_CONTEXTIFY_MODULE_H_
-#define HIPPY_CORE_MODULES_CONTEXTIFY_MODULE_H_
+#pragma once
 
 #include "core/modules/module_base.h"
 #include "core/napi/callback_info.h"
@@ -33,13 +32,11 @@ class Scope;
 
 class ContextifyModule : public ModuleBase {
  public:
-  explicit ContextifyModule(){};
+  ContextifyModule() {}
   void RunInThisContext(const hippy::napi::CallbackInfo& info);
-  void LoadUriContent(const hippy::napi::CallbackInfo& info);
+  void LoadUntrustedContent(const hippy::napi::CallbackInfo& info);
   void RemoveCBFunc(const std::string& uri);
 
  private:
   std::unordered_map<std::string, std::shared_ptr<CtxValue>> cb_func_map_;
 };
-
-#endif  // HIPPY_CORE_MODULES_CONTEXTIFY_MODULE_H_

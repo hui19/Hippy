@@ -25,8 +25,8 @@
 #include <iostream>
 
 #include "core/base/logging.h"
-#include "core/napi/js_native_api_types.h"
 #include "core/napi/js_native_api.h"
+#include "core/napi/js_native_api_types.h"
 #include "core/napi/jsc/js_native_api_jsc.h"
 #include "core/napi/native_source_code.h"
 

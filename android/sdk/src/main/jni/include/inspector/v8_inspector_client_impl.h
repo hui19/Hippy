@@ -19,9 +19,7 @@
  * limitations under the License.
  *
  */
-
-#ifndef HIPPY_INSPECTOR_V8_INSPECTOR_CLIENT_IMPL_H_
-#define HIPPY_INSPECTOR_V8_INSPECTOR_CLIENT_IMPL_H_
+#pragma once
 
 #include <memory>
 #include <string>
@@ -32,7 +30,7 @@
 
 class V8InspectorClientImpl : public v8_inspector::V8InspectorClient {
  public:
-  V8InspectorClientImpl(std::shared_ptr<Scope> scope);
+  explicit V8InspectorClientImpl(std::shared_ptr<Scope> scope);
   ~V8InspectorClientImpl() = default;
 
   void Reset(std::shared_ptr<Scope> scope, std::shared_ptr<JavaRef> bridge);
@@ -41,6 +39,8 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient {
   void SendMessageToV8(const std::string& params);
   void CreateContext();
   void DestroyContext();
+  v8::Local<v8::Context> ensureDefaultContextInGroup(
+      int contextGroupId) override;
 
   void runMessageLoopOnPause(int contextGroupId) override;
   void quitMessageLoopOnPause() override;
@@ -61,10 +61,6 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient {
   }
   bool isInspectableHeapObject(v8::Local<v8::Object>) override { return true; }
 
-  v8::Local<v8::Context> ensureDefaultContextInGroup(
-      int contextGroupId) override {
-    return v8::Local<v8::Context>();
-  }
   void beginEnsureAllContextsInGroup(int contextGroupId) override {}
   void endEnsureAllContextsInGroup(int contextGroupId) override {}
 
@@ -104,5 +100,3 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient {
   std::unique_ptr<V8ChannelImpl> channel_;
   std::unique_ptr<v8_inspector::V8InspectorSession> session_;
 };
-
-#endif  // HIPPY_INSPECTOR_V8_INSPECTOR_CLIENT_IMPL_H_

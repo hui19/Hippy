@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef HIPPY_JNI_JNI_ENV_H_
-#define HIPPY_JNI_JNI_ENV_H_
+#pragma once
 
 #include <jni.h>
 
@@ -30,17 +29,17 @@
 class JNIEnvironment {
  public:
   struct JemthodID_Wrapper {
-    explicit JemthodID_Wrapper() {
+    JemthodID_Wrapper() {
       call_natives_method_id = nullptr;
       report_exception_method_id = nullptr;
       inspector_channel_method_id = nullptr;
-      get_uri_content_method_id = nullptr;
+      fetch_resource_method_id = nullptr;
     }
 
     jmethodID call_natives_method_id;
     jmethodID report_exception_method_id;
     jmethodID inspector_channel_method_id;
-    jmethodID get_uri_content_method_id;
+    jmethodID fetch_resource_method_id;
   };
 
  public:
@@ -59,4 +58,3 @@ class JNIEnvironment {
   JavaVM* jvm_;
   JemthodID_Wrapper wrapper_;
 };
-#endif  // HIPPY_JNI_JNI_ENV_H_

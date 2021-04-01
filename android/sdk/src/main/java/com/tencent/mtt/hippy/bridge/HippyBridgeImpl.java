@@ -22,10 +22,12 @@ import com.tencent.mtt.hippy.devsupport.DevServerConfig;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
+import com.tencent.mtt.hippy.utils.UrlUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
@@ -206,14 +208,13 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 	@Override
 	public boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback)
 	{
-		if (!mInit)
-		{
+		if (!mInit) {
 			return false;
 		}
 
 		if (!TextUtils.isEmpty(codeCacheTag) && !TextUtils.isEmpty(mCodeCacheRootDir))
 		{
-			LogUtils.e("HippyEngineMonitor", "runScriptFromAssets ======core====== " + codeCacheTag + ", canUseCodeCache == " + canUseCodeCache);
+			LogUtils.d("HippyEngineMonitor", "runScriptFromAssets ======core====== " + codeCacheTag + ", canUseCodeCache == " + canUseCodeCache);
 			String codeCacheDir = mCodeCacheRootDir + codeCacheTag + File.separator;
 			File file = new File(codeCacheDir);
 			LogUtils.d("HippyEngineMonitor", "codeCacheDir file size : " + (file.listFiles() != null ? file.listFiles().length : 0));
@@ -221,8 +222,14 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		}
 		else
 		{
-			LogUtils.e("HippyEngineMonitor", "runScriptFromAssets codeCacheTag is null");
-			return runScriptFromUri(uri, assetManager, false, "" + codeCacheTag + File.separator, mV8RuntimeId, callback);
+			boolean ret = false;
+			LogUtils.d("HippyEngineMonitor", "runScriptFromAssets codeCacheTag is null");
+			try {
+				ret = runScriptFromUri(uri, assetManager, false, "" + codeCacheTag + File.separator, mV8RuntimeId, callback);
+			} catch (Throwable e) {
+				LogUtils.e("HippyBridgeImpl", "runScriptFromUri:" + e.getMessage());
+			}
+			return ret;
 		}
 	}
 
@@ -266,9 +273,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 					if (mCodeCacheThreadExecutor != null) {
 						mCodeCacheThreadExecutor.shutdownNow();
 					}
-				}
-				catch (Throwable e) {
-
+				} catch (Throwable e) {
+					LogUtils.d("HippyBridgeImpl", "onDestroy: " + e.getMessage());
 				}
 				mCodeCacheThreadExecutor = null;
 			}
@@ -299,11 +305,13 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 
 	public native boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache, String codeCacheDir, long V8RuntimId, NativeCallback callback);
 
-	public native void destroy(long V8RuntimId, boolean useLowMemoryMode, NativeCallback callback);
+	public native void destroy(long runtimeId, boolean useLowMemoryMode, NativeCallback callback);
 
 	public native void callFunction(String action, byte[] params, int offset, int length, long V8RuntimId, NativeCallback callback);
 
 	public native void runNativeRunnable(String codeCacheFile, long nativeRunnableId, long V8RuntimId, NativeCallback callback);
+
+	public native void onResourceReady(ByteBuffer output, long runtimeId, long resId);
 
 	public native String getCrashMessage();
 
@@ -335,24 +343,17 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		}
 	}
 
-	public byte[] fetchResourceWithUri(String uri) {
-		if (mContext == null || TextUtils.isEmpty(uri) || !uri.startsWith("http://")) {
-			return null;
-		}
-
-		final String resUrl = uri;
-		final ByteArrayOutputStream output = new ByteArrayOutputStream();
-		final CountDownLatch countDownLatch = new CountDownLatch(1);
+	public void fetchResourceWithUri(final String uri, final long resId) {
 		UIThreadUtils.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				DevSupportManager devManager = mContext.getDevSupportManager();
-				if (devManager == null || !devManager.supportDev()) {
-					countDownLatch.countDown();
+				if (mContext == null || TextUtils.isEmpty(uri) || !UrlUtils.isWebUrl(uri) || devManager == null) {
+					LogUtils.e("HippyBridgeImpl", "fetchResourceWithUri: can not call loadRemoteResource with " + uri);
 					return;
 				}
 
-				devManager.loadRemoteResource(resUrl, new DevServerCallBack() {
+				devManager.loadRemoteResource(uri, new DevServerCallBack() {
 					@Override
 					public void onDevBundleLoadReady(File bundle) {}
 
@@ -362,36 +363,37 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 					@Override
 					public void onDevBundleLoadReady(InputStream inputStream) {
 						try {
+							ByteArrayOutputStream output = new ByteArrayOutputStream();
+
 							byte[] b = new byte[2048];
 							int size = 0;
 							while ((size = inputStream.read(b)) > 0) {
 								output.write(b, 0, size);
 							}
-						} catch (Exception e) {
-							LogUtils.e("hippy", "requireSubResource: " + e.getMessage());
-						} finally {
-							countDownLatch.countDown();
-						}
 
+							byte[] resBytes = output.toByteArray();
+							if (resBytes != null) {
+								final ByteBuffer buffer = ByteBuffer.allocateDirect(resBytes.length);
+								buffer.put(resBytes);
+								onResourceReady(buffer, mV8RuntimeId, resId);
+							} else {
+								LogUtils.e("HippyBridgeImpl", "fetchResourceWithUri: output buffer length==0!!!");
+								onResourceReady(null, mV8RuntimeId, resId);
+							}
+						} catch (Throwable e) {
+							LogUtils.e("HippyBridgeImpl", "fetchResourceWithUri: load failed!!! " + e.getMessage());
+							onResourceReady(null, mV8RuntimeId, resId);
+						}
 					}
 
 					@Override
 					public void onInitDevError(Throwable e) {
 						LogUtils.e("hippy", "requireSubResource: " + e.getMessage());
-						countDownLatch.countDown();
+						onResourceReady(null, mV8RuntimeId, resId);
 					}
 				});
 			}
 		});
-
-		try {
-			//countDownLatch.await(TIMEOUT, TimeUnit.MILLISECONDS);
-			countDownLatch.await();
-		} catch (InterruptedException e) {
-			LogUtils.e("hippy", "requireSubResource: " + e.getMessage());
-		}
-
-		return output.toByteArray();
 	}
 
 	private HippyArray bytesToArgument(byte param[])
@@ -442,21 +444,15 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		}
 	}
 
-	public void postCodeCacheRunnable(String codeCacheFile, long nativeRunnableId)
-	{
-		try
-		{
-			synchronized (sBridgeSyncLock)
-			{
-				if (mCodeCacheThreadExecutor != null)
-				{
+	public void postCodeCacheRunnable(String codeCacheFile, long nativeRunnableId) {
+		try {
+			synchronized (sBridgeSyncLock) {
+				if (mCodeCacheThreadExecutor != null) {
 					mCodeCacheThreadExecutor.execute(new CodeCacheRunnable(codeCacheFile, nativeRunnableId));
 				}
 			}
-		}
-		catch (Throwable e)
-		{
-
+		} catch (Throwable e) {
+			LogUtils.d("HippyBridgeImpl", "postCodeCacheRunnable: " + e.getMessage());
 		}
 	}
 

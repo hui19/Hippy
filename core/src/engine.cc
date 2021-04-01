@@ -30,11 +30,7 @@
 #include "core/task/javascript_task_runner.h"
 #include "core/task/javascript_task.h"
 
-#ifdef OS_ANDROID
 const uint32_t Engine::kDefaultWorkerPoolSize = 1;
-#else
-const uint32_t Engine::kDefaultWorkerPoolSize = 0;
-#endif  // OS_ANDROID
 
 Engine::Engine(std::unique_ptr<RegisterMap> map)
     : vm_(nullptr), map_(std::move(map)), scope_cnt_(0) {

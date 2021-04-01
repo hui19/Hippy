@@ -34,15 +34,18 @@ namespace hippy {
 namespace napi {
 
 bool JSCCtx::GetValueNumber(std::shared_ptr<CtxValue> value, double* result) {
+  if (!value) {
+    return false;
+  }
   std::shared_ptr<JSCCtxValue> ctx_value =
       std::static_pointer_cast<JSCCtxValue>(value);
   JSValueRef value_ref = ctx_value->value_;
   if (JSValueIsNumber(context_, value_ref)) {
-    JSValueRef exception_ref = nullptr;
-    *result = JSValueToNumber(context_, value_ref, &exception_ref);
-    std::string exception_str;
-    if (exception_ref) {
-      HandleJsException(exception_ref, exception_str);
+    JSValueRef exception = nullptr;
+    *result = JSValueToNumber(context_, value_ref, &exception);
+    if (exception) {
+      SetException(std::make_shared<JSCCtxValue>(context_, exception));
+      return false;
     }
     return true;
   }
@@ -51,15 +54,18 @@ bool JSCCtx::GetValueNumber(std::shared_ptr<CtxValue> value, double* result) {
 }
 
 bool JSCCtx::GetValueNumber(std::shared_ptr<CtxValue> value, int32_t* result) {
+  if (!value) {
+    return false;
+  }
   std::shared_ptr<JSCCtxValue> ctx_value =
       std::static_pointer_cast<JSCCtxValue>(value);
   JSValueRef value_ref = ctx_value->value_;
   if (JSValueIsNumber(context_, value_ref)) {
-    JSValueRef exception_ref = nullptr;
-    *result = JSValueToNumber(context_, value_ref, &exception_ref);
-    std::string exception_str;
-    if (exception_ref) {
-      HandleJsException(exception_ref, exception_str);
+    JSValueRef exception = nullptr;
+    *result = JSValueToNumber(context_, value_ref, &exception);
+    if (exception) {
+      SetException(std::make_shared<JSCCtxValue>(context_, exception));
+      return false;
     }
     return true;
   }
@@ -68,6 +74,9 @@ bool JSCCtx::GetValueNumber(std::shared_ptr<CtxValue> value, int32_t* result) {
 }
 
 bool JSCCtx::GetValueBoolean(std::shared_ptr<CtxValue> value, bool* result) {
+  if (!value) {
+    return false;
+  }
   std::shared_ptr<JSCCtxValue> ctx_value =
       std::static_pointer_cast<JSCCtxValue>(value);
   JSValueRef value_ref = ctx_value->value_;
@@ -81,16 +90,19 @@ bool JSCCtx::GetValueBoolean(std::shared_ptr<CtxValue> value, bool* result) {
 
 bool JSCCtx::GetValueString(std::shared_ptr<CtxValue> value,
                             std::string* result) {
+  if (!value) {
+    return false;
+  }
   std::shared_ptr<JSCCtxValue> ctx_value =
       std::static_pointer_cast<JSCCtxValue>(value);
   JSValueRef value_ref = ctx_value->value_;
   if (JSValueIsString(context_, value_ref)) {
-    JSValueRef exception_ref = nullptr;
+    JSValueRef exception = nullptr;
     JSStringRef str_ref =
-        JSValueToStringCopy(context_, value_ref, &exception_ref);
-    std::string exception_str;
-    if (exception_ref) {
-      HandleJsException(exception_ref, exception_str);
+        JSValueToStringCopy(context_, value_ref, &exception);
+    if (exception) {
+      SetException(std::make_shared<JSCCtxValue>(context_, exception));
+      return false;
     }
     size_t max_size = JSStringGetMaximumUTF8CStringSize(str_ref);
     char* buf = new char[max_size];
@@ -105,32 +117,37 @@ bool JSCCtx::GetValueString(std::shared_ptr<CtxValue> value,
 }
 
 bool JSCCtx::IsArray(std::shared_ptr<CtxValue> value) {
+  if (!value) {
+    return false;
+  }
   std::shared_ptr<JSCCtxValue> ctx_value =
       std::static_pointer_cast<JSCCtxValue>(value);
   JSValueRef value_ref = ctx_value->value_;
   if (JSValueIsObject(context_, value_ref)) {
     JSStringRef name = JSStringCreateWithUTF8CString("Array");
-    JSValueRef exception_ref = nullptr;
+    JSValueRef exception = nullptr;
     JSObjectRef array = (JSObjectRef)JSObjectGetProperty(
-        context_, JSContextGetGlobalObject(context_), name, &exception_ref);
-    std::string exception_str;
-    if (exception_ref) {
-      HandleJsException(exception_ref, exception_str);
+        context_, JSContextGetGlobalObject(context_), name, &exception);
+    if (exception) {
+      SetException(std::make_shared<JSCCtxValue>(context_, exception));
+      return false;
     }
     JSStringRelease(name);
     name = JSStringCreateWithUTF8CString("isArray");
-    exception_ref = nullptr;
+    exception = nullptr;
     JSObjectRef isArray =
-        (JSObjectRef)JSObjectGetProperty(context_, array, name, &exception_ref);
-    if (exception_ref) {
-      HandleJsException(exception_ref, exception_str);
+        (JSObjectRef)JSObjectGetProperty(context_, array, name, &exception);
+    if (exception) {
+      SetException(std::make_shared<JSCCtxValue>(context_, exception));
+      return false;
     }
     JSStringRelease(name);
-    exception_ref = nullptr;
+    exception = nullptr;
     JSValueRef retval = JSObjectCallAsFunction(context_, isArray, NULL, 1,
-                                               &value_ref, &exception_ref);
-    if (exception_ref) {
-      HandleJsException(exception_ref, exception_str);
+                                               &value_ref, &exception);
+    if (exception) {
+      SetException(std::make_shared<JSCCtxValue>(context_, exception));
+      return false;
     }
     if (JSValueIsBoolean(context_, retval)) {
       return JSValueToBoolean(context_, retval);
@@ -141,41 +158,49 @@ bool JSCCtx::IsArray(std::shared_ptr<CtxValue> value) {
 }
 
 uint32_t JSCCtx::GetArrayLength(std::shared_ptr<CtxValue> value) {
+  if (!value) {
+    return false;
+  }
   std::shared_ptr<JSCCtxValue> ctx_value =
       std::static_pointer_cast<JSCCtxValue>(value);
   JSValueRef value_ref = ctx_value->value_;
-  JSValueRef exception_ref = nullptr;
-  JSObjectRef array = JSValueToObject(context_, value_ref, &exception_ref);
-  std::string exception_str;
-  if (exception_ref) {
-    HandleJsException(exception_ref, exception_str);
+  JSValueRef exception = nullptr;
+  JSObjectRef array = JSValueToObject(context_, value_ref, &exception);
+  if (exception) {
+    SetException(std::make_shared<JSCCtxValue>(context_, exception));
+    return false;
   }
   JSStringRef pname = JSStringCreateWithUTF8CString("length");
-  exception_ref = nullptr;
-  JSValueRef val = JSObjectGetProperty(context_, array, pname, &exception_ref);
-  if (exception_ref) {
-    HandleJsException(exception_ref, exception_str);
+  exception = nullptr;
+  JSValueRef val = JSObjectGetProperty(context_, array, pname, &exception);
+  if (exception) {
+    SetException(std::make_shared<JSCCtxValue>(context_, exception));
+    return false;
   }
   JSStringRelease(pname);
-  exception_ref = nullptr;
-  uint32_t count = JSValueToNumber(context_, val, &exception_ref);
-  if (exception_ref) {
-    HandleJsException(exception_ref, exception_str);
+  exception = nullptr;
+  uint32_t count = JSValueToNumber(context_, val, &exception);
+  if (exception) {
+    SetException(std::make_shared<JSCCtxValue>(context_, exception));
+    return false;
   }
   return count;
 }
 
 bool JSCCtx::GetValueJson(std::shared_ptr<CtxValue> value,
                           std::string* result) {
+  if (!value) {
+    return false;
+  }
   std::shared_ptr<JSCCtxValue> ctx_value =
       std::static_pointer_cast<JSCCtxValue>(value);
   JSValueRef value_ref = ctx_value->value_;
-  JSValueRef exception_ref = nullptr;
+  JSValueRef exception = nullptr;
   JSStringRef str_ref =
-      JSValueCreateJSONString(context_, value_ref, 0, &exception_ref);
-  std::string exception_str;
-  if (exception_ref) {
-    HandleJsException(exception_ref, exception_str);
+      JSValueCreateJSONString(context_, value_ref, 0, &exception);
+  if (exception) {
+    SetException(std::make_shared<JSCCtxValue>(context_, exception));
+    return false;
   }
   size_t max_size = JSStringGetMaximumUTF8CStringSize(str_ref);
   JSStringRelease(str_ref);
@@ -189,14 +214,17 @@ bool JSCCtx::GetValueJson(std::shared_ptr<CtxValue> value,
 
 bool JSCCtx::HasNamedProperty(std::shared_ptr<CtxValue> value,
                               const char* name) {
+  if (!value) {
+    return false;
+  }
   std::shared_ptr<JSCCtxValue> ctx_value =
       std::static_pointer_cast<JSCCtxValue>(value);
   JSValueRef value_ref = ctx_value->value_;
-  JSValueRef exception_ref = nullptr;
-  JSObjectRef object = JSValueToObject(context_, value_ref, &exception_ref);
-  std::string exception_str;
-  if (exception_ref) {
-    HandleJsException(exception_ref, exception_str);
+  JSValueRef exception = nullptr;
+  JSObjectRef object = JSValueToObject(context_, value_ref, &exception);
+  if (exception) {
+    SetException(std::make_shared<JSCCtxValue>(context_, exception));
+    return false;
   }
   JSStringRef property_name = JSStringCreateWithUTF8CString(name);
   bool ret = JSObjectHasProperty(context_, object, property_name);
@@ -215,11 +243,11 @@ bool JSCCtx::IsFunction(std::shared_ptr<CtxValue> value) {
     return false;
   }
 
-  JSValueRef exception_ref = nullptr;
-  JSObjectRef object = JSValueToObject(context_, value_ref, &exception_ref);
-  std::string exception_str;
-  if (exception_ref) {
-    HandleJsException(exception_ref, exception_str);
+  JSValueRef exception = nullptr;
+  JSObjectRef object = JSValueToObject(context_, value_ref, &exception);
+  if (exception) {
+    SetException(std::make_shared<JSCCtxValue>(context_, exception));
+    return false;
   }
   return JSObjectIsFunction(context_, object);
 }
@@ -276,14 +304,23 @@ std::shared_ptr<CtxValue> JSCCtx::CreateArray(
     values[i] = ele_value->value_;
   }
 
-  JSValueRef exception_ref = nullptr;
+  JSValueRef exception = nullptr;
   JSValueRef value_ref =
-      JSObjectMakeArray(context_, count, values, &exception_ref);
-  std::string exception_str;
-  if (exception_ref) {
-    HandleJsException(exception_ref, exception_str);
+      JSObjectMakeArray(context_, count, values, &exception);
+  if (exception) {
+    SetException(std::make_shared<JSCCtxValue>(context_, exception));
+    return nullptr;
   }
   return std::make_shared<JSCCtxValue>(context_, value_ref);
+}
+
+std::shared_ptr<CtxValue> JSCCtx::CreateJsError(const std::string& msg) {
+  JSStringRef str_ref = JSStringCreateWithUTF8CString(msg.c_str());
+  JSValueRef value = JSValueMakeString(context_, str_ref);
+  JSStringRelease(str_ref);
+  JSValueRef values[] = { value };
+  JSObjectRef error = JSObjectMakeError(context_, 1, values, nullptr);
+  return std::make_shared<JSCCtxValue>(context_, error);
 }
 
 std::shared_ptr<CtxValue> JSCCtx::CopyArrayElement(
@@ -296,18 +333,19 @@ std::shared_ptr<CtxValue> JSCCtx::CopyArrayElement(
     return nullptr;
   }
 
-  JSValueRef exception_ref = nullptr;
+  JSValueRef exception = nullptr;
   JSValueRef value_ref = array_value->value_;
-  JSObjectRef array_ref = JSValueToObject(context_, value_ref, &exception_ref);
-  std::string exception_str;
-  if (exception_ref) {
-    HandleJsException(exception_ref, exception_str);
+  JSObjectRef array_ref = JSValueToObject(context_, value_ref, &exception);
+  if (exception) {
+    SetException(std::make_shared<JSCCtxValue>(context_, exception));
+    return nullptr;
   }
-  exception_ref = nullptr;
+  exception = nullptr;
   JSValueRef element =
-      JSObjectGetPropertyAtIndex(context_, array_ref, index, &exception_ref);
-  if (exception_ref) {
-    HandleJsException(exception_ref, exception_str);
+      JSObjectGetPropertyAtIndex(context_, array_ref, index, &exception);
+  if (exception) {
+    SetException(std::make_shared<JSCCtxValue>(context_, exception));
+    return nullptr;
   }
   return std::make_shared<JSCCtxValue>(context_, element);
 }
@@ -317,19 +355,20 @@ std::shared_ptr<CtxValue> JSCCtx::CopyNamedProperty(
     const char* name) {
   std::shared_ptr<JSCCtxValue> ctx_value =
       std::static_pointer_cast<JSCCtxValue>(value);
-  JSValueRef exception_ref = nullptr;
   JSValueRef value_ref = ctx_value->value_;
-  JSObjectRef object = JSValueToObject(context_, value_ref, &exception_ref);
-  std::string exception_str;
-  if (exception_ref) {
-    HandleJsException(exception_ref, exception_str);
+  JSValueRef exception = nullptr;
+  JSObjectRef object = JSValueToObject(context_, value_ref, &exception);
+  if (exception) {
+    SetException(std::make_shared<JSCCtxValue>(context_, exception));
+    return nullptr;
   }
   JSStringRef property_name = JSStringCreateWithUTF8CString(name);
-  exception_ref = nullptr;
+  exception = nullptr;
   JSValueRef property =
-      JSObjectGetProperty(context_, object, property_name, &exception_ref);
-  if (exception_ref) {
-    HandleJsException(exception_ref, exception_str);
+      JSObjectGetProperty(context_, object, property_name, &exception);
+  if (exception) {
+    SetException(std::make_shared<JSCCtxValue>(context_, exception));
+    return nullptr;
   }
   JSStringRelease(property_name);
   if (JSValueIsNull(context_, property) ||
@@ -343,19 +382,18 @@ std::shared_ptr<CtxValue> JSCCtx::CopyNamedProperty(
 std::shared_ptr<CtxValue> JSCCtx::CallFunction(
     std::shared_ptr<CtxValue> function,
     size_t argc,
-    const std::shared_ptr<CtxValue> args[],
-    std::shared_ptr<std::string>* exception) {
+    const std::shared_ptr<CtxValue> args[]) {
   std::shared_ptr<JSCCtxValue> func_value =
       std::static_pointer_cast<JSCCtxValue>(function);
   JSValueRef value_ref = func_value->value_;
   JSObjectRef object = const_cast<JSObjectRef>(value_ref);
   if (argc <= 0) {
-    JSValueRef exception_ref = nullptr;
-    JSValueRef ret_value_ref = JSObjectCallAsFunction(
-        context_, object, nullptr, 0, nullptr, &exception_ref);
-    std::string exception_str;
-    if (exception_ref) {
-      HandleJsException(exception_ref, exception_str);
+    JSValueRef exception = nullptr;
+    JSValueRef ret_value_ref = JSObjectCallAsFunction(context_, object, nullptr,
+                                                      0, nullptr, &exception);
+    if (exception) {
+      SetException(std::make_shared<JSCCtxValue>(context_, exception));
+      return nullptr;
     }
     return std::make_shared<JSCCtxValue>(context_, ret_value_ref);
   }
@@ -367,16 +405,12 @@ std::shared_ptr<CtxValue> JSCCtx::CallFunction(
     values[i] = arg_value->value_;
   }
 
-  JSValueRef exception_ref = nullptr;
-  JSValueRef ret_value_ref = JSObjectCallAsFunction(
-      context_, object, nullptr, argc, values, &exception_ref);
-  std::string exception_str;
-  if (exception_ref) {
-    HandleJsException(exception_ref, exception_str);
-  }
-
-  if (exception && exception_ref) {
-    *exception = std::make_shared<std::string>(exception_str);
+  JSValueRef exception = nullptr;
+  JSValueRef ret_value_ref = JSObjectCallAsFunction(context_, object, nullptr,
+                                                    argc, values, &exception);
+  if (exception) {
+    SetException(std::make_shared<JSCCtxValue>(context_, exception));
+    return nullptr;
   }
 
   if (!ret_value_ref) {
@@ -386,40 +420,45 @@ std::shared_ptr<CtxValue> JSCCtx::CallFunction(
   return std::make_shared<JSCCtxValue>(context_, ret_value_ref);
 }
 
-bool JSCCtx::HandleJsException(JSValueRef value, std::string& exception_str) {
-  if (!value) {
-    return false;
+std::string JSCCtx::GetExceptionMsg(std::shared_ptr<CtxValue> exception) {
+  if (!exception) {
+    return "";
   }
 
-  std::shared_ptr<CtxValue> exception_obj =
-      std::make_shared<JSCCtxValue>(context_, value);
   std::shared_ptr<CtxValue> msg_obj =
-      CopyNamedProperty(exception_obj, "message");
+      CopyNamedProperty(exception, "message");
   std::string msg_str;
   GetValueString(msg_obj, &msg_str);
   std::shared_ptr<CtxValue> stack_obj =
-      CopyNamedProperty(exception_obj, "stack");
+      CopyNamedProperty(exception, "stack");
   std::string stack_str;
   GetValueString(stack_obj, &stack_str);
-  exception_str = "{\"message\":\"" + msg_str + "\",\"stack\":\"" + stack_str +
-                  std::string("\"}");
+  return "message:" + msg_str + ", stack:" + stack_str;
+}
 
-  auto source_code = hippy::GetNativeSourceCode("ExceptionHandle.js");
-  HIPPY_DCHECK(source_code.data_ && source_code.length_);
-  std::shared_ptr<CtxValue> function = EvaluateJavascript(
-      source_code.data_, source_code.length_, "ExceptionHandle.js");
-  bool is_func = IsFunction(function);
-  HIPPY_CHECK_WITH_MSG(
-      is_func == true,
-      "HandleUncaughtJsError ExceptionHandle.js don't return function!!!");
-  if (!is_func) {
+bool JSCCtx::ThrowExceptionToJS(std::shared_ptr<CtxValue> exception) {
+  if (!exception) {
     return false;
+  }
+  
+  std::shared_ptr<CtxValue> exception_handler = GetGlobalObjVar(kHippyErrorHandlerName);
+  if (!IsFunction(exception_handler)) {
+    auto source_code = hippy::GetNativeSourceCode(kErrorHandlerJSName);
+    HIPPY_DCHECK(source_code.data_ && source_code.length_);
+    exception_handler =
+        RunScript(source_code.data_, source_code.length_, kErrorHandlerJSName);
+    bool is_func = IsFunction(exception_handler);
+    HIPPY_CHECK_WITH_MSG(
+        is_func == true,
+        "HandleUncaughtJsError ExceptionHandle.js don't return function!!!");
+    SetGlobalObjVar(kHippyErrorHandlerName, exception_handler,
+                    PropertyAttribute::ReadOnly);
   }
 
   std::shared_ptr<CtxValue> args[2];
   args[0] = CreateString("uncaughtException");
-  args[1] = exception_obj;
-  CallFunction(function, 2, args, nullptr);
+  args[1] = exception;
+  CallFunction(exception_handler, 2, args);
 
   return true;
 }
