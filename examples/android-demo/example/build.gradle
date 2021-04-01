@@ -15,7 +15,7 @@ android {
     buildToolsVersion '30.0.3'
     defaultConfig {
         applicationId "com.tencent.mtt.hippy.example"
-        minSdkVersion 14
+        minSdkVersion 19
         // noinspection ExpiredTargetSdkVersion
         targetSdkVersion 29
     }

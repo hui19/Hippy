@@ -2,8 +2,13 @@ package com.tencent.mtt.hippy.example;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.LayoutDirection;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 
+import android.widget.TextView;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyAPIProvider;
 import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;
@@ -22,12 +27,14 @@ public class MyActivity extends Activity
 {
 	private HippyEngine mHippyEngine;
 	private HippyRootView mHippyView;
+	private ViewGroup mContainer;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+		getWindow().getDecorView().setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
 
 		// 1/3. 初始化hippy引擎
 		{
@@ -39,7 +46,7 @@ public class MyActivity extends Activity
 			initParams.imageLoader = new MyImageLoader(this.getApplicationContext());
 			initParams.debugServerHost = "localhost:38989";
 			// 可选：是否设置为debug模式，默认为false。调试模式下，所有jsbundle都是从debug server上下载
-			initParams.debugMode = false;
+			initParams.debugMode = true;
 			// 可选：是否打印引擎的完整的log。默认为false
 			initParams.enableLog = true;
 			// 可选：debugMode = false 时必须设置coreJSAssetsPath或coreJSFilePath（debugMode = true时，所有jsbundle都是从debug server上下载）

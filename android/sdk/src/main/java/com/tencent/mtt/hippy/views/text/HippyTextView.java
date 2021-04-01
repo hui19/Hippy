@@ -98,6 +98,7 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
 	public HippyTextView(Context context)
 	{
 		super(context);
+		setTextDirection(View.LAYOUT_DIRECTION_RTL);
 	}
 
 	public void setTextBold(boolean bold)

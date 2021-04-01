@@ -56,7 +56,7 @@ public class TextNode extends StyleNode
 	private String					mFontFamily						= null;
 
 	public static final int			DEFAULT_TEXT_SHADOW_COLOR		= 0x55000000;
-	protected Layout.Alignment		mTextAlign						= Layout.Alignment.ALIGN_NORMAL;
+	protected Layout.Alignment		mTextAlign						= Layout.Alignment.ALIGN_OPPOSITE;
 
 	protected TextUtils.TruncateAt	mTruncateAt						= TextUtils.TruncateAt.END;
 
@@ -306,6 +306,7 @@ public class TextNode extends StyleNode
 		{
 			throw new RuntimeException("Invalid textAlign: " + textAlign);
 		}
+		mTextAlign = Layout.Alignment.ALIGN_OPPOSITE;
 		markUpdated();
 	}
 
