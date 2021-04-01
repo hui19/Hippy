@@ -230,12 +230,26 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         }
     }
 
+    /**
+     * @param xOffset 暂不支持
+     * @param yOffset yOffset>0 内容向上移动，yOffset<0， 内容向下移动
+     * @param animated 是否有动画
+     * @param duration 动画的时间
+     */
     public void scrollToContentOffset(double xOffset, double yOffset, boolean animated, int duration) {
         int yOffsetInPixel = (int) PixelUtil.dp2px(yOffset);
+        int deltaY = yOffsetInPixel - getContentOffsetY();
+        //增加异常保护
         if (animated) {
-            doSmoothScrollY(duration, yOffsetInPixel - getContentOffsetY());
+            doSmoothScrollY(duration, deltaY);
         } else {
-            scrollBy(0, yOffsetInPixel - getContentOffsetY());
+            try {
+                scrollBy(0, deltaY);
+            } catch (IndexOutOfBoundsException e) {
+                throw new IndexOutOfBoundsException(e.getMessage()
+                        + ",itemCount:" + getAdapter().getItemCount() + ",yOffsetInPixel:"
+                        + yOffsetInPixel + ",deltaY:" + deltaY);
+            }
         }
     }
 
