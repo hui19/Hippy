@@ -17,13 +17,13 @@ package com.tencent.mtt.hippy.serialization;
 
 import com.tencent.mtt.hippy.serialization.exception.DataCloneOutOfRangeException;
 import com.tencent.mtt.hippy.exception.UnreachableCodeException;
+import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
 import com.tencent.mtt.hippy.serialization.string.DirectStringTable;
 import com.tencent.mtt.hippy.serialization.string.StringTable;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,30 +34,56 @@ import java.util.Map;
 public abstract class PrimitiveValueDeserializer extends SharedSerialization {
   /** StingTable used for byte[] to String */
   private final StringTable stringTable;
-  /** Buffer used for serialization. */
-  protected final ByteBuffer buffer;
+  /** Reader used for read buffer. */
+  protected BinaryReader reader;
   /** Version of the data format used during serialization. */
   private int version;
   /** ID of the next deserialized object. */
   private int nextId;
   /** Maps ID of a deserialized object to the object itself. */
   private final Map<Integer, Object> objectMap = new HashMap<>();
-  /** Native UTF-16 encoding, set by buffer order. */
-  private final String nativeUTF16Encoding;
 
-  protected PrimitiveValueDeserializer(ByteBuffer buffer, StringTable stringTable) {
+  protected PrimitiveValueDeserializer(BinaryReader reader, StringTable stringTable) {
     super();
 
-    if (buffer == null) {
+    if (reader == null) {
       throw new NullPointerException();
     }
-    this.buffer = buffer;
-    this.nativeUTF16Encoding = buffer.order() == ByteOrder.BIG_ENDIAN ? "UTF-16BE" : "UTF-16LE";
+    this.reader = reader;
 
     if (stringTable == null) {
       stringTable = new DirectStringTable();
     }
     this.stringTable = stringTable;
+  }
+
+  protected abstract Object readJSBoolean(boolean value);
+  protected abstract Object readJSNumber();
+  protected abstract Object readJSBigInt();
+  protected abstract Object readJSString(StringLocation location, Object relatedKey);
+  protected abstract Object readJSArrayBuffer();
+  protected abstract Object readJSRegExp();
+  protected abstract Object readJSObject();
+  protected abstract Object readJSMap();
+  protected abstract Object readJSSet();
+  protected abstract Object readDenseArray();
+  protected abstract Object readSparseArray();
+  protected abstract Object readJSError();
+  protected abstract Object readHostObject();
+  protected abstract Object readTransferredJSArrayBuffer();
+  protected abstract Object readSharedArrayBuffer();
+  protected abstract Object readTransferredWasmModule();
+  protected abstract Object readTransferredWasmMemory();
+
+  /**
+   * Reset Deserializer, for the future using
+   */
+  public void reset(BinaryReader reader) {
+    if (reader != null) {
+      this.reader = reader;
+    }
+    objectMap.clear();
+    nextId = 0;
   }
 
   /**
@@ -66,7 +92,7 @@ public abstract class PrimitiveValueDeserializer extends SharedSerialization {
    */
   public void readHeader() {
     if (readTag() == SerializationTag.VERSION) {
-      version = (int) readVarint();
+      version = (int) reader.getVarint();
       if (version > LATEST_VERSION) {
         throw new UnsupportedOperationException("Unable to deserialize cloned data due to invalid or unsupported version.");
       }
@@ -101,7 +127,7 @@ public abstract class PrimitiveValueDeserializer extends SharedSerialization {
       case INT32:
         return readZigZag();
       case UINT32:
-        return readVarint();
+        return reader.getVarint();
       case DOUBLE:
         return readDoubleWithRectification();
       case BIG_INT:
@@ -156,7 +182,7 @@ public abstract class PrimitiveValueDeserializer extends SharedSerialization {
         //  Before there was an explicit tag for host objects, all unknown tags
         //  were delegated to the host.
         if (version < 13) {
-          buffer.position(buffer.position() - 1);
+          reader.position(-1);
           return readHostObject();
         }
 
@@ -169,25 +195,30 @@ public abstract class PrimitiveValueDeserializer extends SharedSerialization {
   protected SerializationTag readTag() {
     SerializationTag tag;
     do {
-      tag = SerializationTag.fromTag(buffer.get());
+      tag = SerializationTag.fromTag(reader.getByte());
     } while (tag == SerializationTag.PADDING);
     return tag;
   }
 
   protected SerializationTag peekTag() {
-    return buffer.hasRemaining() ? SerializationTag.fromTag(buffer.get(buffer.position())) : null;
+    if (reader.position() < reader.length()) {
+      SerializationTag tag = SerializationTag.fromTag(reader.getByte());
+      reader.position(-1);
+      return tag;
+    }
+    return null;
   }
 
   protected ArrayBufferViewTag readArrayBufferViewTag() {
-    return ArrayBufferViewTag.fromTag(buffer.get());
+    return ArrayBufferViewTag.fromTag(reader.getByte());
   }
 
   protected ErrorTag readErrorTag() {
-    return ErrorTag.fromTag(buffer.get());
+    return ErrorTag.fromTag(reader.getByte());
   }
 
   protected int readZigZag() {
-    long zigzag = readVarint();
+    long zigzag = reader.getVarint();
     long value = (zigzag >> 1) ^ -(zigzag & 1);
     return (int) value;
   }
@@ -198,7 +229,7 @@ public abstract class PrimitiveValueDeserializer extends SharedSerialization {
    * @return data
    */
   public long readUInt32() {
-    return readVarint();
+    return reader.getVarint();
   }
 
   /**
@@ -207,27 +238,7 @@ public abstract class PrimitiveValueDeserializer extends SharedSerialization {
    * @return data
    */
   public long readUInt64() {
-    return readVarint();
-  }
-
-  /**
-   * Reads an unsigned integer as a base-128 varint.
-   * The number is written, 7 bits at a time, from the least significant to the
-   * most significant 7 bits. Each byte, except the last, has the MSB set.
-   * @see <a href="https://developers.google.com/protocol-buffers/docs/encoding">protocol buffers encoding</a>
-   *
-   * @return data
-   */
-  protected long readVarint() {
-    long value = 0;
-    int shift = 0;
-    byte b;
-    do {
-      b = buffer.get();
-      value |= (b & 0x7fL) << shift;
-      shift += 7;
-    } while ((b & 0x80) != 0);
-    return value;
+    return reader.getVarint();
   }
 
   /**
@@ -247,7 +258,7 @@ public abstract class PrimitiveValueDeserializer extends SharedSerialization {
    * @return Number data
    */
   private Number readDoubleWithRectification() {
-    double doubleValue = readDouble();
+    double doubleValue = reader.getDouble();
     long longValue = (long) doubleValue;
     //noinspection RedundantIfStatement
     if (longValue == doubleValue) {
@@ -262,31 +273,17 @@ public abstract class PrimitiveValueDeserializer extends SharedSerialization {
    * @return data
    */
   public double readDouble() {
-    return buffer.getDouble();
+    return reader.getDouble();
   }
 
   /**
-   * Direct reads raw bytes from the buffer without copy.
+   * Reads {@code byte[]} from the buffer.
    *
    * @param length read length
-   * @return {@link ByteBuffer}
+   * @return a wrapped {@link ByteBuffer} object
    */
-  public ByteBuffer readRawBytesDirect(int length) {
-    ByteBuffer sliced = buffer.slice();
-    sliced.limit(length);
-    return sliced;
-  }
-
-  /**
-   * Reads raw {@code byte[]} from the buffer.
-   *
-   * @param length read length
-   * @return byte[]
-   */
-  public byte[] readRawBytes(int length) {
-    byte[] bytes = new byte[length];
-    buffer.get(bytes);
-    return bytes;
+  public ByteBuffer readBytes(int length) {
+    return reader.getBytes(length);
   }
 
   protected String readString(StringLocation location, Object relatedKey) {
@@ -304,12 +301,12 @@ public abstract class PrimitiveValueDeserializer extends SharedSerialization {
   }
 
   protected BigInteger readBigInt() {
-    int bitField = (int) readVarint();
+    int bitField = (int) reader.getVarint();
     boolean negative = (bitField & 1) != 0;
     bitField >>= 1;
     BigInteger bigInteger = BigInteger.ZERO;
     for (int i = 0; i < bitField; i++) {
-      byte b = buffer.get();
+      byte b = reader.getByte();
       for (int bit = 8 * i; bit < 8 * (i + 1); bit++) {
         if ((b & 1) != 0) {
           bigInteger = bigInteger.setBit(bit);
@@ -328,7 +325,8 @@ public abstract class PrimitiveValueDeserializer extends SharedSerialization {
   }
 
   protected String readTwoByteString(StringLocation location, Object relatedKey) {
-    return readString(nativeUTF16Encoding, location, relatedKey);
+    // Android is always little-endian
+    return readString("UTF-16LE", location, relatedKey);
   }
 
   protected String readUTF8String(StringLocation location, Object relatedKey) {
@@ -336,53 +334,35 @@ public abstract class PrimitiveValueDeserializer extends SharedSerialization {
   }
 
   protected String readString(String encoding, StringLocation location, Object relatedKey) {
-    int byteCount = (int) readVarint();
+    int byteCount = (int) reader.getVarint();
     if (byteCount < 0) {
       throw new DataCloneOutOfRangeException(byteCount);
     }
-    byte[] bytes = new byte[byteCount];
-    buffer.get(bytes);
+
+    ByteBuffer byteBuffer = reader.getBytes(byteCount);
     try {
-      return stringTable.lookup(bytes, encoding, location, relatedKey);
+      return stringTable.lookup(byteBuffer, encoding, location, relatedKey);
     } catch (UnsupportedEncodingException e) {
       throw new UnreachableCodeException(e);
     }
   }
 
   protected Date readDate() {
-    double millis = readDouble();
+    double millis = reader.getDouble();
     return assignId(new Date((long) millis));
   }
 
   protected Object readObjectReference() {
-    int id = (int) readVarint();
+    int id = (int) reader.getVarint();
     if (id < 0) {
       throw new DataCloneOutOfRangeException(id);
     }
     Object object = objectMap.get(id);
     if (object == null) {
-      throw new AssertionError("invalid object reference");
+      throw new AssertionError(String.format("invalid object reference(@%d)", id));
     }
     return object;
   }
-
-  protected abstract Object readJSBoolean(boolean value);
-  protected abstract Object readJSNumber();
-  protected abstract Object readJSBigInt();
-  protected abstract Object readJSString(StringLocation location, Object relatedKey);
-  protected abstract Object readJSArrayBuffer();
-  protected abstract Object readJSRegExp();
-  protected abstract Object readJSObject();
-  protected abstract Object readJSMap();
-  protected abstract Object readJSSet();
-  protected abstract Object readDenseArray();
-  protected abstract Object readSparseArray();
-  protected abstract Object readJSError();
-  protected abstract Object readHostObject();
-  protected abstract Object readTransferredJSArrayBuffer();
-  protected abstract Object readSharedArrayBuffer();
-  protected abstract Object readTransferredWasmModule();
-  protected abstract Object readTransferredWasmMemory();
 
   protected <T> T assignId(T object) {
     objectMap.put(nextId++, object);

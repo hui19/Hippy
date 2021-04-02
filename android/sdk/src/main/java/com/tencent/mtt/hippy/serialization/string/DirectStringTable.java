@@ -18,14 +18,19 @@ package com.tencent.mtt.hippy.serialization.string;
 import com.tencent.mtt.hippy.serialization.StringLocation;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 
 public class DirectStringTable implements StringTable {
   @Override
-  public String lookup(byte[] bytes, String encoding, StringLocation location, Object relatedKey) throws UnsupportedEncodingException {
+  public String lookup(ByteBuffer byteBuffer, String encoding, StringLocation location, Object relatedKey) throws UnsupportedEncodingException {
     if (location == StringLocation.VOID) {
       return "";
     }
-    return new String(bytes, encoding);
+
+    final int offset = byteBuffer.arrayOffset() + byteBuffer.position();
+    final int length = byteBuffer.arrayOffset() + byteBuffer.limit();
+
+    return new String(byteBuffer.array(), offset, length, encoding);
   }
 
   @Override

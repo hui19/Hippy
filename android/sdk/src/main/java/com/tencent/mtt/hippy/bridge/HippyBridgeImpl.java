@@ -19,6 +19,8 @@ import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.devsupport.DevServerCallBack;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
 import com.tencent.mtt.hippy.serialization.compatible.Deserializer;
+import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
+import com.tencent.mtt.hippy.serialization.nio.reader.SafeDirectReader;
 import com.tencent.mtt.hippy.serialization.string.InternalizedStringTable;
 import com.tencent.mtt.hippy.serialization.string.StringTable;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
@@ -61,7 +63,9 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 	private String mDebugServerHost;
 	private final boolean mSingleThreadMode;
 	private final boolean mBridgeParamJson;
-	private StringTable stringTable;
+	private Deserializer deserializer;
+	private BinaryReader deserializerReader;
+	private StringTable deserializerStringTable;
 	private DebugWebSocketClient mDebugWebSocketClient;
 	private String mDebugGlobalConfig;
 	private NativeCallback mDebugInitJSFrameworkCallback;
@@ -93,7 +97,9 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		}
 
 		if (!mBridgeParamJson) {
-			stringTable = new InternalizedStringTable();
+      deserializerReader = new SafeDirectReader(null);
+      deserializerStringTable = new InternalizedStringTable();
+      deserializer = new Deserializer(deserializerReader, deserializerStringTable);
 		}
 	}
 
@@ -214,7 +220,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 			return;
 		}
 
-		callFunction(action, buffer, 0, buffer.limit() , mV8RuntimeId, callback);
+		callFunction(action, buffer, 0, buffer.limit(), mV8RuntimeId, callback);
 	}
 
 	@Override
@@ -251,8 +257,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 			}
 		}
 
-		if (!mBridgeParamJson && stringTable != null) {
-			stringTable.release();
+		if (!mBridgeParamJson && deserializerStringTable != null) {
+      deserializerStringTable.release();
 		}
 
 		mV8RuntimeId = 0;
@@ -368,7 +374,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 			LogUtils.d("hippy_bridge", "bytesToArgument using Buffer");
 			Object paramObj;
 			try {
-				Deserializer deserializer = new Deserializer(buffer, stringTable);
+			  deserializerReader.reset(buffer);
+				deserializer.reset(null);
 				deserializer.readHeader();
 				paramObj = deserializer.readValue();
 			} catch (Throwable e) {

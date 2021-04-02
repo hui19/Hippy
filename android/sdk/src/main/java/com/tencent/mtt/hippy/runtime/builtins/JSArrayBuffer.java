@@ -25,8 +25,8 @@ public class JSArrayBuffer extends JSValue {
 
   private ByteBuffer buffer;
 
-  public static JSArrayBuffer allocateDirect(int capacity) {
-    return new JSArrayBuffer(ByteBuffer.allocateDirect(capacity));
+  public static JSArrayBuffer allocate(int capacity) {
+    return new JSArrayBuffer(ByteBuffer.allocate(capacity));
   }
   public JSArrayBuffer(ByteBuffer buffer) {
     this.buffer = buffer;

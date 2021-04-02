@@ -1,13 +1,12 @@
-package com.tencent.mtt.hippy.serialization.writer;
+package com.tencent.mtt.hippy.serialization.nio.writer;
 
-import java.nio.ByteOrder;
+import java.nio.ByteBuffer;
 
-public class SafeHeapWriter implements BinaryWriter {
-  static final int INITIAL_CAPACITY = 1024;
+public final class SafeHeapWriter implements BinaryWriter {
+  private static final int INITIAL_CAPACITY = 64;
 
-  private byte[] value;
+  public byte[] value;
   private int count = 0;
-  private ByteOrder order = ByteOrder.LITTLE_ENDIAN;
 
   public SafeHeapWriter() {
     value = new byte[INITIAL_CAPACITY];
@@ -25,16 +24,6 @@ public class SafeHeapWriter implements BinaryWriter {
     @SuppressWarnings("ManualMinMaxCalculation") byte[] newData = new byte[min > twice ? min : twice];
     System.arraycopy(value, 0, newData, 0, count);
     value = newData;
-  }
-
-  @Override
-  public ByteOrder order() {
-    return order;
-  }
-
-  @Override
-  public ByteOrder order(ByteOrder order) {
-    return this.order = order;
   }
 
   @Override
@@ -67,43 +56,23 @@ public class SafeHeapWriter implements BinaryWriter {
   }
 
   @Override
-  public void putVarint(long l) {
+  public int putVarint(long l) {
     if (count + 10 > value.length) {
       enlargeBuffer(count + 10);
     }
 
     long rest = l;
+    int bytes = 0;
     byte b;
     do {
       b = (byte) rest;
       b |= 0x80;
       value[count++] = b;
       rest >>>= 7;
+      bytes++;
     } while (rest != 0);
     value[count - 1] = (byte) (b & 0x7f);
-  }
-
-  // region putInt64
-  public void putInt64LE(long l) {
-    value[count++] = (byte) l;
-    value[count++] = (byte) (l >> 8);
-    value[count++] = (byte) (l >> 16);
-    value[count++] = (byte) (l >> 24);
-    value[count++] = (byte) (l >> 32);
-    value[count++] = (byte) (l >> 40);
-    value[count++] = (byte) (l >> 48);
-    value[count++] = (byte) (l >> 56);
-  }
-
-  public void putInt64BE(long l) {
-    value[count++] = (byte) (l >> 56);
-    value[count++] = (byte) (l >> 48);
-    value[count++] = (byte) (l >> 40);
-    value[count++] = (byte) (l >> 32);
-    value[count++] = (byte) (l >> 24);
-    value[count++] = (byte) (l >> 16);
-    value[count++] = (byte) (l >> 8);
-    value[count++] = (byte) l;
+    return bytes;
   }
 
   @Override
@@ -112,23 +81,14 @@ public class SafeHeapWriter implements BinaryWriter {
       enlargeBuffer(count + 8);
     }
 
-    if (order == ByteOrder.LITTLE_ENDIAN) {
-      putInt64LE(l);
-    } else {
-      putInt64BE(l);
-    }
-  }
-  // endregion
-
-  // region putChar
-  public void putCharLE(char c) {
-    value[count++] = ((byte) c);
-    value[count++] = ((byte)(c >> 8));
-  }
-
-  public void putCharBE(char c) {
-    value[count++] = ((byte)(c >> 8));
-    value[count++] = ((byte) c);
+    value[count++] = (byte) l;
+    value[count++] = (byte) (l >> 8);
+    value[count++] = (byte) (l >> 16);
+    value[count++] = (byte) (l >> 24);
+    value[count++] = (byte) (l >> 32);
+    value[count++] = (byte) (l >> 40);
+    value[count++] = (byte) (l >> 48);
+    value[count++] = (byte) (l >> 56);
   }
 
   @Override
@@ -137,13 +97,9 @@ public class SafeHeapWriter implements BinaryWriter {
       enlargeBuffer(count + 2);
     }
 
-    if (order == ByteOrder.LITTLE_ENDIAN) {
-      putCharLE(c);
-    } else {
-      putCharBE(c);
-    }
+    value[count++] = ((byte) c);
+    value[count++] = ((byte)(c >> 8));
   }
-  // endregion
 
   @Override
   public int length() {
@@ -153,7 +109,7 @@ public class SafeHeapWriter implements BinaryWriter {
   @Override
   public int length(int length) {
     if (length < 0) {
-      length = count + length;
+      length += count;
       if (length < 0) {
         throw new IndexOutOfBoundsException();
       }
@@ -167,12 +123,13 @@ public class SafeHeapWriter implements BinaryWriter {
   }
 
   @Override
-  public byte[] value() {
-    return value;
+  public final ByteBuffer complete() {
+    return ByteBuffer.wrap(value, 0, count);
   }
 
   @Override
-  public void reset() {
+  public SafeHeapWriter reset() {
     count = 0;
+    return this;
   }
 }

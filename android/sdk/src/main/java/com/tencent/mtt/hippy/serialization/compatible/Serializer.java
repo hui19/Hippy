@@ -20,7 +20,7 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.serialization.PrimitiveValueSerializer;
 import com.tencent.mtt.hippy.serialization.SerializationTag;
-import com.tencent.mtt.hippy.serialization.writer.BinaryWriter;
+import com.tencent.mtt.hippy.serialization.nio.writer.BinaryWriter;
 
 import java.util.Set;
 

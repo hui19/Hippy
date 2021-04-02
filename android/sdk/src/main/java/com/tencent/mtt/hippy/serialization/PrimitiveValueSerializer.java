@@ -17,8 +17,8 @@ package com.tencent.mtt.hippy.serialization;
 
 
 import com.tencent.mtt.hippy.serialization.utils.IntegerPolyfill;
-import com.tencent.mtt.hippy.serialization.writer.BinaryWriter;
-import com.tencent.mtt.hippy.serialization.writer.SafeHeapWriter;
+import com.tencent.mtt.hippy.serialization.nio.writer.BinaryWriter;
+import com.tencent.mtt.hippy.serialization.nio.writer.SafeHeapWriter;
 
 import java.math.BigInteger;
 import java.util.IdentityHashMap;
@@ -28,14 +28,18 @@ import java.util.Map;
  * Implementation of {@code v8::(internal::)ValueSerializer}.
  */
 public abstract class PrimitiveValueSerializer extends SharedSerialization {
-  /** Writer used for write Data. */
+  /** Writer used for write buffer. */
   protected final BinaryWriter writer;
   /** ID of the next serialized object. **/
   private int nextId;
   /** Maps a serialized object to its ID. */
   private final Map<Object, Integer> objectMap = new IdentityHashMap<>();
+  /** Temporary char buffer for string writing. */
+  private char[] stringWriteBuffer;
   /** Unsigned int max value. */
   private static final long MAX_UINT32_VALUE = 4294967295L;
+  /** Threshold of string length using {@link String#getChars(int, int, char[], int)} method. */
+  private static final int STRING_USE_GET_CHARS_GATE = 32;
 
   protected PrimitiveValueSerializer(BinaryWriter writer) {
     super();
@@ -50,9 +54,15 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
     return writer;
   }
 
-  public void Reset() {
+
+  /**
+   * Reset Serializer, for the future using
+   */
+  public void reset() {
     writer.reset();
     objectMap.clear();
+    nextId = 0;
+    stringWriteBuffer = null;
   }
 
   /**
@@ -149,7 +159,7 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
   }
 
   /**
-   * Write raw {@code byte[]} to the buffer.
+   * Write {@code byte[]} to the buffer.
    *
    * @param bytes source
    * @param start start position in source
@@ -168,33 +178,130 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
     writer.putDouble(value);
   }
 
+  /**
+   * <p>Write {@link String} string to the buffer</p>
+   * <p></p>
+   *
+   * <h2>Research</h2>
+   * <p>According to the following benchmark tests and real world scenarios,
+   * this method will choose different iterator based on the length of the string for more efficiency.</p>
+   * <p>If string length small than {@link #STRING_USE_GET_CHARS_GATE}, will use {@link String#charAt(int)}
+   * to iterate, otherwise will use {@link String#getChars(int, int, char[], int)}</p>
+   * <p></p>
+   *
+   * <h3>Benchmark</h3>
+   *
+   * <h4>Test Cases</h4>
+   * <pre>{@code
+   *   int charAt(final String data) {
+   *     final int len = data.length();
+   *     for (int i = 0; i < len; i++) {
+   *       if (data.charAt(i) <= ' ') {
+   *         doThrow();
+   *       }
+   *     }
+   *     return len;
+   *   }
+   *
+   *   int getChars(final char[] reusable, final String data) {
+   *     final int len = data.length();
+   *     data.getChars(0, len, reusable, 0);
+   *     for (int i = 0; i < len; i++) {
+   *       if (reusable[i] <= ' ') {
+   *         doThrow();
+   *       }
+   *     }
+   *     return len;
+   *   }
+   *
+   *   int toCharArray(final String data) {
+   *     final int len = data.length();
+   *     final char[] copy = data.toCharArray();
+   *     for (int i = 0; i < len; i++) {
+   *       if (copy[i] <= ' ') {
+   *         doThrow();
+   *       }
+   *     }
+   *     return len;
+   *   }
+   * }</pre>
+   *
+   * <h4>Results</h4>
+   * <i>(run tests on HUAWEI JSN-AL00a with Android 9)</i>
+   * <pre>
+   *   ======= (tries per size: 1000) =======
+   *   Size   charAt  getChars    toCharArray
+   *      1   357.00  1,289.00    567.00
+   *      2   179.00    202.00    300.00
+   *      4    87.75     95.75    141.25
+   *      8    46.63     46.88     73.75
+   *     16    25.06     25.06     41.44
+   *     32    14.53     14.13     24.22
+   *     64     8.66      8.05     12.45
+   *    128     6.23      5.22      8.27
+   *    256     4.84      3.89      6.13
+   *    512     4.10      3.21      5.44
+   *   1024     3.91      4.36      4.83
+   *   2048     3.67      2.78      4.85
+   *   4096     4.01      2.65      6.32
+   *   8192     3.60      2.63      6.42
+   *  16384     3.65      2.61      5.39
+   *  32768     3.61      2.60      4.91
+   *  65536     3.57      2.62      4.68
+   *  Rate in nanoseconds per character inspected
+   * </pre>
+   * <p>Obviously we can discover two facts,
+   * {@link String#toCharArray()} performance is lower than other methods at any time,
+   * and there is a dividing line when the string has 32({@link #STRING_USE_GET_CHARS_GATE}) characters.</p>
+   *
+   *
+   * @see <a href="https://stackoverflow.com/questions/8894258/fastest-way-to-iterate-over-all-the-chars-in-a-string">Fastest way to iterate over all the chars in a String</a>
+   * @see <a href="https://stackoverflow.com/questions/196830/what-is-the-easiest-best-most-correct-way-to-iterate-through-the-characters-of-a">What is the easiest/best/most correct way to iterate through the characters of a string in Java?</a>
+   * @param value data
+   */
+  protected void writeString(String value) {
+    int length = value.length();
+    if (length > STRING_USE_GET_CHARS_GATE) {
+      if (stringWriteBuffer == null || stringWriteBuffer.length < length) {
+        stringWriteBuffer = new char[length];
+      }
+      value.getChars(0, length, stringWriteBuffer, 0);
+    }
 
-  protected void writeString(String string) {
-    int length = string.length();
     // region one byte string, commonly path
     writeTag(SerializationTag.ONE_BYTE_STRING);
-    writer.putVarint(length);
+    int headerBytes = writer.putVarint(length) + 1;
     int i = 0;
-    for (; i < length; i++) {
-      char c = string.charAt(i);
-      if (c < 256) {
+    // Designed to take advantage of
+    // https://wiki.openjdk.java.net/display/HotSpot/RangeCheckElimination
+    if (length > STRING_USE_GET_CHARS_GATE) {
+     for (char c; i < length && (c = stringWriteBuffer[i]) < 0x80; i++) {
+       writer.putByte((byte) c);
+     }
+    } else {
+      for (char c; i < length && (c = value.charAt(i)) < 0x80; i++) {
         writer.putByte((byte) c);
-      } else {
-        writer.length(-11 - i); // revert buffer changes
-        break;
       }
     }
     if (i == length) {
       return;
     }
+    writer.length(-headerBytes - i); // revert buffer changes
     // endregion
 
     // region two byte string, universal path
     writeTag(SerializationTag.TWO_BYTE_STRING);
     writer.putVarint(length * 2);
-    for (i = 0; i < length; i++) {
-      char c = string.charAt(i);
-      writer.putChar(c);
+    if (length > STRING_USE_GET_CHARS_GATE) {
+      for (i = 0; i < length; i++) {
+        char c = stringWriteBuffer[i];
+        writer.putChar(c);
+      }
+    } else {
+      for (i = 0; i < length; i++) {
+        char c = value.charAt(i);
+        writer.putChar(c);
+      }
     }
     // endregion
   }

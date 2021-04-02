@@ -18,8 +18,9 @@ package com.tencent.mtt.hippy.serialization.string;
 import com.tencent.mtt.hippy.serialization.StringLocation;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 
 public interface StringTable {
-  public String lookup(byte[] bytes, String encoding, StringLocation location, Object relatedKey) throws UnsupportedEncodingException;
+  public String lookup(ByteBuffer byteBuffer, String encoding, StringLocation location, Object relatedKey) throws UnsupportedEncodingException;
   public void release();
 }

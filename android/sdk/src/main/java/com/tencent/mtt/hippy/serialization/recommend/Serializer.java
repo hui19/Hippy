@@ -41,7 +41,7 @@ import com.tencent.mtt.hippy.runtime.builtins.objects.JSBigintObject;
 import com.tencent.mtt.hippy.runtime.builtins.objects.JSBooleanObject;
 import com.tencent.mtt.hippy.runtime.builtins.objects.JSNumberObject;
 import com.tencent.mtt.hippy.runtime.builtins.objects.JSStringObject;
-import com.tencent.mtt.hippy.serialization.writer.BinaryWriter;
+import com.tencent.mtt.hippy.serialization.nio.writer.BinaryWriter;
 
 import java.nio.ByteBuffer;
 import java.util.Date;

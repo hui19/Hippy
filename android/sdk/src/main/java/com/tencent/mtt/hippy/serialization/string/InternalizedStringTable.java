@@ -21,6 +21,7 @@ import com.tencent.mtt.hippy.exception.UnreachableCodeException;
 import com.tencent.mtt.hippy.serialization.StringLocation;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 
 public class InternalizedStringTable extends DirectStringTable {
@@ -28,7 +29,6 @@ public class InternalizedStringTable extends DirectStringTable {
   private static final int MAX_KEY_CALC_LENGTH	= 32;
   private static final int KEY_TABLE_SIZE = 2 * 1024;
   private final String[] keyTable = new String[KEY_TABLE_SIZE];
-  private final char[] keyCompareTempBuffer = new char[MAX_KEY_CALC_LENGTH];
   // endregion
 
   // region value - local
@@ -52,12 +52,17 @@ public class InternalizedStringTable extends DirectStringTable {
   /**
    * This algorithm implements the DJB hash function
    * developed by <i>Daniel J. Bernstein</i>.
+   *
+   * @param value The bytes to be calculated
+   * @param offset The offset
+   * @param length The length
+   * @return a hash code value for this bytes
    */
-  public static int DJB_HASH(byte[] value) {
+  public static int DJB_HASH(byte[] value, int offset, int length) {
     long hash = 5381;
 
-    for (byte b : value) {
-      hash = ((hash << 5) + hash) + b;
+    for (int i = offset; i < length; i++) {
+      hash = ((hash << 5) + hash) + value[i];
     }
 
     return (int) hash;
@@ -65,12 +70,17 @@ public class InternalizedStringTable extends DirectStringTable {
 
   /**
    * The algorithm forked from the {@link String#hashCode()}.
+   *
+   * @param value The bytes to be calculated
+   * @param offset The offset
+   * @param length The length
+   * @return a hash code value for this bytes
    */
-  private static int STRING_HASH(byte[] value) {
+  private static int STRING_HASH(byte[] value, int offset, int length) {
     int hash = 0;
 
-    for (byte b : value) {
-      hash = hash * 31 + (b & 0xff);
+    for (int i = offset; i < length; i++) {
+      hash = hash * 31 + (value[i] & 0xff);
     }
 
     return hash;
@@ -78,49 +88,55 @@ public class InternalizedStringTable extends DirectStringTable {
 
   /**
    * Fast compares {@link String} and {@link Byte[]} is equal
-   * Basic performance considerations, <strong>treated {@link String} as IOS-8859-1 encoding</strong>
+   * Basic performance considerations, <strong>only support {@link String} as one or two byte encoding</strong>
    *
    * @param sequence byte sequence
+   * @param offset The offset
+   * @param length The length
+   * @param encoding The name of a supported charset
    * @param string an string
    * @return {@code true} if it's equal, {@code false} otherwise
    */
-  private boolean equals(byte[] sequence, String string) {
-    final int expected = sequence.length;
-    final int length = string.length();
-    if (length != expected) {
+  private boolean equals(byte[] sequence, int offset, int length, String encoding, String string) {
+    final int bytesPerCharacter = encoding.equals("UTF-16LE") ? 2 : 1;
+    final int count = string.length();
+    // fast negative check
+    if (length / bytesPerCharacter != count) {
       return false;
     }
 
-    string.getChars(0, length, keyCompareTempBuffer, 0);
-
-    for (int i = 0; i < length; i++) {
-      if ((sequence[i] & 0xff) != keyCompareTempBuffer[i]) {
+    for (int i = 0; i < count; i++) {
+      // MAX_KEY_CALC_LENGTH set to 32, use charAt method to iterate the chars in a String has more efficient
+      char c = string.charAt(i);
+      // Android is always little-endian
+      if (sequence[offset + i] != (byte) c || (bytesPerCharacter == 2 && sequence[offset + i + 1] != (byte)(c >> 8))) {
         return false;
       }
     }
+
     return true;
   }
   // endregion
 
   // region lookup
-  private String lookupKey(byte[] sequence, String encoding) throws UnsupportedEncodingException {
-    final int length = sequence.length;
-    if (length >= MAX_KEY_CALC_LENGTH) {
-      return new String(sequence, encoding);
+  private String lookupKey(byte[] sequence, int offset, int length, String encoding) throws UnsupportedEncodingException {
+    // only calculate one or two byte encoding
+    if (length >= MAX_KEY_CALC_LENGTH || encoding.equals("UTF-8")) {
+      return new String(sequence, offset, length, encoding);
     }
 
-    final int hashCode = DJB_HASH(sequence);
+    final int hashCode = DJB_HASH(sequence, offset, length);
     final int hashIndex = (keyTable.length - 1) & hashCode;
     String internalized = keyTable[hashIndex];
-    if (internalized != null && equals(sequence, internalized)) {
+    if (internalized != null && equals(sequence, offset, length, encoding, internalized)) {
       return internalized;
     }
-    internalized = new String(sequence, encoding);
+    internalized = new String(sequence, offset, length, encoding);
     keyTable[hashIndex] = internalized;
     return internalized;
   }
 
-  private String lookupValue(byte[] sequence, String encoding, Object relatedKey) throws UnsupportedEncodingException {
+  private String lookupValue(byte[] sequence, int offset, int length, String encoding, Object relatedKey) throws UnsupportedEncodingException {
     if (relatedKey instanceof String) {
       char[] valuePrefix = cacheablesProperty.get(relatedKey);
       if (valuePrefix != null) {
@@ -136,11 +152,11 @@ public class InternalizedStringTable extends DirectStringTable {
         String value = null;
         int hashCode = -1;
         if (cacheables) {
-          hashCode = STRING_HASH(sequence);
+          hashCode = STRING_HASH(sequence, offset, length);
           value = valueCache.get(hashCode);
         }
         if (value == null) {
-          value = new String(sequence, encoding);
+          value = new String(sequence, offset, length, encoding);
           if (cacheables) {
             valueCache.put(hashCode, value);
           }
@@ -149,30 +165,33 @@ public class InternalizedStringTable extends DirectStringTable {
       }
     }
 
-    return new String(sequence, encoding);
+    return new String(sequence, offset, length, encoding);
   }
 
   @Override
-  public String lookup(byte[] sequence, String encoding, StringLocation location, Object relatedKey) throws UnsupportedEncodingException {
+  public String lookup(ByteBuffer byteBuffer, String encoding, StringLocation location, Object relatedKey) throws UnsupportedEncodingException {
+    final byte[] sequence = byteBuffer.array();
+    final int offset = byteBuffer.arrayOffset() + byteBuffer.position();
+    final int length = byteBuffer.arrayOffset() + byteBuffer.limit();
     switch (location) {
       case OBJECT_KEY: // [[fallthrough]]
       case DENSE_ARRAY_KEY: // [[fallthrough]]
       case SPARSE_ARRAY_KEY: // [[fallthrough]]
       case MAP_KEY: {
-        return lookupKey(sequence, encoding);
+        return lookupKey(sequence, offset, length, encoding);
       }
       case OBJECT_VALUE: // [[fallthrough]]
       case DENSE_ARRAY_ITEM: // [[fallthrough]]
       case SPARSE_ARRAY_ITEM: // [[fallthrough]]
       case MAP_VALUE: {
-        return lookupValue(sequence, encoding, relatedKey);
+        return lookupValue(sequence, offset, length, encoding, relatedKey);
       }
       case ERROR_MESSAGE: // [[fallthrough]]
       case ERROR_STACK: // [[fallthrough]]
       case REGEXP: // [[fallthrough]]
       case SET_ITEM: // [[fallthrough]]
       case TOP_LEVEL: {
-        return super.lookup(sequence, encoding, location, relatedKey);
+        return super.lookup(byteBuffer, encoding, location, relatedKey);
       }
       case VOID: {
         return "";

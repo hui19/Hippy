@@ -23,7 +23,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 
-import android.util.Log;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
 import com.tencent.mtt.hippy.HippyEngineContext;
@@ -37,7 +36,7 @@ import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.mtt.hippy.serialization.compatible.Serializer;
-import com.tencent.mtt.hippy.serialization.writer.BinaryWriter;
+import com.tencent.mtt.hippy.serialization.nio.writer.SafeDirectWriter;
 import com.tencent.mtt.hippy.utils.ArgumentUtils;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -77,6 +76,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 	private final int mGroupId;
 	private final HippyThirdPartyAdapter mThirdPartyAdapter;
   private final Serializer serializer = new Serializer();
+  private final Serializer serializer2 = new Serializer(new SafeDirectWriter());
 
 	HippyEngine.ModuleListener mLoadModuleListener;
 
@@ -101,14 +101,20 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     buffer1.put(json);
     return buffer1;
   }
-  private ByteBuffer TestBuffer(HippyMap obj) {
-    serializer.Reset();
+  private ByteBuffer TestHeapBuffer(HippyMap obj) {
+    serializer.reset();
     serializer.writeHeader();
     serializer.writeValue(obj);
-    BinaryWriter writer = serializer.getWriter();
-    ByteBuffer buffer1= ByteBuffer.allocateDirect(writer.length());
-    buffer1.put(writer.value(), 0, writer.length());
+    ByteBuffer heapBuffer = serializer.getWriter().complete();
+    ByteBuffer buffer1= ByteBuffer.allocateDirect(heapBuffer.limit());
+    buffer1.put(heapBuffer);
     return buffer1;
+  }
+  private ByteBuffer TestDirectBuffer(HippyMap obj) {
+    serializer2.reset();
+    serializer2.writeHeader();
+    serializer2.writeValue(obj);
+    return serializer2.getWriter().complete();
   }
 
 	@Override
@@ -253,20 +259,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 						}
 					}
 
-					ByteBuffer buffer = null;
-          long start1 = System.nanoTime();
-          TestJSON((HippyMap) msg.obj);
-          long time1 = (System.nanoTime() - start1) / 1000;
-          long start2 = System.nanoTime();
-          try {
-            buffer = TestBuffer((HippyMap) msg.obj);
-          } catch (Throwable e) {
-            e.printStackTrace();
-            LogUtils.e("compatible.Serializer", "Error Stringify Buffer", e);
-            return true;
-          }
-          long time2 = (System.nanoTime() - start2) / 1000;
-          Log.e("maxli", "json = " + time1 + ", buffer = " + time2 + ", buffer / json = " + (double) time2 / time1 );
+					ByteBuffer buffer = TestDirectBuffer((HippyMap) msg.obj);
 
 					if (TextUtils.equals(action, "loadInstance")) {
 						mHippyBridge.callFunction(action, buffer, new NativeCallback(mHandler, Message.obtain(msg), action) {
