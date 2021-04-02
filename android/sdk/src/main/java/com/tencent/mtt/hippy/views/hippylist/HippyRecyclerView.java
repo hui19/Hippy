@@ -49,6 +49,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     protected LayoutManager layoutManager;
     protected RecyclerViewEventHelper recyclerViewEventHelper;//事件集合
     private NodePositionHelper nodePositionHelper;
+    private int renderNodeCount = 0;
 
     public HippyRecyclerView(Context context) {
         super(context);
@@ -113,6 +114,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         listAdapter.notifyDataSetChanged();
         //notifyDataSetChanged 本身是可以触发requestLayout的，但是Hippy框架下 HippyRootView 已经把
         //onLayout方法重载写成空方法，requestLayout不会回调孩子节点的onLayout，这里需要自己发起dispatchLayout
+        renderNodeCount = getAdapter().getRenderNodeCount();
         dispatchLayout();
     }
 
@@ -237,20 +239,30 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
      * @param duration 动画的时间
      */
     public void scrollToContentOffset(double xOffset, double yOffset, boolean animated, int duration) {
+        if (!canScrollToContentOffset()) {
+            return;
+        }
         int yOffsetInPixel = (int) PixelUtil.dp2px(yOffset);
         int deltaY = yOffsetInPixel - getContentOffsetY();
         //增加异常保护
         if (animated) {
             doSmoothScrollY(duration, deltaY);
         } else {
-            try {
-                scrollBy(0, deltaY);
-            } catch (IndexOutOfBoundsException e) {
-                throw new IndexOutOfBoundsException(e.getMessage()
-                        + ",itemCount:" + getAdapter().getItemCount() + ",yOffsetInPixel:"
-                        + yOffsetInPixel + ",deltaY:" + deltaY);
-            }
+            scrollBy(0, deltaY);
         }
+    }
+
+    /**
+     * renderNodeCount是在setListData的时候更新，必须调用setListData后，确保renderNodeCount和
+     * getAdapter().getRenderNodeCount()的值相等，才能进行滚动，否则scrollBy会出现IndexOutOfBoundsException
+     * 的问题，主要原因就是RecyclerView的内部状态没有通过setListData进行刷新，还是老的数据，
+     * 这个比现的场景来自于QQ浏览器的搜索tab的切换。
+     * RenderManager的batch方法应该把dispatchUIFunction放到batchComplete后面，但是这样改动太大
+     *
+     * @return
+     */
+    private boolean canScrollToContentOffset() {
+        return renderNodeCount == getAdapter().getRenderNodeCount();
     }
 
     private void doSmoothScrollY(int duration, int scrollToYPos) {
