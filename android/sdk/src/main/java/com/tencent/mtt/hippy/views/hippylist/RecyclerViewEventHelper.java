@@ -17,6 +17,7 @@
 package com.tencent.mtt.hippy.views.hippylist;
 
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_DRAGGING;
+import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_SETTLING;
 
 import android.graphics.Rect;
@@ -37,6 +38,9 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.list.HippyListItemView;
 import com.tencent.mtt.hippy.views.scroll.HippyScrollViewEventHelper;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Created by niuniuyang on 2020/12/24. Description
@@ -216,10 +220,14 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     }
 
     protected void sendDragEndEvent(int oldState, int newState) {
-        if (scrollEndDragEventEnable && oldState == SCROLL_STATE_DRAGGING && newState == RecyclerView.SCROLL_STATE_IDLE
-                && !hippyRecyclerView.isOverPulling()) {
+        if (scrollEndDragEventEnable && isReleaseDrag(oldState, newState) && !hippyRecyclerView.isOverPulling()) {
             getOnScrollDragEndedEvent().send(getParentView(), generateScrollEvent());
         }
+    }
+
+    private boolean isReleaseDrag(int oldState, int newState) {
+        return (oldState == SCROLL_STATE_DRAGGING &&
+                (newState == SCROLL_STATE_IDLE || newState == SCROLL_STATE_SETTLING));
     }
 
     protected void sendFlingEndEvent(int oldState, int newState) {
