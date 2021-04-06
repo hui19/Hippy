@@ -105,7 +105,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     serializer.reset();
     serializer.writeHeader();
     serializer.writeValue(obj);
-    ByteBuffer heapBuffer = serializer.getWriter().complete();
+    ByteBuffer heapBuffer = serializer.getWriter().chunked();
     ByteBuffer buffer1= ByteBuffer.allocateDirect(heapBuffer.limit());
     buffer1.put(heapBuffer);
     return buffer1;
@@ -114,7 +114,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     serializer2.reset();
     serializer2.writeHeader();
     serializer2.writeValue(obj);
-    return serializer2.getWriter().complete();
+    return serializer2.getWriter().chunked();
   }
 
 	@Override
@@ -259,7 +259,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 						}
 					}
 
-					ByteBuffer buffer = TestDirectBuffer((HippyMap) msg.obj);
+					ByteBuffer buffer = TestHeapBuffer((HippyMap) msg.obj);
 
 					if (TextUtils.equals(action, "loadInstance")) {
 						mHippyBridge.callFunction(action, buffer, new NativeCallback(mHandler, Message.obtain(msg), action) {

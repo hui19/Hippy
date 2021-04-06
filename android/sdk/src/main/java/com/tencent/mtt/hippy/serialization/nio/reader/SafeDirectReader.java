@@ -8,6 +8,10 @@ public final class SafeDirectReader implements BinaryReader {
   private int base;
   private int count;
 
+  public SafeDirectReader() {
+    this(null);
+  }
+
   public SafeDirectReader(ByteBuffer byteBuffer) {
     if (byteBuffer != null) {
       reset(byteBuffer);

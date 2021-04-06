@@ -2,21 +2,20 @@ package com.tencent.mtt.hippy.serialization.nio.writer;
 
 import java.nio.ByteBuffer;
 
-public final class SafeHeapWriter implements BinaryWriter {
+public final class SafeHeapWriter extends AbstractBinaryWriter {
   private static final int INITIAL_CAPACITY = 64;
+  private static final int MAX_CAPACITY = 1024 * 16; // 16k
 
   public byte[] value;
   private int count = 0;
 
   public SafeHeapWriter() {
-    value = new byte[INITIAL_CAPACITY];
+    this(INITIAL_CAPACITY, MAX_CAPACITY);
   }
 
-  public SafeHeapWriter(int capacity) {
-    if (capacity < 0) {
-      throw new NegativeArraySizeException();
-    }
-    value = new byte[capacity];
+  public SafeHeapWriter(int initialCapacity, int maxCapacity) {
+    super(initialCapacity, maxCapacity);
+    value = new byte[initialCapacity];
   }
 
   private void enlargeBuffer(int min) {
@@ -123,13 +122,12 @@ public final class SafeHeapWriter implements BinaryWriter {
   }
 
   @Override
-  public final ByteBuffer complete() {
-    return ByteBuffer.wrap(value, 0, count);
-  }
-
-  @Override
-  public SafeHeapWriter reset() {
+  public final ByteBuffer chunked() {
+    ByteBuffer chunked =  ByteBuffer.wrap(value, 0, count);
+    if (count >= maxCapacity) {
+      value = new byte[initialCapacity];
+    }
     count = 0;
-    return this;
+    return chunked;
   }
 }

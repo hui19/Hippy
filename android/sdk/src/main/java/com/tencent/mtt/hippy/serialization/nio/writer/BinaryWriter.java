@@ -73,16 +73,10 @@ public interface BinaryWriter {
   int length(int length);
 
   /**
-   * Completes the write operation and returns a wrapped {@link ByteBuffer} object.
-   * After calling this method,
-   * the writer can not be reused for additional writes before calling {@link #reset()}
+   * Chunked the write operation and returns a wrapped {@link ByteBuffer} object.
+   * After calling this method, writer will be reset and write from the beginning.
    *
    * @return wrapped byte buffer
    */
-  ByteBuffer complete();
-
-  /**
-   * Reset the writer
-   */
-  BinaryWriter reset();
+  ByteBuffer chunked();
 }

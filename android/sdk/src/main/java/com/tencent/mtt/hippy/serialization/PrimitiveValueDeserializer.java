@@ -76,12 +76,27 @@ public abstract class PrimitiveValueDeserializer extends SharedSerialization {
   protected abstract Object readTransferredWasmMemory();
 
   /**
+   * Get current binary reader
+   *
+   * @return The current binary reader
+   */
+  public BinaryReader getReader() {
+    return reader;
+  }
+
+  /**
+   * Get current string table
+   *
+   * @return The current string table
+   */
+  public StringTable getStringTable() {
+    return stringTable;
+  }
+
+  /**
    * Reset Deserializer, for the future using
    */
-  public void reset(BinaryReader reader) {
-    if (reader != null) {
-      this.reader = reader;
-    }
+  public void reset() {
     objectMap.clear();
     nextId = 0;
   }

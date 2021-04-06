@@ -50,16 +50,19 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
     this.writer = writer;
   }
 
+  /**
+   * Get current binary writer
+   *
+   * @return The current binary writer
+   */
   public BinaryWriter getWriter() {
     return writer;
   }
-
 
   /**
    * Reset Serializer, for the future using
    */
   public void reset() {
-    writer.reset();
     objectMap.clear();
     nextId = 0;
     stringWriteBuffer = null;

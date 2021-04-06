@@ -8,6 +8,10 @@ public final class SafeHeapReader implements BinaryReader {
   private int count; // Relative to base
   private int base;
 
+  public SafeHeapReader() {
+    this(null);
+  }
+
   public SafeHeapReader(ByteBuffer byteBuffer) {
     if (byteBuffer != null) {
       reset(byteBuffer);

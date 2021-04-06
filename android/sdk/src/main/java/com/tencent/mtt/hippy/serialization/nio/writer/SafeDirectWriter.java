@@ -2,23 +2,19 @@ package com.tencent.mtt.hippy.serialization.nio.writer;
 
 import java.nio.ByteBuffer;
 
-public final class SafeDirectWriter implements BinaryWriter {
+public final class SafeDirectWriter extends AbstractBinaryWriter {
   private static final int INITIAL_CAPACITY = 1024;
+  private static final int MAX_CAPACITY = 1024 * 16; // 16k
 
   public ByteBuffer value;
-  private final int initialCapacity;
 
   public SafeDirectWriter() {
-    this.initialCapacity = INITIAL_CAPACITY;
-    reset();
+    this(INITIAL_CAPACITY, MAX_CAPACITY);
   }
 
-  public SafeDirectWriter(int capacity) {
-    if (capacity < 0) {
-      throw new NegativeArraySizeException();
-    }
-    this.initialCapacity = capacity;
-    reset();
+  public SafeDirectWriter(int initialCapacity, int maxCapacity) {
+    super(initialCapacity, maxCapacity);
+    value = ByteBuffer.allocateDirect(initialCapacity);
   }
 
   private void enlargeBuffer(int min) {
@@ -105,14 +101,15 @@ public final class SafeDirectWriter implements BinaryWriter {
   }
 
   @Override
-  public ByteBuffer complete() {
+  public ByteBuffer chunked() {
     value.flip();
-    return value;
-  }
-
-  @Override
-  public SafeDirectWriter reset() {
-    value = ByteBuffer.allocateDirect(initialCapacity);
-    return this;
+    ByteBuffer chunked;
+    if (value.limit() < maxCapacity) {
+      chunked = value.duplicate();
+    } else {
+      chunked = value;
+      value = ByteBuffer.allocateDirect(initialCapacity);
+    }
+    return chunked;
   }
 }

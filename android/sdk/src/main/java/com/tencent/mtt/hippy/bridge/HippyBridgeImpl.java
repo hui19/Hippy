@@ -19,10 +19,8 @@ import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.devsupport.DevServerCallBack;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
 import com.tencent.mtt.hippy.serialization.compatible.Deserializer;
-import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
 import com.tencent.mtt.hippy.serialization.nio.reader.SafeDirectReader;
 import com.tencent.mtt.hippy.serialization.string.InternalizedStringTable;
-import com.tencent.mtt.hippy.serialization.string.StringTable;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.utils.UrlUtils;
 import java.io.ByteArrayOutputStream;
@@ -38,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.text.TextUtils;
+
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.devsupport.DebugWebSocketClient;
 import com.tencent.mtt.hippy.devsupport.DevRemoteDebugProxy;
@@ -64,8 +63,6 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 	private final boolean mSingleThreadMode;
 	private final boolean mBridgeParamJson;
 	private Deserializer deserializer;
-	private BinaryReader deserializerReader;
-	private StringTable deserializerStringTable;
 	private DebugWebSocketClient mDebugWebSocketClient;
 	private String mDebugGlobalConfig;
 	private NativeCallback mDebugInitJSFrameworkCallback;
@@ -97,9 +94,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		}
 
 		if (!mBridgeParamJson) {
-      deserializerReader = new SafeDirectReader(null);
-      deserializerStringTable = new InternalizedStringTable();
-      deserializer = new Deserializer(deserializerReader, deserializerStringTable);
+      deserializer = new Deserializer(new SafeDirectReader(), new InternalizedStringTable());
 		}
 	}
 
@@ -257,8 +252,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 			}
 		}
 
-		if (!mBridgeParamJson && deserializerStringTable != null) {
-      deserializerStringTable.release();
+		if (!mBridgeParamJson) {
+      deserializer.getStringTable().release();
 		}
 
 		mV8RuntimeId = 0;
@@ -374,8 +369,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 			LogUtils.d("hippy_bridge", "bytesToArgument using Buffer");
 			Object paramObj;
 			try {
-			  deserializerReader.reset(buffer);
-				deserializer.reset(null);
+        deserializer.getReader().reset(buffer);
+				deserializer.reset();
 				deserializer.readHeader();
 				paramObj = deserializer.readValue();
 			} catch (Throwable e) {
