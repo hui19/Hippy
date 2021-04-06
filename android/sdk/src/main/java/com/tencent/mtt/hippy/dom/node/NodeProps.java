@@ -40,7 +40,8 @@ public class NodeProps
 	public static final String				FLEX_GROW					= "flexGrow";
 	public static final String				FLEX_SHRINK					= "flexShrink";
 	public static final String				FLEX_BASIS					= "flexBasis";
-	public static final String				FLEX_DIRECTION				= "flexDirection";
+	public static final String              DIRECTION                   = "direction";
+	public static final String				FLEX_DIRECTION              = "flexDirection";
 	public static final String				FLEX_WRAP					= "flexWrap";
 	public static final String				HEIGHT						= "height";
 	public static final String				JUSTIFY_CONTENT				= "justifyContent";

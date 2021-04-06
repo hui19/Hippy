@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.dom.node;
 
+import android.text.TextUtils;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.dom.flex.*;
 import com.tencent.mtt.hippy.utils.PixelUtil;
@@ -88,6 +89,27 @@ public class StyleNode extends DomNode
 	public void setFlexBasis(float flexBasis)
 	{
 		super.setFlexBasis(flexBasis);
+	}
+
+	@HippyControllerProps(name = NodeProps.DIRECTION)
+	public void setDirection(String direction) {
+		if (TextUtils.isEmpty(direction)) {
+			return;
+		}
+
+		FlexDirection flexDirection;
+		switch (direction) {
+			case "rtl":
+				flexDirection = FlexDirection.RTL;
+				break;
+			case "inherit":
+				flexDirection = FlexDirection.INHERIT;
+				break;
+			default:
+				flexDirection = FlexDirection.LTR;
+		}
+
+		setDirection(flexDirection);
 	}
 
 	@HippyControllerProps(name = NodeProps.FLEX_DIRECTION)
