@@ -172,7 +172,7 @@ public class InternalizedStringTable extends DirectStringTable {
   public String lookup(ByteBuffer byteBuffer, String encoding, StringLocation location, Object relatedKey) throws UnsupportedEncodingException {
     final byte[] sequence = byteBuffer.array();
     final int offset = byteBuffer.arrayOffset() + byteBuffer.position();
-    final int length = byteBuffer.arrayOffset() + byteBuffer.limit();
+    final int length = byteBuffer.limit() - byteBuffer.position();
     switch (location) {
       case OBJECT_KEY: // [[fallthrough]]
       case DENSE_ARRAY_KEY: // [[fallthrough]]
