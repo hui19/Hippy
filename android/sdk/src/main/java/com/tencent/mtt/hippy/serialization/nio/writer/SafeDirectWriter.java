@@ -3,8 +3,8 @@ package com.tencent.mtt.hippy.serialization.nio.writer;
 import java.nio.ByteBuffer;
 
 public final class SafeDirectWriter extends AbstractBinaryWriter {
-  private static final int INITIAL_CAPACITY = 1024;
-  private static final int MAX_CAPACITY = 1024 * 16; // 16k
+  public static final int INITIAL_CAPACITY = 1024;
+  public static final int MAX_CAPACITY = 1024 * 16; // 16k
 
   public ByteBuffer value;
 
