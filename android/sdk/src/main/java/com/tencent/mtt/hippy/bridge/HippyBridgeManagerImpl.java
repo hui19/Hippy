@@ -76,7 +76,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 	private final int mGroupId;
 	private final HippyThirdPartyAdapter mThirdPartyAdapter;
   private final Serializer serializer = new Serializer();
-  private final Serializer serializer2 = new Serializer(new SafeDirectWriter());
+  private final Serializer serializer2 = new Serializer(new SafeDirectWriter(1024, 0));
 
 	HippyEngine.ModuleListener mLoadModuleListener;
 
@@ -259,7 +259,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 						}
 					}
 
-					ByteBuffer buffer = TestHeapBuffer((HippyMap) msg.obj);
+					ByteBuffer buffer = TestDirectBuffer((HippyMap) msg.obj);
 
 					if (TextUtils.equals(action, "loadInstance")) {
 						mHippyBridge.callFunction(action, buffer, new NativeCallback(mHandler, Message.obtain(msg), action) {
