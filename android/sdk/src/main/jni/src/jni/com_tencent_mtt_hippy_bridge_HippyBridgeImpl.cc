@@ -31,6 +31,7 @@
 #include <future>
 #include <memory>
 
+#include "bridge/codec.h"
 #include "core/core.h"
 #include "inspector/v8_inspector_client_impl.h"
 #include "jni/exception_handler.h"  // NOLINT(build/include_subdir)
@@ -302,17 +303,16 @@ static void CallNative(void* data) {
 
   jobject j_byte_buffer = nullptr;
   uint8_t* byte_buffer = nullptr;
+
   if (info.Length() >= 4 && !info[3].IsEmpty() && info[3]->IsObject()) {
     if (!runtime->IsParamJson()) {
-      v8::ValueSerializer serializer(isolate);
+      Serializer serializer(isolate, context, runtime->GetCodecBuffer());
       serializer.WriteHeader();
-      if (serializer.WriteValue(context, v8::Local<v8::Object>::Cast(info[3]))
-              .FromMaybe(false)) {
-        std::pair<uint8_t*, size_t> ret = serializer.Release();
-        byte_buffer = ret.first;
-        j_byte_buffer = JNIEnvironment::AttachCurrentThread()->NewDirectByteBuffer(ret.first,
-                                                                   ret.second);
-      }
+      serializer.WriteValue(info[3]);
+      std::pair<uint8_t*, size_t> pair = serializer.Release();
+      j_byte_buffer =
+          JNIEnvironment::AttachCurrentThread()->NewDirectByteBuffer(
+              pair.first, pair.second);
     } else {
       v8::Handle<v8::Object> global = context->Global();
       v8::Handle<v8::Value> JSON = global->Get(
@@ -637,8 +637,7 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
 
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   task->callback = [runtime, save_object_ = std::move(save_object), action_name,
-                     params_object_ = std::move(params_object), j_length] {
-
+                    params_object_ = std::move(params_object), j_length] {
     std::shared_ptr<Scope> scope = runtime->GetScope();
     if (!scope) {
       HIPPY_LOG(hippy::Warning, "HippyBridgeImpl callFunction, scope invalid");
@@ -686,14 +685,15 @@ Java_com_tencent_mtt_hippy_bridge_HippyBridgeImpl_callFunction(
                 runtime->GetScope()->GetContext())
                 ->context_persistent_.Get(isolate);
 
-        v8::ValueDeserializer deserializer(isolate, reinterpret_cast<uint8_t*>(hippy_params), j_length);
+        v8::ValueDeserializer deserializer(
+            isolate, reinterpret_cast<uint8_t*>(hippy_params), j_length);
         HIPPY_CHECK(deserializer.ReadHeader(ctx).FromMaybe(false));
         v8::MaybeLocal<v8::Value> ret = deserializer.ReadValue(ctx);
         if (!ret.IsEmpty()) {
           params = std::make_shared<V8CtxValue>(isolate, ret.ToLocalChecked());
         }
       }
-      
+
       std::shared_ptr<CtxValue> argv[] = {action, params};
       context->CallFunction(runtime->GetBridgeFunc(), 2, argv);
     }
