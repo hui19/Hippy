@@ -15,6 +15,8 @@
  */
 package com.tencent.mtt.hippy.runtime.builtins;
 
+import android.support.annotation.NonNull;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -36,6 +38,7 @@ public class JSArrayBuffer extends JSValue {
     return buffer;
   }
 
+  @NonNull
   @Override
   public JSArrayBuffer clone() throws CloneNotSupportedException {
     JSArrayBuffer clonedObject = (JSArrayBuffer) super.clone();
@@ -44,7 +47,7 @@ public class JSArrayBuffer extends JSValue {
   }
 
   @Override
-  public Object dump() throws JSONException {
+  public Object dump() {
     JSONArray json = new JSONArray();
     ByteBuffer dupBuffer = buffer.duplicate();
     for (short i = 0; i < dupBuffer.capacity() && i < MAX_DUMP_LENGTH; i++) {

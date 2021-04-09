@@ -21,6 +21,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
 public interface StringTable {
-  public String lookup(ByteBuffer byteBuffer, String encoding, StringLocation location, Object relatedKey) throws UnsupportedEncodingException;
-  public void release();
+  String lookup(ByteBuffer byteBuffer, String encoding, StringLocation location, Object relatedKey) throws UnsupportedEncodingException;
+  void release();
 }
