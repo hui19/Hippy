@@ -52,7 +52,7 @@ std::pair<uint8_t*, size_t> Serializer::Release() {
 
 void Serializer::ThrowDataCloneError(v8::Local<v8::String> message) {
   v8::HandleScope handle_scope(isolate_);
-  isolate_->ThrowException(GetDataCloneError(message));
+  isolate_->ThrowException(v8::Exception::Error(message));
 }
 
 void* Serializer::ReallocateBufferMemory(void* old_buffer,
@@ -69,27 +69,4 @@ void Serializer::FreeBufferMemory(void* buffer) {
   if (reused_buffer_.length() > kMaxReusedBuffersSize) {
     reused_buffer_.resize(0);
   }
-}
-
-v8::Local<v8::Value> Serializer::GetDataCloneError(v8::Local<v8::Value> obj) {
-  v8::EscapableHandleScope handle_scope(isolate_);
-  v8::Local<v8::String> message;
-  if (obj->IsString()) {
-    message = v8::Local<v8::String>::Cast(obj);
-  } else {
-    v8::Local<v8::Context> context = context_global_.Get(isolate_);
-    v8::Local<v8::String> object_name = obj->ToString(context).FromMaybe(
-        v8::String::NewFromOneByte(isolate_,
-                                   reinterpret_cast<const uint8_t*>("<unkown>"),
-                                   v8::NewStringType::kNormal)
-            .ToLocalChecked());
-
-    message = v8::String::Concat(
-        isolate_, object_name,
-        v8::String::NewFromOneByte(
-            isolate_, reinterpret_cast<const uint8_t*>(" could not be cloned."),
-            v8::NewStringType::kNormal)
-            .ToLocalChecked());
-  }
-  return handle_scope.Escape(v8::Exception::Error(message));
 }

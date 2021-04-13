@@ -42,32 +42,12 @@ class Serializer : public v8::ValueSerializer::Delegate {
 
  protected:
   void ThrowDataCloneError(v8::Local<v8::String> message) override;
-
-#define UNIMPLEMENT_CLONE_TYPE(func_name, received_type)                      \
-  v8::Maybe<uint32_t> func_name(v8::Isolate* isolate,                         \
-                                v8::Local<received_type> received) override { \
-    v8::HandleScope handle_scope(isolate_);                                   \
-    isolate->ThrowException(GetDataCloneError(received));                     \
-    return v8::Nothing<uint32_t>();                                           \
-  }
-
-#if (V8_MAJOR_VERSION > 7 ||                            \
-     (V8_MAJOR_VERSION == 7 && V8_MINOR_VERSION > 3) || \
-     (V8_MAJOR_VERSION == 7 && V8_MINOR_VERSION == 3 && \
-      V8_BUILD_NUMBER >= 42))
-  UNIMPLEMENT_CLONE_TYPE(GetWasmModuleTransferId, v8::WasmModuleObject)
-#else
-  UNIMPLEMENT_CLONE_TYPE(GetWasmModuleTransferId, v8::WasmCompiledModule)
-#endif
-
   void* ReallocateBufferMemory(void* old_buffer,
                                size_t size,
                                size_t* actual_size) override;
   void FreeBufferMemory(void* buffer) override;
 
  private:
-  v8::Local<v8::Value> GetDataCloneError(v8::Local<v8::Value> obj);
-
   v8::Isolate* isolate_;
   v8::Global<v8::Context> context_global_;
   v8::ValueSerializer serializer_;
