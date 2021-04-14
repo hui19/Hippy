@@ -46,9 +46,6 @@ public abstract class PrimitiveValueDeserializer extends SharedSerialization {
   protected PrimitiveValueDeserializer(BinaryReader reader, StringTable stringTable) {
     super();
 
-    if (reader == null) {
-      throw new NullPointerException();
-    }
     this.reader = reader;
 
     if (stringTable == null) {
@@ -74,6 +71,15 @@ public abstract class PrimitiveValueDeserializer extends SharedSerialization {
   protected abstract Object readSharedArrayBuffer();
   protected abstract Object readTransferredWasmModule();
   protected abstract Object readTransferredWasmMemory();
+
+  /**
+   * Set current binary reader
+   *
+   * @param reader The binary reader to be set
+   */
+  public void setReader(BinaryReader reader) {
+    this.reader = reader;
+  }
 
   /**
    * Get current binary reader
