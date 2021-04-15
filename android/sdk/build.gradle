@@ -1,6 +1,6 @@
 apply plugin: 'com.android.library'
-apply from: './bintrayUpload.gradle'
-//apply from: './maven.gradle'
+//apply from: './bintrayUpload.gradle'
+apply from: './maven.gradle'
 
 ext {
   CMAKE_PATH = "$projectDir.absolutePath/src/main/jni/CMakeLists.txt"
