@@ -70,16 +70,42 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
     @Override
     public HippyRecyclerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         ListItemRenderNode renderNode = getChildNodeByAdapterPosition(positionToCreateHolder);
-        renderNode.setLazy(false);
-        View renderView = renderNode.createViewRecursive();
+        View renderView = createRenderView(renderNode);
         if (isPullHeader(positionToCreateHolder)) {
             initPullHeadEventHelper((PullHeaderRenderNode) renderNode, renderView);
             return new HippyRecyclerViewHolder(headerEventHelper.getView(), renderNode);
         } else if (isStickyPosition(positionToCreateHolder)) {
             return new HippyRecyclerViewHolder(getStickyContainer(parent, renderView), renderNode);
         } else {
+            if (renderView == null) {
+                throw new IllegalArgumentException("createRenderView error!"
+                        + "curPos:" + positionToCreateHolder
+                        + ",itemCount :" + getItemCount()
+                        + ",id :" + renderNode.getId()
+                        + ",offset:" + hippyRecyclerView.computeVerticalScrollOffset()
+                        + ",range:" + hippyRecyclerView.computeHorizontalScrollRange()
+                        + ",extent:" + hippyRecyclerView.computeVerticalScrollExtent()
+                        + ",view:" + hippyRecyclerView);
+            }
             return new HippyRecyclerViewHolder(renderView, renderNode);
         }
+    }
+
+    private View createRenderView(ListItemRenderNode renderNode) {
+        if (renderNode.needDeleteExistRenderView()) {
+            deleteExistRenderView(renderNode);
+        }
+        renderNode.setLazy(false);
+        return renderNode.createViewRecursive();
+    }
+
+    public void deleteExistRenderView(ListItemRenderNode renderNode) {
+        renderNode.setLazy(true);
+        RenderNode parentNode = getParentNode();
+        if (parentNode != null) {
+            hpContext.getRenderManager().getControllerManager().deleteChild(parentNode.getId(), renderNode.getId());
+        }
+        renderNode.setRecycleItemTypeChangeListener(null);
     }
 
     private FrameLayout getStickyContainer(ViewGroup parent, View renderView) {
