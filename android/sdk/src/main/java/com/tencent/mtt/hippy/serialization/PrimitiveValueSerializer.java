@@ -15,10 +15,8 @@
  */
 package com.tencent.mtt.hippy.serialization;
 
-
 import com.tencent.mtt.hippy.serialization.utils.IntegerPolyfill;
 import com.tencent.mtt.hippy.serialization.nio.writer.BinaryWriter;
-import com.tencent.mtt.hippy.serialization.nio.writer.SafeHeapWriter;
 
 import java.math.BigInteger;
 import java.util.IdentityHashMap;
@@ -29,7 +27,7 @@ import java.util.Map;
  */
 public abstract class PrimitiveValueSerializer extends SharedSerialization {
   /** Writer used for write buffer. */
-  protected final BinaryWriter writer;
+  protected BinaryWriter writer;
   /** ID of the next serialized object. **/
   private int nextId;
   /** Maps a serialized object to its ID. */
@@ -44,9 +42,15 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
   protected PrimitiveValueSerializer(BinaryWriter writer) {
     super();
 
-    if (writer == null) {
-      writer = new SafeHeapWriter();
-    }
+    this.writer = writer;
+  }
+
+  /**
+   * Set current binary writer
+   *
+   * @param writer The binary writer to be set
+   */
+  public void setWriter(BinaryWriter writer) {
     this.writer = writer;
   }
 
