@@ -13,12 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.mtt.hippy.serialization.memory.buffer;
+package com.tencent.mtt.hippy.serialization.string;
 
+import com.tencent.mtt.hippy.serialization.StringLocation;
+
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
-public interface Allocator<T extends ByteBuffer> {
-  public T allocate(int capacity);
-  public T expand(T buffer, int capacity);
-  public T release(T buffer);
+public class DirectStringTable implements StringTable {
+  @Override
+  public String lookup(ByteBuffer byteBuffer, String encoding, StringLocation location, Object relatedKey) throws UnsupportedEncodingException {
+    if (location == StringLocation.VOID) {
+      return "";
+    }
+
+    final int offset = byteBuffer.arrayOffset() + byteBuffer.position();
+    final int length = byteBuffer.arrayOffset() + byteBuffer.limit();
+
+    return new String(byteBuffer.array(), offset, length, encoding);
+  }
+
+  @Override
+  public void release() {
+
+  }
 }
