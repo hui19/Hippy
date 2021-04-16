@@ -64,4 +64,13 @@ public class HippyRecyclerViewBase extends EasyRecyclerView {
             }
         }
     }
+
+    @Override
+    String exceptionLabel() {
+        return super.exceptionLabel() + ",state:" + getStateInfo();
+    }
+
+    public String getStateInfo() {
+        return mState.toString();
+    }
 }

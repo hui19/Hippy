@@ -150,4 +150,12 @@ public class ListItemRenderNode extends RenderNode
         }
         return false;
     }
+
+    public boolean isViewExist() {
+        return mComponentManager.hasView(mId);
+    }
+
+    public boolean hasRootView() {
+        return mRootView != null;
+    }
 }

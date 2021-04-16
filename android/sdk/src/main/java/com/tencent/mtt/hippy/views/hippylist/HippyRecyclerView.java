@@ -367,4 +367,9 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     public void setNodePositionHelper(NodePositionHelper nodePositionHelper) {
         this.nodePositionHelper = nodePositionHelper;
     }
+
+    @Override
+    public String toString() {
+        return this + "{renderNodeCount:" + renderNodeCount + ",state:" + getStateInfo() + "}";
+    }
 }

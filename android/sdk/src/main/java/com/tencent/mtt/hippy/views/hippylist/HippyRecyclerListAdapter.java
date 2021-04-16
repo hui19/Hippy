@@ -70,6 +70,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
     @Override
     public HippyRecyclerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         ListItemRenderNode renderNode = getChildNodeByAdapterPosition(positionToCreateHolder);
+        boolean isViewExist = renderNode.isViewExist();
         View renderView = createRenderView(renderNode);
         if (isPullHeader(positionToCreateHolder)) {
             initPullHeadEventHelper((PullHeaderRenderNode) renderNode, renderView);
@@ -82,8 +83,14 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
                         + "curPos:" + positionToCreateHolder
                         + ",itemCount :" + getItemCount()
                         + ",id :" + renderNode.getId()
+                        + ",isDelete :" + renderNode.isDelete()
+                        + ",isViewExist :" + isViewExist
+                        + ",className :" + renderNode.getClassName()
+                        + ",isLazy :" + renderNode.isIsLazyLoad()
+                        + ",hasRootView :" + renderNode.hasRootView()
+                        + ",parentNode exist :" + (renderNode.getParent() != null)
                         + ",offset:" + hippyRecyclerView.computeVerticalScrollOffset()
-                        + ",range:" + hippyRecyclerView.computeHorizontalScrollRange()
+                        + ",range:" + hippyRecyclerView.computeVerticalScrollRange()
                         + ",extent:" + hippyRecyclerView.computeVerticalScrollExtent()
                         + ",view:" + hippyRecyclerView);
             }
@@ -121,6 +128,11 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
             headerEventHelper = new PullHeaderEventHelper(hippyRecyclerView, renderNode);
         }
         headerEventHelper.setRenderNodeView(renderView);
+    }
+
+    @Override
+    public String toString() {
+        return "HippyRecyclerAdapter: itemCount:" + getItemCount();
     }
 
     /**
