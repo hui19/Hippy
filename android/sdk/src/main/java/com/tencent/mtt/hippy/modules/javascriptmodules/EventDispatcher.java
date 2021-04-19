@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.modules.javascriptmodules;
 
+import com.tencent.mtt.hippy.HippyEngine.BridgeTransferType;
 import com.tencent.mtt.hippy.common.HippyMap;
 
 /**
@@ -24,9 +25,15 @@ import com.tencent.mtt.hippy.common.HippyMap;
  */
 public interface EventDispatcher extends HippyJavaScriptModule
 {
-	void receiveNativeGesture(HippyMap param);
+	public void receiveNativeGesture(HippyMap param);
 
-	void receiveUIComponentEvent(int tagId, String eventName, Object param);
+	public void receiveUIComponentEvent(int tagId, String eventName, Object param);
 
-	void receiveNativeEvent(String eventName, Object param);
+	public void receiveNativeEvent(String eventName, Object param);
+
+	void receiveNativeGesture(HippyMap param, BridgeTransferType transferType);
+
+	void receiveUIComponentEvent(int tagId, String eventName, Object param, BridgeTransferType transferType);
+
+	void receiveNativeEvent(String eventName, Object param, BridgeTransferType transferType);
 }
