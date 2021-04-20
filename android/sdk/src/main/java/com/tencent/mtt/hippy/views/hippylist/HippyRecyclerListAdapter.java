@@ -76,8 +76,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
         boolean needsDelete = renderNode.needDeleteExistRenderView();
         View renderView = createRenderView(renderNode);
         if (renderView == null) {
-            throw new NullPointerException("createRenderView error!"
-                    + "curPos:" + positionToCreateHolder
+            throw new IllegalArgumentException("createRenderView error!"
                     + ",isDelete:" + renderNode.isDelete()
                     + ",isViewExist:" + isViewExist
                     + ",needsDelete:" + needsDelete
@@ -86,6 +85,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
                     + ",itemCount :" + getItemCount()
                     + ",getNodeCount:" + getRenderNodeCount()
                     + ",notifyCount:" + hippyRecyclerView.renderNodeCount
+                    + "curPos:" + positionToCreateHolder
                     + ",rootView:" + renderNode.hasRootView()
                     + ",parentNode:" + (renderNode.getParent() != null)
                     + ",offset:" + hippyRecyclerView.computeVerticalScrollOffset()
