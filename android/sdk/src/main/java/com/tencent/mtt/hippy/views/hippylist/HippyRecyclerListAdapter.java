@@ -75,34 +75,35 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
         boolean isViewExist = renderNode.isViewExist();
         boolean needsDelete = renderNode.needDeleteExistRenderView();
         View renderView = createRenderView(renderNode);
-        if (renderView == null) {
-            throw new IllegalArgumentException("createRenderView error!"
-                    + ",isDelete:" + renderNode.isDelete()
-                    + ",isViewExist:" + isViewExist
-                    + ",needsDelete:" + needsDelete
-                    + ",className:" + renderNode.getClassName()
-                    + ",isLazy :" + renderNode.isIsLazyLoad()
-                    + ",itemCount :" + getItemCount()
-                    + ",getNodeCount:" + getRenderNodeCount()
-                    + ",notifyCount:" + hippyRecyclerView.renderNodeCount
-                    + "curPos:" + positionToCreateHolder
-                    + ",rootView:" + renderNode.hasRootView()
-                    + ",parentNode:" + (renderNode.getParent() != null)
-                    + ",offset:" + hippyRecyclerView.computeVerticalScrollOffset()
-                    + ",range:" + hippyRecyclerView.computeVerticalScrollRange()
-                    + ",extent:" + hippyRecyclerView.computeVerticalScrollExtent()
-                    + ",viewType:" + viewType
-                    + ",id:" + renderNode.getId()
-                    + ",nodeOffset:" + hippyRecyclerView.getNodePositionHelper().getNodeOffset()
-                    + ",view:" + hippyRecyclerView
-                    + ",attachedIds:" + getAttachedIds());
-        }
         if (isPullHeader(positionToCreateHolder)) {
             initPullHeadEventHelper((PullHeaderRenderNode) renderNode, renderView);
             return new HippyRecyclerViewHolder(headerEventHelper.getView(), renderNode);
         } else if (isStickyPosition(positionToCreateHolder)) {
             return new HippyRecyclerViewHolder(getStickyContainer(parent, renderView), renderNode);
         } else {
+            if (renderView == null) {
+                throw new IllegalArgumentException("createRenderView error!"
+                        + ",isDelete:" + renderNode.isDelete()
+                        + ",isViewExist:" + isViewExist
+                        + ",needsDelete:" + needsDelete
+                        + ",className:" + renderNode.getClassName()
+                        + ",isLazy :" + renderNode.isIsLazyLoad()
+                        + ",itemCount :" + getItemCount()
+                        + ",getNodeCount:" + getRenderNodeCount()
+                        + ",notifyCount:" + hippyRecyclerView.renderNodeCount
+                        + "curPos:" + positionToCreateHolder
+                        + ",rootView:" + renderNode.hasRootView()
+                        + ",parentNode:" + (renderNode.getParent() != null)
+                        + ",offset:" + hippyRecyclerView.computeVerticalScrollOffset()
+                        + ",range:" + hippyRecyclerView.computeVerticalScrollRange()
+                        + ",extent:" + hippyRecyclerView.computeVerticalScrollExtent()
+                        + ",viewType:" + viewType
+                        + ",id:" + renderNode.getId()
+                        + ",attachedIds:" + getAttachedIds()
+                        + ",nodeOffset:" + hippyRecyclerView.getNodePositionHelper().getNodeOffset()
+                        + ",view:" + hippyRecyclerView
+                        );
+            }
             return new HippyRecyclerViewHolder(renderView, renderNode);
         }
     }
@@ -112,8 +113,8 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
         int childCount = hippyRecyclerView.getChildCount();
         for (int i = 0; i < childCount; ++i) {
             View attachedView = hippyRecyclerView.getChildAt(i);
-            attachedIds.append("|pos_" + hippyRecyclerView.getChildAdapterPosition(attachedView));
-            attachedIds.append("id_" + attachedView.getId());
+            attachedIds.append("|p_" + hippyRecyclerView.getChildAdapterPosition(attachedView));
+            attachedIds.append("_i_" + attachedView.getId());
         }
         return attachedIds.toString();
     }
