@@ -49,7 +49,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     protected LayoutManager layoutManager;
     protected RecyclerViewEventHelper recyclerViewEventHelper;//事件集合
     private NodePositionHelper nodePositionHelper;
-    private int renderNodeCount = 0;
+    protected int renderNodeCount = 0;
 
     public HippyRecyclerView(Context context) {
         super(context);
@@ -370,6 +370,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
 
     @Override
     public String toString() {
-        return this + "{renderNodeCount:" + renderNodeCount + ",state:" + getStateInfo() + "}";
+        return this.getClass().getSimpleName() + "{renderNodeCount:" + renderNodeCount + ",state:" + getStateInfo()
+                + "}";
     }
 }
