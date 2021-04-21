@@ -102,7 +102,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
                         + ",attachedIds:" + getAttachedIds()
                         + ",nodeOffset:" + hippyRecyclerView.getNodePositionHelper().getNodeOffset()
                         + ",view:" + hippyRecyclerView
-                        );
+                );
             }
             return new HippyRecyclerViewHolder(renderView, renderNode);
         }
@@ -125,7 +125,9 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
             deleteExistRenderView(renderNode);
         }
         renderNode.setLazy(false);
-        return renderNode.createViewRecursive();
+        View view = renderNode.createViewRecursive();
+        renderNode.updateViewRecursive();
+        return view;
     }
 
     public void deleteExistRenderView(ListItemRenderNode renderNode) {
@@ -166,17 +168,14 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
      */
     @Override
     public void onBindViewHolder(HippyRecyclerViewHolder hippyRecyclerViewHolder, int position) {
-        RenderNode oldNode = hippyRecyclerViewHolder.bindNode;
         setLayoutParams(hippyRecyclerViewHolder.itemView, position);
-        if (hippyRecyclerViewHolder.isCreated) {
-            oldNode.updateViewRecursive();
-            hippyRecyclerViewHolder.isCreated = false;
-        } else {
-            oldNode.setLazy(true);
-            ListItemRenderNode toNode = getChildNodeByAdapterPosition(position);
-            toNode.setLazy(false);
+        RenderNode oldNode = hippyRecyclerViewHolder.bindNode;
+        ListItemRenderNode newNode = getChildNodeByAdapterPosition(position);
+        oldNode.setLazy(true);
+        newNode.setLazy(false);
+        if (oldNode != newNode) {
             //step 1: diff
-            ArrayList<PatchType> patchTypes = DiffUtils.diff(oldNode, toNode);
+            ArrayList<PatchType> patchTypes = DiffUtils.diff(oldNode, newNode);
             //step:2 delete unUseful views
             DiffUtils.deleteViews(hpContext.getRenderManager().getControllerManager(), patchTypes);
             //step:3 replace id
@@ -185,9 +184,9 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
             DiffUtils.createView(hpContext.getRenderManager().getControllerManager(), patchTypes);
             //step:5 patch the dif result
             DiffUtils.doPatch(hpContext.getRenderManager().getControllerManager(), patchTypes);
-            hippyRecyclerViewHolder.bindNode = toNode;
         }
-        hippyRecyclerViewHolder.bindNode.setRecycleItemTypeChangeListener(this);
+        newNode.setRecycleItemTypeChangeListener(this);
+        hippyRecyclerViewHolder.bindNode = newNode;
         enablePullFooter(position, hippyRecyclerViewHolder.itemView);
     }
 
