@@ -64,8 +64,6 @@ std::string JniUtils::AppendJavaByteArrayToString(JNIEnv* env,
   return ret;
 }
 
-// todo
-// 暂时只有简单字符，没有中文等的场景，为效率和包大小考虑，不进行utf16到utf8的转换
 std::string JniUtils::CovertJavaStringToString(JNIEnv* j_env, jstring j_str) {
   HIPPY_DCHECK(j_str);
 

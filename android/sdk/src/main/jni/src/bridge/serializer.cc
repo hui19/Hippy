@@ -20,7 +20,7 @@
  *
  */
 
-#include "bridge/codec.h"
+#include "bridge/serializer.h"
 
 #include "v8/v8.h"
 
@@ -68,5 +68,6 @@ void* Serializer::ReallocateBufferMemory(void* old_buffer,
 void Serializer::FreeBufferMemory(void* buffer) {
   if (reused_buffer_.length() > kMaxReusedBuffersSize) {
     reused_buffer_.resize(0);
+    reused_buffer_.shrink_to_fit();
   }
 }
