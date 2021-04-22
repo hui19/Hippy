@@ -210,7 +210,8 @@ public class HippyCoreAPI implements HippyAPIProvider
 		components.add(HippyTextViewController.class);
 		components.add(HippyViewGroupController.class);
 		components.add(HippyImageViewController.class);
-		components.add(HippyListViewController.class);
+//		components.add(HippyListViewController.class);
+		components.add(HippyRecyclerViewController.class);
 		components.add(HippyListItemViewController.class);
 		components.add(HippyTextInputController.class);
 		components.add(HippyScrollViewController.class);
