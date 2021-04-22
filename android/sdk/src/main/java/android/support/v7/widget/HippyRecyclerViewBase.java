@@ -71,6 +71,9 @@ public class HippyRecyclerViewBase extends EasyRecyclerView {
     }
 
     public String getStateInfo() {
-        return mState.toString();
+        if (mState != null) {
+            return mState.toString();
+        }
+        return null;
     }
 }
