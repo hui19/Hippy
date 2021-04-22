@@ -22,6 +22,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v7.widget.HippyRecyclerExtension;
 import android.support.v7.widget.HippyRecyclerPool;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.FrameLayout;
@@ -47,8 +49,7 @@ public class HippyRecyclerViewWrapper<HRCV extends HippyRecyclerView> extends Fr
     public HippyRecyclerViewWrapper(@NonNull Context context, HRCV recyclerView) {
         super(context);
         this.recyclerView = recyclerView;
-        addView(recyclerView,
-                new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        addView(recyclerView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         hpContext = ((HippyInstanceContext) context).getEngineContext();
         HippyRecyclerExtension cacheExtension = new HippyRecyclerExtension(recyclerView, hpContext,
                 recyclerView.getNodePositionHelper());
@@ -59,6 +60,11 @@ public class HippyRecyclerViewWrapper<HRCV extends HippyRecyclerView> extends Fr
         pool.setViewAboundListener(recyclerView);
         recyclerView.setRecycledViewPool(pool);
 
+    }
+
+    @Override
+    public int computeVerticalScrollOffset() {
+        return recyclerView.computeVerticalScrollOffset();
     }
 
     @Override
@@ -95,8 +101,7 @@ public class HippyRecyclerViewWrapper<HRCV extends HippyRecyclerView> extends Fr
         recyclerView.scrollToIndex(xIndex, yIndex, animated, duration);
     }
 
-    public void scrollToContentOffset(double xOffset, double yOffset, boolean animated,
-            int duration) {
+    public void scrollToContentOffset(double xOffset, double yOffset, boolean animated, int duration) {
         recyclerView.scrollToContentOffset(xOffset, yOffset, animated, duration);
     }
 

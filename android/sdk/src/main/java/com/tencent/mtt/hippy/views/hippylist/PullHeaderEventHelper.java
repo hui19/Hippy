@@ -71,6 +71,10 @@ class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRefreshVie
         return headerContainer;
     }
 
+    @Override
+    public void onStartDrag() {
+
+    }
 
     @Override
     public void onHeaderHeightChanged(int sumOffset) {
@@ -85,20 +89,9 @@ class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRefreshVie
     }
 
     @Override
-    public void onStartDrag() {
-
-    }
-
-    @Override
     public void onFolded() {
 
     }
-
-    @Override
-    public int getContentHeight() {
-        return renderNode.getHeaderHeight();
-    }
-
 
     /**
      * 松手后，触发的刷新回调，需要通知Hippy前端业务进行数据的刷新操作
@@ -106,6 +99,11 @@ class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRefreshVie
     @Override
     public void onHeaderRefreshing(int refreshWay) {
         sendPullHeaderEvent(EVENT_TYPE_HEADER_RELEASED, new HippyMap());
+    }
+
+    @Override
+    public int getContentHeight() {
+        return renderNode.getHeaderHeight();
     }
 
     protected void sendPullHeaderEvent(String eventName, HippyMap param) {

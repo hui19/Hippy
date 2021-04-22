@@ -17,6 +17,7 @@
 package com.tencent.mtt.hippy.views.hippylist;
 
 import android.content.Context;
+import android.support.v7.widget.EasyLinearLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 import com.tencent.mtt.hippy.HippyInstanceContext;
@@ -25,6 +26,7 @@ import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.ListViewRenderNode;
@@ -35,8 +37,7 @@ import com.tencent.mtt.hippy.uimanager.RenderNode;
  */
 
 @HippyController(name = HippyRecyclerViewController.CLASS_NAME)
-public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper>
-        extends HippyViewController<HRW> {
+public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> extends HippyViewController<HRW> {
 
     public static final String CLASS_NAME = "ListView";
     public static final String SCROLL_TO_INDEX = "scrollToIndex";
@@ -72,13 +73,11 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper>
 
     @Override
     protected View createViewImpl(Context context, HippyMap iniProps) {
-        return new HippyRecyclerViewWrapper(context,
-                initDefault(context, iniProps, new HippyRecyclerView(context)));
+        return new HippyRecyclerViewWrapper(context, initDefault(context, iniProps, new HippyRecyclerView(context)));
     }
 
-    public static HippyRecyclerView initDefault(Context context, HippyMap iniProps,
-            HippyRecyclerView recyclerView) {
-        LinearLayoutManager layoutManager = new LinearLayoutManager(context);
+    public static HippyRecyclerView initDefault(Context context, HippyMap iniProps, HippyRecyclerView recyclerView) {
+        LinearLayoutManager layoutManager = new EasyLinearLayoutManager(context);
         recyclerView.setItemAnimator(null);
         if (iniProps != null && iniProps.containsKey("horizontal")) {
             layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -90,8 +89,9 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper>
     }
 
     @Override
-    public RenderNode createRenderNode(int id, HippyMap props, String className,
-            HippyRootView hippyRootView, ControllerManager controllerManager, boolean lazy) {
+    public RenderNode createRenderNode(int id, HippyMap props, String className, HippyRootView hippyRootView,
+            ControllerManager controllerManager,
+            boolean lazy) {
         return new ListViewRenderNode(id, props, className, hippyRootView, controllerManager, lazy);
     }
 
@@ -148,7 +148,6 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper>
     @Override
     public void dispatchFunction(HRW view, String functionName, HippyArray dataArray) {
         super.dispatchFunction(view, functionName, dataArray);
-        //FIXME niuniuyang
         switch (functionName) {
             case SCROLL_TO_INDEX: {
                 // list滑动到某个item
@@ -164,7 +163,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper>
                 double xOffset = dataArray.getDouble(0);
                 double yOffset = dataArray.getDouble(1);
                 boolean animated = dataArray.getBoolean(2);
-                int duration = dataArray.getInt(3);  //1.2.7 增加滚动时间 ms,animated==true时生效
+                int duration = dataArray.getInt(3); //1.2.7 增加滚动时间 ms,animated==true时生效
                 view.scrollToContentOffset(xOffset, yOffset, animated, duration);
                 break;
             }

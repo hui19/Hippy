@@ -53,6 +53,9 @@ public class NodePositionHelper {
         return adapterPosition - nodeOffset;
     }
 
+    /**
+     * 如果去掉nativeHeader，就减1
+     */
     public void decreaseOffset() {
         nodeOffset--;
     }

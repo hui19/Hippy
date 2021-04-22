@@ -38,18 +38,18 @@ import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.StickyHeaderHelper;
 /**
  * Created by niuniuyang on 2020/12/22. Description
  */
-public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
-        HippyRecyclerViewBase implements IHeaderAttachListener,
-        IHippyViewAboundListener {
+public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends HippyRecyclerViewBase
+        implements IHeaderAttachListener, IHippyViewAboundListener {
 
     protected HippyEngineContext hippyEngineContext;
     protected ADP listAdapter;
-    protected boolean isEnableScroll = true;//使能ListView的滚动功能
-    protected StickyHeaderHelper stickyHeaderHelper;//支持吸顶
-    protected IHeaderHost headerHost;//用于pullHeader下拉刷新
+    protected boolean isEnableScroll = true;    //使能ListView的滚动功能
+    protected StickyHeaderHelper stickyHeaderHelper;        //支持吸顶
+    protected IHeaderHost headerHost;                //用于pullHeader下拉刷新
     protected LayoutManager layoutManager;
     protected RecyclerViewEventHelper recyclerViewEventHelper;//事件集合
     private NodePositionHelper nodePositionHelper;
+    protected int renderNodeCount = 0;
 
     public HippyRecyclerView(Context context) {
         super(context);
@@ -93,8 +93,8 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
     }
 
     public void initRecyclerView() {
-        setAdapter(new HippyRecyclerListAdapter<HippyRecyclerView>(this,
-                this.hippyEngineContext));
+        setAdapter(new HippyRecyclerListAdapter<HippyRecyclerView>(this, this.hippyEngineContext));
+        intEventHelper();
     }
 
 
@@ -114,6 +114,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
         listAdapter.notifyDataSetChanged();
         //notifyDataSetChanged 本身是可以触发requestLayout的，但是Hippy框架下 HippyRootView 已经把
         //onLayout方法重载写成空方法，requestLayout不会回调孩子节点的onLayout，这里需要自己发起dispatchLayout
+        renderNodeCount = getAdapter().getRenderNodeCount();
         dispatchLayout();
     }
 
@@ -121,14 +122,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
      * 内容偏移，返回recyclerView顶部被滑出去的内容 1、找到顶部第一个View前面的逻辑内容高度 2、加上第一个View被遮住的区域
      */
     public int getContentOffsetY() {
-        int firstChildPosition = getFirstChildPosition();
-        if (firstChildPosition >= 0) {
-            int totalHeightBeforePosition = getTotalHeightBefore(firstChildPosition);
-            int firstChildOffset =
-                    listAdapter.getItemHeight(firstChildPosition) - getVisibleHeight(getChildAt(0));
-            return totalHeightBeforePosition + firstChildOffset;
-        }
-        return 0;
+        return computeVerticalScrollOffset();
     }
 
     /**
@@ -137,8 +131,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
     public int getContentOffsetX() {
         int firstChildPosition = getFirstChildPosition();
         int totalWidthBeforePosition = getTotalWithBefore(firstChildPosition);
-        int firstChildOffset =
-                listAdapter.getItemWidth(firstChildPosition) - getVisibleWidth(getChildAt(0));
+        int firstChildOffset = listAdapter.getItemWidth(firstChildPosition) - getVisibleWidth(getChildAt(0));
         return totalWidthBeforePosition + firstChildOffset;
     }
 
@@ -178,6 +171,17 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
         return totalHeightBefore;
     }
 
+    /**
+     * 获取renderNodePosition前面的内容高度，不包含renderNodePosition自身的高度
+     */
+    public int getRenderNodeHeightBefore(int renderNodePosition) {
+        int renderNodeTotalHeight = 0;
+        for (int i = 0; i < renderNodePosition; i++) {
+            renderNodeTotalHeight += listAdapter.getRenderNodeHeight(i);
+        }
+        return renderNodeTotalHeight;
+    }
+
 
     /**
      * 获取position 前面的内容高度，不包含position自身的高度
@@ -191,6 +195,10 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
     }
 
     public RecyclerViewEventHelper getRecyclerViewEventHelper() {
+        return intEventHelper();
+    }
+
+    private RecyclerViewEventHelper intEventHelper() {
         if (recyclerViewEventHelper == null) {
             recyclerViewEventHelper = createEventHelper();
         }
@@ -208,35 +216,74 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
         isEnableScroll = enable;
     }
 
-    /**
-     * FIXME niuniuyang 这没有requestLayout的逻辑，测试需要看看会不会有问题。
-     */
+    public int getNodePositionInAdapter(int position) {
+        return position;
+    }
+
     public void scrollToIndex(int xIndex, int yPosition, boolean animated, int duration) {
+        int positionInAdapter = getNodePositionInAdapter(yPosition);
         if (animated) {
-            doSmoothScrollY(duration, getTotalHeightBefore(yPosition) - getContentOffsetY());
+            doSmoothScrollY(duration, getTotalHeightBefore(positionInAdapter) - getContentOffsetY());
+            postDispatchLayout();
         } else {
-            scrollToPosition(yPosition);
+            scrollToPositionWithOffset(positionInAdapter, 0);
+            //不能调用postDispatchLayout，需要立即调研dispatchLayout，否则滚动位置不对
+            dispatchLayout();
         }
     }
 
-    public void scrollToContentOffset(double xOffset, double yOffset, boolean animated,
-            int duration) {
-        int yOffsetInPixel = (int) PixelUtil.dp2px(yOffset);
-        if (animated) {
-            doSmoothScrollY(duration, yOffsetInPixel - getContentOffsetY());
-        } else {
-            scrollBy(0, yOffsetInPixel - getContentOffsetY());
+    /**
+     * @param xOffset 暂不支持
+     * @param yOffset yOffset>0 内容向上移动，yOffset<0， 内容向下移动
+     * @param animated 是否有动画
+     * @param duration 动画的时间
+     */
+    public void scrollToContentOffset(double xOffset, double yOffset, boolean animated, int duration) {
+        if (!canScrollToContentOffset()) {
+            return;
         }
+        int yOffsetInPixel = (int) PixelUtil.dp2px(yOffset);
+        int deltaY = yOffsetInPixel - getContentOffsetY();
+        //增加异常保护
+        if (animated) {
+            doSmoothScrollY(duration, deltaY);
+        } else {
+            scrollBy(0, deltaY);
+        }
+    }
+
+    /**
+     * renderNodeCount是在setListData的时候更新，必须调用setListData后，确保renderNodeCount和
+     * getAdapter().getRenderNodeCount()的值相等，才能进行滚动，否则scrollBy会出现IndexOutOfBoundsException
+     * 的问题，主要原因就是RecyclerView的内部状态没有通过setListData进行刷新，还是老的数据，
+     * 这个比现的场景来自于QQ浏览器的搜索tab的切换。
+     * RenderManager的batch方法应该把dispatchUIFunction放到batchComplete后面，但是这样改动太大
+     *
+     * @return
+     */
+    private boolean canScrollToContentOffset() {
+        return renderNodeCount == getAdapter().getRenderNodeCount();
     }
 
     private void doSmoothScrollY(int duration, int scrollToYPos) {
         if (duration != 0) {
             if (scrollToYPos != 0 && !didStructureChange()) {
                 smoothScrollBy(0, scrollToYPos, duration);
+                postDispatchLayout();
             }
         } else {
             smoothScrollBy(0, scrollToYPos);
+            postDispatchLayout();
         }
+    }
+
+    private void postDispatchLayout() {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                dispatchLayout();
+            }
+        });
     }
 
     public void scrollToTop() {
@@ -246,6 +293,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
         } else {
             smoothScrollBy(0, -getContentOffsetY());
         }
+        postDispatchLayout();
     }
 
     /**
@@ -270,18 +318,13 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
     @Override
     public void onViewAbound(HippyRecyclerViewHolder viewHolder) {
         if (viewHolder.bindNode != null && !viewHolder.bindNode.isDelete()) {
-            viewHolder.bindNode.setLazy(true);
-            RenderNode parentNode = viewHolder.bindNode.getParent();
-            if (parentNode != null) {
-                hippyEngineContext.getRenderManager().getControllerManager()
-                        .deleteChild(parentNode.getId(), viewHolder.bindNode.getId());
-            }
-            viewHolder.bindNode.setRecycleItemTypeChangeListener(null);
+            getAdapter().deleteExistRenderView(viewHolder.bindNode);
         }
     }
 
     /**
-     * 当header被摘下来，需要对header进行还原或者回收对处理 遍历所有都ViewHolder，看看有没有收纳这个headerView都ViewHolder
+     * 当header被摘下来，需要对header进行还原或者回收对处理
+     * 遍历所有都ViewHolder，看看有没有收纳这个headerView都ViewHolder
      * 如果没有，需要把aboundHeader进行回收，并同步删除render节点对应都view
      *
      * @param aboundHeader HeaderView对应的Holder
@@ -292,8 +335,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
         boolean findHostViewHolder = false;
         for (int i = 0; i < getChildCountWithCaches(); i++) {
             ViewHolder viewHolder = getChildViewHolder(getChildAtWithCaches(i));
-            if (isTheSameRenderNode((HippyRecyclerViewHolder) aboundHeader,
-                    (HippyRecyclerViewHolder) viewHolder)) {
+            if (isTheSameRenderNode((HippyRecyclerViewHolder) aboundHeader, (HippyRecyclerViewHolder) viewHolder)) {
                 findHostViewHolder = true;
                 fillContentView(currentHeaderView, viewHolder);
                 break;
@@ -315,8 +357,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
         return false;
     }
 
-    private boolean isTheSameRenderNode(HippyRecyclerViewHolder aboundHeader,
-            HippyRecyclerViewHolder viewHolder) {
+    private boolean isTheSameRenderNode(HippyRecyclerViewHolder aboundHeader, HippyRecyclerViewHolder viewHolder) {
         if (viewHolder.bindNode != null && aboundHeader.bindNode != null) {
             return viewHolder.bindNode.getId() == aboundHeader.bindNode.getId();
         }
@@ -325,5 +366,11 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends
 
     public void setNodePositionHelper(NodePositionHelper nodePositionHelper) {
         this.nodePositionHelper = nodePositionHelper;
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "{renderNodeCount:" + renderNodeCount + ",state:" + getStateInfo()
+                + "}";
     }
 }
