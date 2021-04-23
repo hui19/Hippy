@@ -120,8 +120,17 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
     }
 
 
+    /**
+     * deleteExistRenderView 是异常情况，正常情况应该不会走这个逻辑，
+     * 本来在{@link HippyRecyclerView#onViewAbound(HippyRecyclerViewHolder)}
+     * 的地方应该已经调用了deleteExistRenderView,deleteExistRenderView这里不应该可能走到
+     * 如果是吸顶的View，shouldSticky为true的情况下，是本身就存在的，不应该去调用deleteExistRenderView
+     *
+     * @param renderNode
+     * @return
+     */
     protected View createRenderView(ListItemRenderNode renderNode) {
-        if (renderNode.needDeleteExistRenderView()) {
+        if (renderNode.needDeleteExistRenderView() && !renderNode.shouldSticky()) {
             deleteExistRenderView(renderNode);
         }
         renderNode.setLazy(false);
@@ -181,7 +190,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
             //step:3 replace id
             DiffUtils.replaceIds(hpContext.getRenderManager().getControllerManager(), patchTypes);
             //step:4 create view is do not  reUse
-            DiffUtils.createView(hpContext.getRenderManager().getControllerManager(), patchTypes);
+            DiffUtils.createView(patchTypes);
             //step:5 patch the dif result
             DiffUtils.doPatch(hpContext.getRenderManager().getControllerManager(), patchTypes);
         }
