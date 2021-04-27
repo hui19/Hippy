@@ -267,7 +267,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     private void doSmoothScrollY(int duration, int scrollToYPos) {
         if (duration != 0) {
             if (scrollToYPos != 0 && !didStructureChange()) {
-                smoothScrollBy(0, scrollToYPos, duration);
+                smoothScrollBy(0, scrollToYPos, null, duration);
                 postDispatchLayout();
             }
         } else {

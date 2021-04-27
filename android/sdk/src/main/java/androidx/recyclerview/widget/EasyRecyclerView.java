@@ -166,19 +166,6 @@ public class EasyRecyclerView extends RecyclerView {
         return mState.didStructureChange();
     }
 
-    public void smoothScrollBy(int dx, int dy, int duration) {
-        if (!this.mLayoutFrozen) {
-            if (!this.mLayout.canScrollHorizontally()) {
-                dx = 0;
-            }
-            if (!this.mLayout.canScrollVertically()) {
-                dy = 0;
-            }
-            if (dx != 0 || dy != 0) {
-                this.mViewFlinger.smoothScrollBy(dx, dy, duration);
-            }
-        }
-    }
 
     public int getFirstChildPosition() {
         return getChildLayoutPosition(getChildCount() > 0 ? getChildAt(0) : null);
