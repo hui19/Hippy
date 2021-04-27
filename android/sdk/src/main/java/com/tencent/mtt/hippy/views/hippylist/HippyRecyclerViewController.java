@@ -17,8 +17,8 @@
 package com.tencent.mtt.hippy.views.hippylist;
 
 import android.content.Context;
-import android.support.v7.widget.EasyLinearLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.EasyLinearLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import android.view.View;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.HippyRootView;
@@ -26,7 +26,6 @@ import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
-import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.ListViewRenderNode;

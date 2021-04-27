@@ -16,7 +16,7 @@
 
 package com.tencent.mtt.nxeasy.recyclerview.helper.skikcy;
 
-import android.support.v7.widget.RecyclerView.ViewHolder;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 /**
  * Created by niuniuyang on 2021/1/6.

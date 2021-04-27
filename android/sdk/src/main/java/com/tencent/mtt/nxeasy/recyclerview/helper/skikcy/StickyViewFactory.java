@@ -16,8 +16,8 @@
 
 package com.tencent.mtt.nxeasy.recyclerview.helper.skikcy;
 
-import android.support.v7.widget.EasyRecyclerView;
-import android.support.v7.widget.RecyclerView.ViewHolder;
+import androidx.recyclerview.widget.EasyRecyclerView;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 public final class StickyViewFactory implements IHeaderViewFactory {
 
