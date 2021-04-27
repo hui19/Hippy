@@ -179,7 +179,7 @@ protected <methods>;
 public <fields>;
 }
 
--keepclasseswithmembers class androidx.recyclerview.widget.** {
+-keepclasseswithmembers class com.tencent.mtt.supportui.** {
 protected <fields>;
 }
 
