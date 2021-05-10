@@ -51,6 +51,6 @@ public class PullHeaderRenderNode extends ListItemRenderNode
 	@Override
 	public int getHeight()
 	{
-		return 0;
+		return super.getHeight();
 	}
 }
