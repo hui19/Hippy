@@ -16,6 +16,7 @@
 package com.tencent.mtt.hippy.bridge;
 
 import android.util.Log;
+import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.devsupport.DevServerCallBack;
 import com.tencent.mtt.hippy.devsupport.DevServerConfig;
@@ -310,6 +311,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 	public void callNatives(String moduleName, String moduleFunc, String callId, byte[] params)
 	{
 		LogUtils.d("jni_callback", "callNatives [moduleName:" + moduleName + " , moduleFunc: " + moduleFunc + "]");
+		HippyEngine.printLog("HippyJava", "callNatives [moduleName:" + moduleName + " , moduleFunc: " + moduleFunc + "]");
 
 		if (mBridgeCallback != null)
 		{

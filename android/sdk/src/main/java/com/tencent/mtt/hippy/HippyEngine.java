@@ -71,6 +71,18 @@ public abstract class HippyEngine
 	protected int							    mGroupId;
 	ModuleListener								mModuleListener;
 
+	private static HippyDebugLog logger;
+
+	public static void setLogger(HippyDebugLog consumer) {
+		logger = consumer;
+	}
+
+	public static void printLog(String tag, String msg) {
+		if (logger != null) {
+			logger.log(tag, msg);
+		}
+	}
+
 	HippyEngine()
 	{
 	}

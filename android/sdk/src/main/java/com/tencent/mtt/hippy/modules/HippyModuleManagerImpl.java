@@ -20,6 +20,7 @@ import android.os.Looper;
 import android.os.Message;
 
 import com.tencent.mtt.hippy.HippyAPIProvider;
+import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
 import com.tencent.mtt.hippy.annotation.HippyNativeModule;
@@ -181,6 +182,8 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
 		HippyNativeModuleInfo moduleInfo = mNativeModuleInfo.get(params.mModuleName);
 		if (moduleInfo == null)
 		{
+			HippyEngine
+					.printLog("HippyJava", params.mModuleName + " can not be found");
 			PromiseImpl promise = new PromiseImpl(mContext, params.mModuleName, params.mModuleFunc, params.mCallId);
 			promise.doCallback(PromiseImpl.PROMISE_CODE_NORMAN_ERROR, "module can not be found");
 			return;
@@ -244,6 +247,9 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
 
 	void doCallNatives(String moduleName, String moduleFunc, String callId, HippyArray params)
 	{
+		HippyEngine
+				.printLog("HippyJava", "doCallNatives: " + "moduleName=" + moduleName + ", moduleFunc=" + moduleFunc);
+
 		if (mContext != null) {
 			HippyEngineMonitorAdapter monitorAdapter = mContext.getGlobalConfigs().getEngineMonitorAdapter();
 			if (monitorAdapter != null) {
@@ -257,6 +263,8 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
 			HippyNativeModuleInfo moduleInfo = mNativeModuleInfo.get(moduleName);
 			if (moduleInfo == null)
 			{
+				HippyEngine
+						.printLog("HippyJava", "doCallNatives: " + moduleName + " can not be found");
 				promise.doCallback(PromiseImpl.PROMISE_CODE_NORMAN_ERROR, "module can not be found");
 				return;
 			}
@@ -265,13 +273,20 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
 			HippyNativeModuleInfo.HippyNativeMethod method = moduleInfo.findMethod(moduleFunc);
 			if (method == null)
 			{
+				HippyEngine
+						.printLog("HippyJava", "doCallNatives: " + moduleFunc + " can not be found");
 				promise.doCallback(PromiseImpl.PROMISE_CODE_NORMAN_ERROR, "module function can not be found");
 				return;
 			}
+
+			HippyEngine
+					.printLog("HippyJava", "doCallNatives: method.invoke");
 			method.invoke(mContext, moduleInfo.getInstance(), params, promise);
 		}
 		catch (Throwable e)
 		{
+			HippyEngine
+					.printLog("HippyJava", "doCallNatives: catch=" + e.getMessage());
 			promise.doCallback(PromiseImpl.PROMISE_CODE_NORMAN_ERROR, e.getMessage());
 		}
 	}
@@ -347,6 +362,8 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
 					param = (HippyCallNativeParams) msg.obj;
 					HippyArray array = param.mParams;
 					id = mANRMonitor.startMonitor(param.mModuleName, param.mModuleFunc);
+					HippyEngine
+							.printLog("HippyJava", "handleMessage: " + "moduleName=" + param.mModuleName + ", moduleFunc=" + param.mModuleFunc);
 					doCallNatives(param.mModuleName, param.mModuleFunc, param.mCallId, array);
 				}
 				catch (Throwable e)

@@ -16,6 +16,7 @@
 package com.tencent.mtt.hippy.modules.nativemodules;
 
 import android.text.TextUtils;
+import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.annotation.HippyMethod;
 import com.tencent.mtt.hippy.annotation.HippyNativeModule;
@@ -192,6 +193,8 @@ public final class HippyNativeModuleInfo
 			Object[] params = new Object[paramClss.length];
 			if (args == null)
 			{
+				HippyEngine
+						.printLog("HippyJava", "prepareArguments: args == null");
 				throw new RuntimeException("method argument list not match");
 			}
 			Type paramCls;
@@ -209,6 +212,8 @@ public final class HippyNativeModuleInfo
 				{
 					if (args.size() <= index)
 					{
+						HippyEngine
+								.printLog("HippyJava", "prepareArguments: args.size()=" + args.size() + ", args=" + args.toString());
 						throw new RuntimeException("method argument list not match");
 					}
 					params[i] = ArgumentUtils.parseArgument(paramCls, args, index);
