@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.utils;
 
 import android.util.Log;
 import android.util.LruCache;
+import com.tencent.mtt.hippy.HippyEngine;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -107,6 +108,7 @@ public class HippyBuffer
 	{
 		if (data == null)
 		{
+			HippyEngine.printLog("HippyJava", "parse exception: data == null");
 			return new HippyArray();
 		}
 		try
@@ -121,6 +123,7 @@ public class HippyBuffer
 		catch (Throwable e)
 		{
 			e.printStackTrace();
+			HippyEngine.printLog("HippyJava", "parse exception: e.getMessage=" + e.getMessage());
 			LogUtils.e(TAG, "Error Parsing Buffer", e);
 			return new HippyArray();
 		}

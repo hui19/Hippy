@@ -313,9 +313,13 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 		LogUtils.d("jni_callback", "callNatives [moduleName:" + moduleName + " , moduleFunc: " + moduleFunc + "]");
 		HippyEngine.printLog("HippyJava", "callNatives [moduleName:" + moduleName + " , moduleFunc: " + moduleFunc + "]");
 
+		HippyEngine.printLog("HippyJava", "callNatives: params.length=" + params.length);
+
 		if (mBridgeCallback != null)
 		{
 			HippyArray hippyParam = bytesToArgument(params);
+			HippyEngine.printLog("HippyJava", "callNatives: hippyParam.length=" + hippyParam.size());
+			HippyEngine.printLog("HippyJava", "callNatives: hippyParam=" + hippyParam.toString());
 			mBridgeCallback.callNatives(moduleName, moduleFunc, callId, hippyParam);
 		}
 	}
