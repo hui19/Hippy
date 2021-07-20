@@ -348,29 +348,23 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     if (enableV8Serialization) {
       LogUtils.d("hippy_bridge", "bytesToArgument using Buffer");
       Object paramObj;
-      try {
-        final BinaryReader binaryReader;
-        if (buffer.isDirect()) {
-          if (safeDirectReader == null) {
-            safeDirectReader = new SafeDirectReader();
-          }
-          binaryReader = safeDirectReader;
-        } else {
-          if (safeHeapReader == null) {
-            safeHeapReader = new SafeHeapReader();
-          }
-          binaryReader = safeHeapReader;
+      final BinaryReader binaryReader;
+      if (buffer.isDirect()) {
+        if (safeDirectReader == null) {
+          safeDirectReader = new SafeDirectReader();
         }
-        binaryReader.reset(buffer);
-        deserializer.setReader(binaryReader);
-        deserializer.reset();
-        deserializer.readHeader();
-        paramObj = deserializer.readValue();
-      } catch (Throwable e) {
-        e.printStackTrace();
-        LogUtils.e("compatible.Deserializer", "Error Parsing Buffer", e);
-        return new HippyArray();
+        binaryReader = safeDirectReader;
+      } else {
+        if (safeHeapReader == null) {
+          safeHeapReader = new SafeHeapReader();
+        }
+        binaryReader = safeHeapReader;
       }
+      binaryReader.reset(buffer);
+      deserializer.setReader(binaryReader);
+      deserializer.reset();
+      deserializer.readHeader();
+      paramObj = deserializer.readValue();
       if (paramObj instanceof HippyArray) {
         hippyParam = (HippyArray) paramObj;
       }

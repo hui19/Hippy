@@ -139,6 +139,7 @@ void CallFunction(JNIEnv* j_env,
         params = std::make_shared<hippy::napi::V8CtxValue>(
             isolate, ret.ToLocalChecked());
       } else {
+        abort();
         jstring j_msg;
         if (try_catch.HasCaught()) {
           unicode_string_view msg = try_catch.GetExceptionMsg();
