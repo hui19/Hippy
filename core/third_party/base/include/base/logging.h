@@ -116,13 +116,8 @@ bool ShouldCreateLogMessage(LogSeverity severity);
 #define TDF_BASE_VLOG(verbose_level) \
   TDF_BASE_LAZY_STREAM(TDF_BASE_VLOG_STREAM(verbose_level), TDF_BASE_VLOG_IS_ON(verbose_level))
 
-#ifndef NDEBUG
 #define TDF_BASE_DLOG(severity) TDF_BASE_LOG(severity)
 #define TDF_BASE_DCHECK(condition) TDF_BASE_CHECK(condition)
-#else
-#define TDF_BASE_DLOG(severity) TDF_BASE_EAT_STREAM_PARAMETERS(true)
-#define TDF_BASE_DCHECK(condition) TDF_BASE_EAT_STREAM_PARAMETERS(condition)
-#endif
 
 #define TDF_BASE_NOTREACHED() \
   do {                        \
