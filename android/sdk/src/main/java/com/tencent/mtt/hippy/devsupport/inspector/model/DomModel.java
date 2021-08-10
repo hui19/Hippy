@@ -185,8 +185,8 @@ public class DomModel {
     int borderBottom = 0;
     int borderLeft = 0;
     if (style != null) {
-      if (style.containsKey(NodeProps.BORDER_WIDTH)) {
-        borderTop = (int) style.get(NodeProps.BORDER_WIDTH);
+      if (style.containsKey(NodeProps.BORDER_TOP_WIDTH)) {
+        borderTop = (int) style.get(NodeProps.BORDER_TOP_WIDTH);
       }
       if (style.containsKey(NodeProps.BORDER_RIGHT_WIDTH)) {
         borderRight = (int) style.get(NodeProps.BORDER_RIGHT_WIDTH);
