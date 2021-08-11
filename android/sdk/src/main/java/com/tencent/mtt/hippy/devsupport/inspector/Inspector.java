@@ -6,6 +6,7 @@ import com.tencent.mtt.hippy.devsupport.DebugWebSocketClient;
 import com.tencent.mtt.hippy.devsupport.inspector.domain.CSSDomain;
 import com.tencent.mtt.hippy.devsupport.inspector.domain.DomDomain;
 import com.tencent.mtt.hippy.devsupport.inspector.domain.InspectorDomain;
+import com.tencent.mtt.hippy.devsupport.inspector.domain.NetworkDomain;
 import com.tencent.mtt.hippy.devsupport.inspector.domain.PageDomain;
 import com.tencent.mtt.hippy.devsupport.inspector.model.InspectEvent;
 import com.tencent.mtt.hippy.dom.DomManager;
@@ -40,13 +41,19 @@ public class Inspector implements BatchListener {
     DomDomain domDomain = new DomDomain(this);
     CSSDomain cssDomain = new CSSDomain(this);
     PageDomain pageDomain = new PageDomain(this);
+    NetworkDomain networkDomain = new NetworkDomain(this);
     mDomainMap.put(domDomain.getDomainName(), domDomain);
     mDomainMap.put(cssDomain.getDomainName(), cssDomain);
     mDomainMap.put(pageDomain.getDomainName(), pageDomain);
+    mDomainMap.put(networkDomain.getDomainName(), networkDomain);
     DomManager domManager = context.getDomManager();
     if (domManager != null) {
       domManager.setOnBatchListener(this);
     }
+  }
+
+  public InspectorDomain getDomain(String domainName) {
+    return mDomainMap.get(domainName);
   }
 
   public Inspector setWebSocketClient(DebugWebSocketClient client) {
