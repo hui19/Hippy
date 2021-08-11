@@ -30,13 +30,13 @@ public class HippyHttpWatcher {
   }
 
   public void requestWillBeSent(String requestId, HippyHttpRequest request) {
-    LogUtils.e(TAG, "mason, requestWillBeSent: url=" + request.getUrl() + ", requestId=" + requestId);
+    LogUtils.d(TAG, "requestWillBeSent: url=" + request.getUrl() + ", requestId=" + requestId);
     NetworkDomain networkDomain = (NetworkDomain) Inspector.getInstance(mContext).getDomain(NetworkDomain.NETWORK_DOMAIN_NAME);
     networkDomain.requestWillBeSent(requestId, request);
   }
 
   public void responseReceived(String requestId, HippyHttpResponse response, byte[] originRspData, String errMsg) {
-    LogUtils.e(TAG, "mason, responseReceived: url=" + response.getStatusCode() + ", requestId=" + requestId);
+    LogUtils.d(TAG, "responseReceived: url=" + response.getStatusCode() + ", requestId=" + requestId);
     NetworkDomain networkDomain = (NetworkDomain) Inspector.getInstance(mContext).getDomain(NetworkDomain.NETWORK_DOMAIN_NAME);
     HttpResponse httpResponse = new HttpResponse(response, originRspData, errMsg);
     networkDomain.responseReceived(requestId, httpResponse);
