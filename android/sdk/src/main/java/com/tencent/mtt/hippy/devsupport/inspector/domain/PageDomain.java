@@ -12,6 +12,8 @@ import com.tencent.mtt.hippy.devsupport.inspector.model.PageModel;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import org.json.JSONObject;
 
+import java.lang.ref.WeakReference;
+
 public class PageDomain extends InspectorDomain implements Handler.Callback, PageModel.FrameUpdateListener {
 
   private static final String TAG = "PageDomain";
@@ -34,6 +36,7 @@ public class PageDomain extends InspectorDomain implements Handler.Callback, Pag
   private ScreenCastHandlerThread mHandlerThread;
   private volatile boolean mIsFrameUpdate;
   private int mLastSessionId = -1;
+  private WeakReference<HippyEngineContext> mContextRef;
 
   public PageDomain(Inspector inspector) {
     super(inspector);
@@ -48,6 +51,7 @@ public class PageDomain extends InspectorDomain implements Handler.Callback, Pag
   @Override
   public boolean handleRequest(HippyEngineContext context, String method, int id,
     JSONObject paramsObj) {
+    mContextRef = new WeakReference<>(context);
     switch (method) {
       case METHOD_START_SCREEN_CAST:
         handleStartScreenCast(context, id, paramsObj);
@@ -158,10 +162,11 @@ public class PageDomain extends InspectorDomain implements Handler.Callback, Pag
   }
 
   @Override
-  public void onFrameUpdate(HippyEngineContext context) {
+  public void onFrameUpdate() {
     mIsFrameUpdate = true;
-
-    if (mHandlerThread != null && mLastSessionId != -1) {
+    if (mContextRef != null) {
+      HippyEngineContext context = mContextRef.get();
+      if (context != null && mHandlerThread != null && mLastSessionId != -1) {
         Handler hander = mHandlerThread.getHandler();
         Message msg = hander.obtainMessage(MSG_SCREEN_CAST_ACK);
         msg.obj = context;
@@ -170,6 +175,7 @@ public class PageDomain extends InspectorDomain implements Handler.Callback, Pag
         hander.sendMessageDelayed(msg, DELAY_FOR_FRAME_UPDATE);
         mIsFrameUpdate = false;
       }
+    }
   }
 
   final static class ScreenCastHandlerThread extends HandlerThread {

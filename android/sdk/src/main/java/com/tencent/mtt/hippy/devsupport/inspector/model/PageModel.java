@@ -65,7 +65,7 @@ public class PageModel {
             if (mFrameUpdateListenerRef != null) {
               FrameUpdateListener listener = mFrameUpdateListenerRef.get();
               if (listener != null) {
-                listener.onFrameUpdate(context);
+                listener.onFrameUpdate();
               }
             }
           }
@@ -101,10 +101,10 @@ public class PageModel {
   }
 
   public JSONObject screenFrameAck(HippyEngineContext context, int sessionId) {
-    if (isFramingScreenCast && sessionId == lastSessionId) {
+    if (isFramingScreenCast) {
       return getScreenCastData(context);
     }
-    LogUtils.w(TAG, "screenFrameAck, isFramingScreenCast=" + isFramingScreenCast);
+    LogUtils.e(TAG, "screencast, screenFrameAck, isFramingScreenCast=" + isFramingScreenCast);
     return null;
   }
 
@@ -205,6 +205,6 @@ public class PageModel {
   }
 
   public interface FrameUpdateListener {
-    void onFrameUpdate(HippyEngineContext context);
+    void onFrameUpdate();
   }
 }
