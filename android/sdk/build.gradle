@@ -143,7 +143,7 @@ android {
 }
 
 dependencies {
-  api fileTree(dir: 'libs', include: ['*.jar'])
+  api fileTree(dir: 'src/main/libs/', include: ['*.jar'])
   if (!INCLUDE_SUPPORT_UI.toBoolean()) {
     compileOnly('com.tencent.mtt:support-ui:99.2.3')
   }
